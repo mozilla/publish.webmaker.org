@@ -1,0 +1,34 @@
+{
+  "name": "publish.webmaker.org",
+  "version": "0.0.1",
+  "description": "A server to save and publish makes/projects created on Thimble and X-ray Goggles",
+  "main": "app.js",
+  "scripts": {
+    "test": "lab"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/publish.webmaker.org.git"
+  },
+  "license": [
+    {
+      "type": "MPL 2.0",
+      "url": "https://github.com/mozilla/publish.webmaker.org/raw/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/mozilla/publish.webmaker.org/issues"
+  },
+  "homepage": "https://github.com/mozilla/publish.webmaker.org",
+  "dependencies": {
+    "boom": "^2.7.2",
+    "bunyan": "^1.3.6",
+    "habitat": "^3.1.2",
+    "hapi": "^8.6.0",
+    "hapi-bunyan": "^0.6.0"
+  },
+  "devDependencies": {
+    "bunyan-prettystream": "^0.1.3",
+    "lab": "^5.9.0"
+  }
+}
