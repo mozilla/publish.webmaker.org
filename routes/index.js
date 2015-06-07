@@ -4,25 +4,18 @@
 
 exports.register = function(server, options, next) {
 
-  // /projects API route
-  // Handles user-level operations
-  require('./projects/get-projects.js')(server);
+  // /projects/* - Project metadata routes
+  require('./projects/get-all.js')(server);
+  require('./projects/get-one.js')(server);
+  require('./projects/create.js')(server);
+  require('./projects/update.js')(server);
+  require('./projects/delete.js')(server);
 
-  // /project/* API routes
-  // Handles project-level operations
-  require('./project/get-contents.js')(server);
-  require('./project/create-update.js')(server);
-  require('./project/delete.js')(server);
-  require('./project/rename.js')(server);
-  require('./project/publish.js')(server);
-  require('./project/unpublish.js')(server);
-
-  // /file/* API routes
-  // Handles project-specific file-level operations
-  require('./file/get-contents.js')(server);
-  require('./file/create-update.js')(server);
-  require('./file/delete.js')(server);
-  require('./file/rename.js')(server);
+  // /projects/.../files/* - File data routes
+  require('./projects/files/get-one.js')(server);
+  require('./projects/files/create.js')(server);
+  require('./projects/files/update.js')(server);
+  require('./projects/files/delete.js')(server);
 
   next();
 };
