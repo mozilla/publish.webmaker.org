@@ -4,6 +4,8 @@
   "description": "A server to save and publish makes/projects created on Thimble and X-ray Goggles",
   "main": "app.js",
   "scripts": {
+    "start": "node app",
+    "env": "cp env.dist .env",
     "test": "lab"
   },
   "repository": {
