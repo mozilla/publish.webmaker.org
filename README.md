@@ -24,13 +24,17 @@ $ npm install -g lab
 3) Copy the distributed environment file via command line, or manually using a code editor:
 
 ```
-$ cp env.dist .env
+$ npm run env
+
+OR, if you are on Windows
+
+$ COPY env.dist .env
 ```
 
 4) Run the server at the default log level (`'info'`):
 
 ```
-$ node app
+$ npm start
 ```
 
 The server's log level can be set in the environment or the .env file using `LOG_LEVEL=*` with one of `fatal`, `error`, `warn`, `info`, `debug`, `trace`.
