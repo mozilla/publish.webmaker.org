@@ -4,7 +4,7 @@
   "description": "A server to save and publish makes/projects created on Thimble and X-ray Goggles",
   "main": "app.js",
   "scripts": {
-    "start": "node app",
+    "start": "node server",
     "env": "cp env.dist .env",
     "db": "knex migrate:latest && knex seed:run",
     "test": "lab"
@@ -24,13 +24,16 @@
   },
   "homepage": "https://github.com/mozilla/publish.webmaker.org",
   "dependencies": {
+    "bookshelf": "^0.8.1",
     "boom": "^2.7.2",
     "bunyan": "^1.3.6",
     "habitat": "^3.1.2",
     "hapi": "^8.6.0",
     "hapi-bunyan": "^0.6.0",
+    "hoek": "^2.14.0",
     "joi": "^6.4.3",
-    "knex": "^0.8.6"
+    "knex": "^0.8.6",
+    "sqlite3": "^3.0.8"
   },
   "devDependencies": {
     "bunyan-prettystream": "^0.1.3",
