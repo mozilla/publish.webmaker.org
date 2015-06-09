@@ -12,12 +12,12 @@ var connection = {
 };
 
 const server = new Hapi.Server();
-server.connection(connection); 
+server.connection(connection);
 
 server.register([
   {
     register: require('./api')
-  }, 
+  },
   {
     register: require('hapi-bunyan'),
     options: {
@@ -25,6 +25,6 @@ server.register([
     }
   }], function(err) {
   server.start(function() {
-    log.info({server: server.info}, 'Server started');
+    log.info({ server: server.info }, 'Server started');
   });
 });

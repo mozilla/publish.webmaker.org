@@ -19,13 +19,13 @@ exports.register = function api(server, options, next) {
       path: '/',
       handler: function (request, reply) {
         reply(JSON.stringify(
-          { 
-            "name": "publish.webmaker.org",
-            "description": "the teach.org publishing service for goggles and thimble",
-            "routes": {
-              "users": "/users",
-              "projects": "/projects",
-              "files": "/files"
+          {
+            'name': 'publish.webmaker.org',
+            'description': 'the teach.org publishing service for goggles and thimble',
+            'routes': {
+              'users': '/users',
+              'projects': '/projects',
+              'files': '/files'
             }
           }, null, 2)
         );
