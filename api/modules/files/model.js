@@ -2,7 +2,7 @@ const BaseModel = require('../../classes/base_model');
 
 const instanceProps = {
   tableName: 'files',
-  comic: function () {
+    project: function () {
     return this.belongsTo(require('../projects/model'));
   }
 };
