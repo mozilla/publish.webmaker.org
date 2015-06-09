@@ -54,3 +54,8 @@ to enforce the [`mofo-style-guide`](https://github.com/MozillaFoundation/javascr
 - To run the style checker, use `npm run jscs`.
 - To run the hinter, use `npm run jshint`.
 - To run both, use `npm run lint`.
+
+## Documentation
+
+This project uses [`lout`](https://github.com/hapijs/lout) to automatically generate API documention. To view the docs, start the server and visit
+[`http://localhost:2015/docs`](http://localhost:2015/docs).
