@@ -31,7 +31,13 @@ OR, if you are on Windows
 $ COPY env.dist .env
 ```
 
-4) Run the server at the default log level (`'info'`):
+4) Set up your database by running migrations and seeds (currently `sqlite3` using `knex`)
+
+```
+$ npm run db
+```
+
+5) Run the server at the default log level (`'info'`):
 
 ```
 $ npm start
