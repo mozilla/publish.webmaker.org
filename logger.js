@@ -5,7 +5,7 @@
 var bunyan = require('bunyan');
 var PrettyStream;
 
-var env = require('../environment.js');
+var env = require('./environment.js');
 var LOG_LEVEL = env.get('log_level');
 var NODE_ENV = env.get('node_env');
 
