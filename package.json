@@ -4,7 +4,7 @@
   "description": "A server to save and publish makes/projects created on Thimble and X-ray Goggles",
   "main": "app.js",
   "scripts": {
-    "start": "node app",
+    "start": "node server",
     "env": "cp env.dist .env",
     "db": "knex migrate:latest && knex seed:run",
     "test": "lab"
