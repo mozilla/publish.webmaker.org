@@ -1,4 +1,4 @@
-var Bookshelf = require('./database');
+var Bookshelf = require('./database').Bookshelf;
 
 var instanceProps = {};
 var classProps = {
