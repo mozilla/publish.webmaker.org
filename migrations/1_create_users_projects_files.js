@@ -18,8 +18,8 @@ exports.up = function (knex) {
       t.integer('project_id').notNullable().references('id').inTable('projects');
       t.text('path').notNullable();
       t.blob('buffer').notNullable();
-    })
-}; 
+    });
+};
 
 
 exports.down = function (knex) {

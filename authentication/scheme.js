@@ -2,7 +2,7 @@
  * Authentication scheme used to authenticate requests to publish.webmaker.org
 */
 
-var Boom = require('boom');
+// var Boom = require('boom');
 
 module.exports = function(server, options) {
   return {

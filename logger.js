@@ -11,7 +11,7 @@ var NODE_ENV = env.get('node_env');
 
 // In development, we pretty print the JSON logging to stdout.
 var stream;
-if(NODE_ENV === 'development') {
+if (NODE_ENV === 'development') {
   PrettyStream = require('bunyan-prettystream');
   stream = new PrettyStream();
   stream.pipe(process.stdout);
