@@ -9,8 +9,8 @@
     "db": "knex migrate:latest && knex seed:run",
     "test": "lab",
     "lint": "npm run jshint && npm run jscs",
-    "jshint": "jshint -c node_modules/mofo-style/linters/.jshintrc api server.js",
-    "jscs": "jscs -c node_modules/mofo-style/linters/.jscsrc api server.js"
+    "jshint": "jshint -c node_modules/mofo-style/linters/.jshintrc api authentication migrations seeds logger.js server.js",
+    "jscs": "jscs -c node_modules/mofo-style/linters/.jscsrc api authentication migrations seeds logger.js server.js"
   },
   "repository": {
     "type": "git",

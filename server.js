@@ -24,7 +24,7 @@ server.register([
       logger: log
     }
   }, {
-    register: require('lout') 
+    register: require('lout')
   }], function(err) {
   server.start(function() {
     log.info({ server: server.info }, 'Server started');
