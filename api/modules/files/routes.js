@@ -13,6 +13,18 @@ exports.register = function(server, options, next) {
     config: {
       handler: controller.getFile
     }
+  }, {
+    method: 'GET',
+    path: '/projects/{project_id}/files',
+    config: {
+      handler: controller.getProjectFiles
+    }
+  }, {
+    method: 'GET',
+    path: '/projects/{project_id}/files/{id}',
+    config: {
+      handler: controller.getProjectFile
+    }
   }]);
 
   next();
