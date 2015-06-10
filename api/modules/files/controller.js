@@ -1,4 +1,4 @@
-const File = require('./model.js');
+var File = require('./model.js');
 
 module.exports = {
   getFiles: function(req, reply) {
@@ -8,4 +8,4 @@ module.exports = {
     return reply(File.query('where', 'id', '=', req.params.id)
       .fetch());
   }
-}
+};

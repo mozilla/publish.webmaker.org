@@ -48,4 +48,9 @@ If none is given `info` is used.
 
 ## Development
 
-This project uses [`jscs`](http://jscs.info/) to enforce the [`mofo-style-guide`](https://github.com/MozillaFoundation/javascript-style-guide). To run the style checker, use `npm run jscs`.
+This project uses [`jscs`](http://jscs.info/) and [`jshint`](http://jshint.com/)
+to enforce the [`mofo-style-guide`](https://github.com/MozillaFoundation/javascript-style-guide).
+
+- To run the style checker, use `npm run jscs`.
+- To run the hinter, use `npm run jshint`.
+- To run both, use `npm run lint`.

@@ -1,4 +1,4 @@
-const User = require('./model.js');
+var User = require('./model.js');
 
 module.exports = {
   getUsers: function(req, reply) {
@@ -8,4 +8,4 @@ module.exports = {
     return reply(User.query('where', 'id', '=', req.params.id)
       .fetch());
   }
-}
+};

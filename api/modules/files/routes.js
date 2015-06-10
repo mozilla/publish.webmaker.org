@@ -1,4 +1,4 @@
-const controller = require('./controller');
+var controller = require('./controller');
 
 exports.register = function(server, options, next) {
   server.route([{

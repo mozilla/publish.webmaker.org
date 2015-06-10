@@ -1,6 +1,6 @@
-const config = require('../../knexfile')['development'];
+var config = require('../../knexfile').development;
 
-const Knex = require('knex')(config);
-const Bookshelf = require('bookshelf')(Knex);
+var Knex = require('knex')(config);
+var Bookshelf = require('bookshelf')(Knex);
 
 module.exports = Bookshelf;

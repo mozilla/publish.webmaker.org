@@ -1,4 +1,4 @@
-const Project = require('./model.js');
+var Project = require('./model.js');
 
 module.exports = {
   getProjects: function(req, reply) {
@@ -8,4 +8,4 @@ module.exports = {
     return reply(Project.query('where', 'id', '=', req.params.id)
       .fetch());
   }
-}
+};
