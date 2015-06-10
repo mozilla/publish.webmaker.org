@@ -8,6 +8,10 @@ exports.up = function (knex) {
       t.increments('id');
       t.integer('user_id').notNullable().references('id').inTable('users');
       t.text('title').notNullable();
+      t.text('tags');
+      t.text('description');
+      t.text('date_created').notNullable();
+      t.text('date_updated').notNullable();
     })
     .createTable('files', function (t) {
       t.increments('id');
