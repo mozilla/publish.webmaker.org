@@ -25,6 +25,24 @@ exports.register = function(server, options, next) {
     config: {
       handler: controller.getProjectFile
     }
+  }, {
+    method: 'POST',
+    path: '/files',
+    config: {
+      handler: controller.createFile
+    }
+  }, {
+    method: 'PUT',
+    path: '/files/{id}',
+    config: {
+      handler: controller.updateFile
+    }
+  }, {
+    method: 'DELETE',
+    path: '/files/{id}',
+    config: {
+      handler: controller.deleteFile
+    }
   }]);
 
   next();
