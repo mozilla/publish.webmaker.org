@@ -36,6 +36,7 @@
     "hoek": "^2.14.0",
     "joi": "^6.4.3",
     "knex": "^0.8.6",
+    "lout": "^6.2.2",
     "sqlite3": "^3.0.8"
   },
   "devDependencies": {

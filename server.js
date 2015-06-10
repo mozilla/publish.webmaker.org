@@ -23,6 +23,8 @@ server.register([
     options: {
       logger: log
     }
+  }, {
+    register: require('lout') 
   }], function(err) {
   server.start(function() {
     log.info({ server: server.info }, 'Server started');
