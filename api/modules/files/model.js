@@ -1,13 +1,13 @@
-const BaseModel = require('../../classes/base_model');
+var BaseModel = require('../../classes/base_model');
 
-const instanceProps = {
+var instanceProps = {
   tableName: 'files',
-    project: function () {
+  project: function () {
     return this.belongsTo(require('../projects/model'));
   }
 };
 
-const classProps = {
+var classProps = {
   typeName: 'files',
   filters: {
     project_id: function (qb, value) {

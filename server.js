@@ -1,7 +1,7 @@
-const Hapi = require('hapi');
-const Hoek = require('hoek');
+var Hapi = require('hapi');
+var Hoek = require('hoek');
 
-const log = require('./logger.js');
+var log = require('./logger.js');
 
 Hoek.assert(process.env.API_HOST, 'Must define API_HOST');
 Hoek.assert(process.env.PORT, 'Must define PORT');
@@ -11,13 +11,13 @@ var connection = {
   port: process.env.PORT
 };
 
-const server = new Hapi.Server();
-server.connection(connection); 
+var server = new Hapi.Server();
+server.connection(connection);
 
 server.register([
   {
     register: require('./api')
-  }, 
+  },
   {
     register: require('hapi-bunyan'),
     options: {
@@ -25,6 +25,6 @@ server.register([
     }
   }], function(err) {
   server.start(function() {
-    log.info({server: server.info}, 'Server started');
+    log.info({ server: server.info }, 'Server started');
   });
 });

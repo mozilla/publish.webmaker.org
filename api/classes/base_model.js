@@ -1,7 +1,7 @@
-const Bookshelf = require('./database');
+var Bookshelf = require('./database');
 
-const instanceProps = {};
-const classProps = {
+var instanceProps = {};
+var classProps = {
   transaction: Bookshelf.transaction.bind(Bookshelf)
 };
 

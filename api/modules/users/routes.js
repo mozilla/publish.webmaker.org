@@ -1,7 +1,6 @@
-const controller = require('./controller');
+var controller = require('./controller');
 
-exports.register = function(server, options, next){
-
+exports.register = function(server, options, next) {
   server.route([{
     method: 'GET',
     path: '/users',

@@ -1,13 +1,13 @@
-const BaseModel = require('../../classes/base_model');
+var BaseModel = require('../../classes/base_model');
 
-const instanceProps = {
+var instanceProps = {
   tableName: 'users',
   projects: function () {
     return this.hasMany(require('../projects/model'));
   }
 };
 
-const classProps = {
+var classProps = {
   typeName: 'comics',
   filters: {
     name: function (qb, value) {
