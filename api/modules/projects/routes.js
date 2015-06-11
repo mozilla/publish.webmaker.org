@@ -1,49 +1,14 @@
-var controller = require('./controller');
+var create = require('./routes/create.js');
+var read = require('./routes/read.js');
+var update = require('./routes/update.js');
+var del = require('./routes/delete.js');
+
+var routes = [].concat(create, read, update, del);
 
 exports.register = function(server, options, next) {
-  server.route([{
-    method: 'GET',
-    path: '/projects',
-    config: {
-      handler: controller.getProjects
-    }
-  }, {
-    method: 'GET',
-    path: '/projects/{id}',
-    config: {
-      handler: controller.getProject
-    }
-  }, {
-    method: 'GET',
-    path: '/users/{user_id}/projects',
-    config: {
-      handler: controller.getUserProjects
-    }
-  }, {
-    method: 'GET',
-    path: '/users/{user_id}/projects/{id}',
-    config: {
-      handler: controller.getUserProject
-    }
-  }, {
-    method: 'POST',
-    path: '/projects',
-    config: {
-      handler: controller.createProject
-    }
-  }, {
-    method: 'PUT',
-    path: '/projects/{id}',
-    config: {
-      handler: controller.updateProject
-    }
-  }, {
-    method: 'DELETE',
-    path: '/projects/{id}',
-    config: {
-      handler: controller.deleteProject
-    }
-  }]);
+  server.route(
+    routes
+  );
 
   next();
 };
