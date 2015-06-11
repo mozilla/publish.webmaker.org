@@ -1,0 +1,13 @@
+User->Thimble: 1. Create files (not in a project)
+User->Thimble: 2. Sign In (username, password)
+note over Thimble: Auth
+Thimble->publish.webmaker.org: 3. GET /users?name=:username
+note over publish.webmaker.org: If the user does not exist,\ncreate and persist it
+publish.webmaker.org-->Thimble: User object\n{\nid: ...,\nname: ...,\n}
+Thimble-->User: Prompt for creating a new project\n OR\ndiscarding current changes
+alt Create a new project
+    note over User,Thimble,publish.webmaker.org: Follow Open Project: Create new project workflow \n(however, the "create default files" step will be omitted)
+else Discard current changes
+    note over Thimble: Delete every file locally
+    note over User,Thimble,publish.webmaker.org: Follow Open Thimble and Sign In workflow from Step 3
+end

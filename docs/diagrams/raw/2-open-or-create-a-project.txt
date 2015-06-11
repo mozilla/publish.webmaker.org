@@ -1,0 +1,16 @@
+alt Select existing project
+    User->Thimble: 1. Select(project)
+    Thimble->publish.webmaker.org: 2. GET /projects/:projectID/files
+    publish.webmaker.org-->Thimble: <array of file objects>
+    note over Thimble: Create every file and \nshow a progress indicator
+Thimble-->User: All project files
+else Create new project
+    User->Thimble: 1. Click "New Project"
+    Thimble-->User: Prompt for project name
+    User->Thimble: 2. Create(projectName)
+    note over Thimble: Check if project name exists?\nIf it does, re-prompt the user for \na new project name (MVP)
+    Thimble->publish.webmaker.org: 3. POST /projects \n{\ntitle: ...,\ndate_created: ...,\nuser_id: ...,\nis_public: false,\ndate_updated: ...,\ndescription: ...\n}
+    publish.webmaker.org-->Thimble: HTTP 201: <Project Object>
+    Thimble-->User: Create default files
+    note over User,Thimble,publish.webmaker.org: Follow file creation workflow
+end

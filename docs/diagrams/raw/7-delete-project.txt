@@ -1,0 +1,6 @@
+User->Thimble: 1. Delete(project)
+note over Thimble: Delete all files locally
+Thimble->publish.webmaker.org: 2. DELETE /projects/:projectID
+note over publish.webmaker.org: Delete all files and then\ndelete the project itself
+publish.webmaker.org-->Thimble: HTTP 204
+note over User,Thimble,publish.webmaker.org: Follow Open Thimble and Sign in workflow from Step 2
