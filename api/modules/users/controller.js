@@ -2,6 +2,13 @@ var User = require('./model.js');
 
 module.exports = {
   getUsers: function(req, reply) {
+    if(req.query.name) {
+      return reply(User.query({
+        where: {
+          name: req.query.name
+        }
+      }).fetch());
+    }
     return reply(User.fetchAll());
   },
   getUser: function(req, reply) {
