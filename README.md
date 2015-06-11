@@ -1,4 +1,4 @@
-# publish.webmaker.org [![Code Climate](https://codeclimate.com/github/mozilla/publish.webmaker.org/badges/gpa.svg)](https://codeclimate.com/github/mozilla/publish.webmaker.org)
+# publish.webmaker.org [![Code Climate](https://codeclimate.com/github/mozilla/publish.webmaker.org/badges/gpa.svg)](https://codeclimate.com/github/mozilla/publish.webmaker.org) [![David-DM](https://david-dm.org/mozilla/publish.webmaker.org.svg)](https://david-dm.org/mozilla/publish.webmaker.org)
 The teach.org publishing service for X-Ray Goggles and Thimble
 
 ## Installation and Use
