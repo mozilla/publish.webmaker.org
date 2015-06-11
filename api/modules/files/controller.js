@@ -25,5 +25,33 @@ module.exports = {
         id: req.params.id
       }
     }).fetch());
+  },
+  createFile: function(req, reply) {
+    return reply(File.forge({
+      path: req.payload.path,
+      project_id: req.payload.project_id,
+      buffer: req.payload.buffer
+    }).save());
+  },
+  updateFile: function(req, reply) {
+    return reply(File.query({
+      where: {
+        id: req.params.id
+      }
+    }).save({
+      path: req.payload.path,
+      project_id: req.payload.project_id,
+      buffer: req.payload.buffer
+    }, {
+      method: 'update',
+      patch: 'true'
+    }));
+  },
+  deleteFile: function(req, reply) {
+    return reply(File.query({
+      where: {
+        id: req.params.id
+      }
+    }).destroy());
   }
 };
