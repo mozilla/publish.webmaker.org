@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- '0.12'
+before_script:
+- npm install -g lab
+- npm install -g knex
+- psql -c 'create database publish;' -U postgres
+sudo: false
+env:
+- NODE_ENV="development" API_HOST="0.0.0.0" PORT=2015 LOG_LEVEL="info" DATABASE_URL="postgres:///publish" DEBUG=false S3_EMULATION=true REMIX_SCRIPT="http://localhost:3500/resources/remix/index.js"
+cache:
+  directories:
+  - node_modules
+notifications:
+  irc: "irc.mozilla.org#publish"
