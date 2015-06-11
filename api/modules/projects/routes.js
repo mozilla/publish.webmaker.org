@@ -25,6 +25,24 @@ exports.register = function(server, options, next) {
     config: {
       handler: controller.getUserProject
     }
+  }, {
+    method: 'POST',
+    path: '/projects',
+    config: {
+      handler: controller.createProject
+    }
+  }, {
+    method: 'PUT',
+    path: '/projects/{id}',
+    config: {
+      handler: controller.updateProject
+    }
+  }, {
+    method: 'DELETE',
+    path: '/projects/{id}',
+    config: {
+      handler: controller.deleteProject
+    }
   }]);
 
   next();
