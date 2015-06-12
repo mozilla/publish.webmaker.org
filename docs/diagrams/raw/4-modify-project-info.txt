@@ -1,0 +1,3 @@
+User->Thimble: 1. UpdateProject(description: <newDescription>)
+Thimble->publish.webmaker.org: 2. PUT /projects/:projectID\n{\nid: ...,\ntitle: ...,\ndate_created: ...,\nuser_id: ...,\nis_public: ...,\ndate_updated: <current dateTime>,\ntags: ...,\ndescription: <newDescription>\n}
+publish.webmaker.org-->Thimble: HTTP 200

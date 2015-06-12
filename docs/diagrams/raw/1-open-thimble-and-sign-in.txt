@@ -1,0 +1,8 @@
+User->Thimble: 1. Sign in (username, password)
+note over Thimble: Auth
+Thimble->publish.webmaker.org: 2. GET /users?name=:username
+note over publish.webmaker.org: If the user object does not exist,\ncreate and persist it
+publish.webmaker.org-->Thimble: User object\n{\nid: ...,\nname: ...\n}
+Thimble->publish.webmaker.org: 3. GET /users/:userID/projects
+publish.webmaker.org-->Thimble: <array of project objects>
+Thimble-->User: List of projects and "Create New Project"

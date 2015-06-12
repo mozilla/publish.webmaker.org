@@ -1,0 +1,4 @@
+User->Thimble: 1. Delete(file)
+note over Thimble: Delete file locally
+Thimble->publish.webmaker.org: 2. DELETE /files/:fileID
+publish.webmaker.org-->Thimble: HTTP 204

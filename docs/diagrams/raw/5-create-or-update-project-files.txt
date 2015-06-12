@@ -1,0 +1,17 @@
+User->Thimble: 1. Create(File1) - with content
+note over Thimble: Add File1 to auto-save queue
+User->Thimble: 2. Create(File2) - with content
+note over Thimble: Add File2 to auto-save queue
+note over Thimble: Time to save and persist the files
+loop Each file in the auto-save queue
+    note over Thimble: Save file locally
+    Thimble->publish.webmaker.org: 3. POST /files\n{\npath: ...,\nbuffer: ...,\nproject_id: ...,\ndate_updated: ...\n}
+    publish.webmaker.org-->Thimble: HTTP 201: <File object>
+    note over Thimble: Remove file from auto-save queue
+end
+User->Thimble: 3. UpdateContent(File2)
+note over Thimble: Add File2 to auto-save queue
+note over Thimble: Time to save and persist the file
+note over Thimble: Save file locally
+Thimble->publish.webmaker.org: 3. PUT /files/:fileID\n{\n  id: ...,\npath: ...,\nbuffer: ...,\nproject_id: ...,\ndate_updated: ...\n}
+publish.webmaker.org-->Thimble: HTTP 200: <File object>
