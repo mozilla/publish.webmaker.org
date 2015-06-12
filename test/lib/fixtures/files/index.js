@@ -5,6 +5,7 @@ module.exports = {
   getAllByProject: require('./get-all-by-project'),
 
   create: require('./create'),
+  delete: require('./delete'),
 
   testFiles: require('./test-files')
 };
