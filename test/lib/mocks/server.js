@@ -9,9 +9,9 @@ module.exports = function(done) {
   server.connection();
 
   server.register([
-    require('../../../api/modules/files/routes'),
-    require('../../../api/modules/projects/routes'),
-    require('../../../api/modules/users/routes')
+    require('../../../api/modules/files/routes.js'),
+    require('../../../api/modules/projects/routes.js'),
+    require('../../../api/modules/users/routes.js')
   ], function(err) {
     expect(err).to.not.exist();
 

@@ -27,68 +27,43 @@ after(function(done) {
   server.stop(done);
 });
 
-// GET /user/:userid/projects/:projectid/files/:fileid
+// GET /files/:fileid
 experiment('[Get one file]', function() {
-  experiment('[Parameter errors]', function() {
-    test('user_id must be valid', function(done) {
-      var opts = config.fail.invalidUserid;
-
-      server.inject(opts, function(resp) {
-        expect(resp.statusCode).to.equal(400);
-        expect(resp.result).to.exist;
-        expect(resp.result.error).to.equal('Bad Request');
-        expect(resp.result.message).to.be.a.string();
-
-        done();
-      });
-    });
-
-    test('project_id must be valid', function(resp) {
-      var opts = config.fail.invalidProjectid;
-
-      server.inject(opts, function(resp) {
-        expect(resp.statusCode).to.equal(400);
-        expect(resp.result).to.exist;
-        expect(resp.result.error).to.equal('Bad Request');
-        expect(resp.result.message).to.be.a.string();
-
-        done();
-      });
-    });
-
-    test('file_id must be valid', function(resp) {
-      var opts = config.fail.invalidFileid;
-
-      server.inject(opts, function(resp) {
-        expect(resp.statusCode).to.equal(400);
-        expect(resp.result).to.exist;
-        expect(resp.result.error).to.equal('Bad Request');
-        expect(resp.result.message).to.be.a.string();
-
-        done();
-      });
-    });
-  });
-
-  experiment('Postgres errors', function() {
-    // This might not be the place for this. Tests
-    // for the reponse if a postgres error occurs
-    // on this route should appear here. We can stub
-    // the postgres handler with sinon.
-
-    // See: https://github.com/mozilla/api.webmaker.org/blob/develop/test/services/api/handlers/projects.js#L37-L38
-  });
-
-  test('default', function(done) {
+  test('success case', function(done) {
     var opts = config.success.default;
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(200);
       expect(resp.result).to.exist();
-      expect(resp.result.file).to.exist();
-      expect(resp.result.file.path).to.be.a.string();
-      expect(resp.result.file.size).to.be.a.number();
-      expect(resp.result.file.data).to.be.a.buffer();
+      expect(resp.result.id).to.be.a.number();
+      expect(resp.result.project_id).to.be.a.number();
+      expect(resp.result.path).to.be.a.string();
+      expect(resp.result.data).to.be.a.buffer();
+
+      done();
+    });
+  });
+
+  test('file_id must be a number', function(done) {
+    var opts = config.fail.invalidFileid;
+
+    server.inject(opts, function(resp) {
+      expect(resp.statusCode).to.equal(400);
+      expect(resp.result).to.exist;
+      expect(resp.result.error).to.equal('Bad Request');
+      expect(resp.result.message).to.be.a.string();
+
+      done();
+    });
+  });
+
+  test('file_id must represent an existing resource', function(done) {
+    var opts = config.fail.fileDoesNotExist;
+
+    server.inject(opts, function(resp) {
+      expect(resp.statusCode).to.equal(404);
+      expect(resp.result).to.exist;
+      expect(resp.result.message).to.be.a.string();
 
       done();
     });
