@@ -31,10 +31,20 @@ OR, if you are on Windows
 $ COPY env.dist .env
 ```
 
-4) Set up your database by running migrations and seeds (currently `sqlite3` using `knex`)
+4) Create your postgres database, then run migrations and seeds.
 
 ```
-$ npm run db
+$ npm run db:new
+
+if you'd like to reset your database at anytime, you can use:
+
+$npm run db:reset
+```
+
+Both of these commands require that you have [PostGres](http://www.postgresql.org/download/) installed, as well as [Knex](http://knexjs.org/) installed globally. To do that you can:
+
+```
+$ npm install knex -g
 ```
 
 5) Run the server at the default log level (`'info'`):
