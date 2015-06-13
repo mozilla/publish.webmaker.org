@@ -1,14 +1,13 @@
+var path = require('path');
+
 module.exports = {
   development: {
-    client: 'sqlite3',
-    debug: true,
-    connection: {
-      filename: 'dev.db'
-    },
-    pool: {
-      afterCreate: function (conn, cb) {
-        conn.run('PRAGMA foreign_keys = ON', cb);
-      }
+    client: 'pg',
+    debug: process.env.DEBUG,
+    connection: process.env.DATABASE_URL,
+    directory: path.resolve(__dirname, '../migrations'),
+    migrations: {
+      tableName: 'migrations'
     }
   }
 };

@@ -10,14 +10,14 @@ exports.up = function (knex) {
       t.text('title').notNullable();
       t.text('tags');
       t.text('description');
-      t.text('date_created').notNullable();
-      t.text('date_updated').notNullable();
+      t.timestamp('date_created').notNullable();
+      t.timestamp('date_updated').notNullable();
     })
     .createTable('files', function (t) {
       t.increments('id');
       t.integer('project_id').notNullable().references('id').inTable('projects');
       t.text('path').notNullable();
-      t.blob('buffer').notNullable();
+      t.specificType('buffer', 'bytea').notNullable();
     });
 };
 
