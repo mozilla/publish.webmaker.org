@@ -5,11 +5,15 @@ module.exports = {
     return reply(Project.fetchAll());
   },
   getProject: function(req, reply) {
+    var q = {};
+    if (req.query && req.query.include) {
+      q.withRelated = [req.query.include];
+    }
     return reply(Project.query({
       where: {
         id: req.params.id
       }
-    }).fetch());
+    }).fetch(q));
   },
   getUserProjects: function(req, reply) {
     return reply(Project.query({
