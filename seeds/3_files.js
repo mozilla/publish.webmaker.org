@@ -4,8 +4,6 @@ var fs = require('fs');
 
 exports.seed = function(knex, Promise) {
   return Promise.join(
-    knex('files').del(),
-
     knex('files').insert({
       project_id: 1,
       path: 'index.js',

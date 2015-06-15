@@ -2,8 +2,6 @@
 
 exports.seed = function(knex, Promise) {
   return Promise.join(
-    knex('projects').del(),
-
     knex('projects').insert({
       user_id: 1,
       title: 'spacecats-API',
