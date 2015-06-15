@@ -31,10 +31,21 @@ OR, if you are on Windows
 $ COPY env.dist .env
 ```
 
-4) Set up your database by running migrations and seeds (currently `sqlite3` using `knex`)
+4) Create your postgres database, then run migrations and seeds.
 
 ```
-$ npm run db
+$ createdb publish
+$ npm run knex
+```
+
+N.B. If you would like to create a custom name for your database, you may. However, you 
+will need to update the `DATABASE_URL` env variable in the `.env` file in order to 
+reflect that change.
+
+Both of these commands require that you have [PostGres](http://www.postgresql.org/download/) installed, as well as [Knex](http://knexjs.org/) installed globally. To do that you can:
+
+```
+$ npm install knex -g
 ```
 
 5) Run the server at the default log level (`'info'`):

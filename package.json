@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server",
     "env": "cp env.dist .env",
-    "db": "knex migrate:latest && knex seed:run",
-    "test": "rm dev.db && npm run db && lab -t 100 -c --verbose --colors --assert code --timeout 5000 && npm run lint",
+    "knex": "knex migrate:latest && knex seed:run",
+    "test": "npm run knex && lab -t 100 -c --verbose --colors --assert code --timeout 5000 && npm run lint",
     "lint": "npm run jshint && npm run jscs",
     "jshint": "jshint -c node_modules/mofo-style/linters/.jshintrc api authentication migrations seeds logger.js server.js",
     "jscs": "jscs -c node_modules/mofo-style/linters/.jscsrc api authentication migrations seeds logger.js server.js"
@@ -38,6 +38,7 @@
     "joi": "^6.4.3",
     "knex": "^0.8.6",
     "lout": "^6.2.2",
+    "pg": "^4.4.0",
     "sqlite3": "^3.0.8"
   },
   "devDependencies": {

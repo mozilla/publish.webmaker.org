@@ -18,7 +18,6 @@ if (TESTING) {
 }
 
 var defaults = {
-  port: 5000,
   log_level: 'info',
   node_env: 'development'
 };
