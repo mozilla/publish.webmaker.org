@@ -1,5 +1,10 @@
 var path = require('path');
 
+// Check if the server already loaded the env variables
+if (!process.env.NODE_ENV) {
+  require('habitat').load(".env");
+}
+
 module.exports = {
   development: {
     client: 'pg',
