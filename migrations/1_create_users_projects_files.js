@@ -6,7 +6,7 @@ exports.up = function (knex) {
     })
     .createTable('projects', function (t) {
       t.increments('id');
-      t.integer('user_id').notNullable().references('id').inTable('users');
+      t.integer('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
       t.text('title').notNullable();
       t.text('tags');
       t.text('description');
@@ -15,16 +15,16 @@ exports.up = function (knex) {
     })
     .createTable('files', function (t) {
       t.increments('id');
-      t.integer('project_id').notNullable().references('id').inTable('projects');
+      t.integer('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
       t.text('path').notNullable();
       t.specificType('buffer', 'bytea').notNullable();
-    });
+    })
 };
 
 
 exports.down = function (knex) {
   return knex.schema
-    .dropTable('users')
-    .dropTable('projects')
-    .dropTable('files');
+    .raw('DROP TABLE users CASCADE')
+    .raw('DROP TABLE projects CASCADE')
+    .raw('DROP TABLE files');
 };
