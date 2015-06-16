@@ -1,6 +1,8 @@
 var AWS = require('aws-sdk'); 
 var s3 = new AWS.S3(); 
 
+var log = require('../../logger.js')
+
 var isPublished = function(project){
   return project.get('publish_url') !== null;
 };
@@ -8,7 +10,7 @@ var isPublished = function(project){
 exports.publish = function(project) {
   var url = "FAKE://URL";
   project.set({ publish_url:  url }).save();
-  console.log("Successfully published " + 
+  log.info("Successfully published " + 
           project.get('title') +
           " to " + project.get('publish_url'));
   return project;
@@ -22,7 +24,7 @@ exports.unpublish = function(project) {
   } else {
     message = "Cannot unpublish an project that is not published.";
   }
-  console.log(message);
+  log.info(message);
   return project;
 };
 
