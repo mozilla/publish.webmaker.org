@@ -8,6 +8,10 @@ var LOG_LEVEL = process.env.LOG_LEVEL;
 
 var Habitat = require('habitat');
 
+if (process.env.NODE_ENV !== 'test') {
+  Habitat.load('.env');
+}
+
 var defaults = {
   log_level: 'info',
   node_env: 'development'
