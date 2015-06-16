@@ -1,3 +1,4 @@
+var Publisher = require('../../classes/publish');
 var Project = require('./model.js');
 
 module.exports = {
@@ -63,5 +64,23 @@ module.exports = {
         id: req.params.id
       }
     }).destroy());
+  },
+  publishProject: function(req, reply) {
+    Project.query({
+      where: {
+        id: req.params.id
+      }
+    }).fetch().then(function(project){
+      return reply (Publisher.publish(project));
+    });
+  },
+  unpublishProject: function(req, reply) {
+    Project.query({
+      where: {
+        id: req.params.id
+      }
+    }).fetch().then(function(project){
+      return reply (Publisher.unpublish(project));
+    });
   }
 };
