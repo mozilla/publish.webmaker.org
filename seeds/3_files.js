@@ -16,6 +16,11 @@ exports.seed = function(knex, Promise) {
     }),
     knex('files').insert({
       project_id: 1,
+      path: 'index.html',
+      buffer: fs.readFileSync(__dirname + '/file_data/index.html')
+    }),
+    knex('files').insert({
+      project_id: 1,
       path: 'public/img/sagan.jpg',
       buffer: fs.readFileSync(__dirname + '/file_data/public/img/sagan.jpg')
     }),
@@ -23,6 +28,11 @@ exports.seed = function(knex, Promise) {
       project_id: 2,
       path: 'Gemfile',
       buffer: fs.readFileSync(__dirname + '/file_data/Gemfile')
+    }),
+    knex('files').insert({
+      project_id: 1,
+      path: 'main.html',
+      buffer: fs.readFileSync(__dirname + '/file_data/main.html')
     }),
     knex('files').insert({
       project_id: 3,
