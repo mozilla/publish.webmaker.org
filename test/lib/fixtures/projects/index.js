@@ -1,5 +1,6 @@
 module.exports = {
   getOne: require('./get-one'),
+  getOneByUser: require('./get-one-by-user'),
   getAll: require('./get-all'),
   getAllByUser: require('./get-all-by-user'),
 
