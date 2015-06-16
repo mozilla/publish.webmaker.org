@@ -33,7 +33,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            data: new Buffer('test')
+            buffer: new Buffer('test')
           }
         }
       };
@@ -45,7 +45,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            data: new Buffer('test')
+            buffer: new Buffer('test')
           }
         },
         fileidTypeError: {
@@ -54,7 +54,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            data: new Buffer('test')
+            buffer: new Buffer('test')
           }
         }
       };

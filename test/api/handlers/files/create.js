@@ -38,7 +38,7 @@ experiment('[Create a file]', function() {
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.project_id).to.be.a.number();
       expect(resp.result.path).to.be.a.string();
-      expect(resp.result.data).to.be.a.buffer();
+      expect(resp.result.buffer.type).to.equal('Buffer');
 
       server.inject({
         url: '/files/' + resp.result.id,
@@ -89,27 +89,14 @@ experiment('[Create a file]', function() {
     });
   });
 
-  test('data must be a valid type', function(done) {
+  test('buffer must be a valid type', function(done) {
     var opts = config.fail.dataTypeError;
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`data` invalid');
-
-      done();
-    });
-  });
-
-  test('payload must exist', function(done) {
-    var opts = config.fail.payloadAbsent;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('Payload must exist');
+      expect(resp.result.message).to.equal('`buffer` invalid');
 
       done();
     });
@@ -141,14 +128,14 @@ experiment('[Create a file]', function() {
     });
   });
 
-  test('data must exist', function(done) {
+  test('buffer must exist', function(done) {
     var opts = config.fail.dataAbsent;
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`data` must be passed.');
+      expect(resp.result.message).to.equal('`buffer` must be passed.');
 
       done();
     });

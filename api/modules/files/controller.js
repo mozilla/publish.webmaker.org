@@ -1,3 +1,4 @@
+var Boom = require('boom');
 var File = require('./model.js');
 
 module.exports = {
@@ -27,11 +28,42 @@ module.exports = {
     }).fetch());
   },
   createFile: function(req, reply) {
-    return reply(File.forge({
-      path: req.payload.path,
-      project_id: req.payload.project_id,
-      buffer: req.payload.buffer
-    }).save());
+    File.query({
+      where: {
+        path: req.payload.path,
+        project_id: req.payload.project_id,
+      }
+    }).fetch()
+    .then(function(results) {
+      if (!results) {
+        return File.forge({
+          path: req.payload.path,
+          project_id: req.payload.project_id,
+          buffer: req.payload.buffer
+        })
+        .save()
+        .then(function(model) {
+          reply(model.toJSON())
+            .code(201);
+        })
+      }
+
+      reply(Boom.badRequest('`path` must be unique within a project.'))
+    })
+    .catch(function(error) {
+      var msg = error.message;
+
+      if (msg) {
+        if (msg.indexOf('violates foreign key') !== -1) {
+          return reply(Boom.badRequest('Associated project does not exist.'));
+        }
+        if (msg.indexOf('"project_id" must be a number' !== -1)) {
+          return reply(Boom.badRequest('`project_id` invalid'))
+        }
+      }
+
+      reply(Boom.badRequest(error));
+    });
   },
   updateFile: function(req, reply) {
     return reply(File.query({
@@ -48,10 +80,14 @@ module.exports = {
     }));
   },
   deleteFile: function(req, reply) {
-    return reply(File.query({
+    File.query({
       where: {
         id: req.params.id
       }
-    }).destroy());
+    }).destroy().then(function() {
+      reply().code(204);
+    }).catch(function(e) {
+      reply(Boom.badImplementation(e));
+    });
   }
 };
