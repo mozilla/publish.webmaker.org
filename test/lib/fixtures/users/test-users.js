@@ -2,7 +2,7 @@ var db = require('../../db');
 var users = {};
 
 users.invalid = {
-  id: '9191',
+  id: 'thisisastring',
   username: 1919
 };
 
