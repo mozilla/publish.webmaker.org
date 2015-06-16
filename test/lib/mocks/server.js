@@ -1,6 +1,3 @@
-var env = require('habitat');
-env.load('tests.env');
-
 var Hapi = require('hapi');
 var expect = require('code').expect;
 
