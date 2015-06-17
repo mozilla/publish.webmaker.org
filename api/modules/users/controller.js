@@ -1,45 +1,12 @@
-var User = require('./model.js');
+var Model = require('./model');
+var BaseController = require('../../classes/base_controller');
 
-module.exports = {
-  getUsers: function(req, reply) {
-    if(req.query.name) {
-      return reply(User.query({
-        where: {
-          name: req.query.name
-        }
-      }).fetch());
-    }
-    return reply(User.fetchAll());
-  },
-  getUser: function(req, reply) {
-    return reply(User.query({
-      where: {
-        id: req.params.id
-      }
-    }).fetch());
-  },
-  createUser: function(req, reply) {
-    return reply(User.forge({
-      name: req.payload.name
-    }).save());
-  },
-  updateUser: function(req, reply) {
-    return reply(User.query({
-      where: {
-        id: req.params.id
-      }
-    }).save({
-      name: req.payload.name
-    }, { 
-      method: 'update',
-      patch: 'true' 
-    }));
-  },
-  deleteUser: function(req, reply) {
-    return reply(User.query({
-      where: {
-        id: req.params.id
-      }
-    }).destroy());
+var controller = new BaseController(Model);
+
+controller.payload = function(payload){
+  return {
+    name: payload.name
   }
-};
+}
+
+module.exports = controller;

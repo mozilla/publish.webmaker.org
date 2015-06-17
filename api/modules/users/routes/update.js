@@ -5,7 +5,7 @@ module.exports = [{
   method: 'PUT',
   path: '/users/{id}',
   config: {
-    handler: controller.updateUser,
+    handler: controller.update.bind(controller),
     description: 'Update a user object based on `id`.',
     validate: {
       payload: schema

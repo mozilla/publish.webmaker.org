@@ -5,7 +5,7 @@ module.exports = [{
   method: 'GET',
   path: '/users',
   config: {
-    handler: controller.getUsers,
+    handler: controller.getAll.bind(controller),
     description: 'Retrieve the collection of all users.',
     validate: {
       query: query
@@ -15,7 +15,7 @@ module.exports = [{
   method: 'GET',
   path: '/users/{id}',
   config: {
-    handler: controller.getUser,
+    handler: controller.getOne.bind(controller),
     description: 'Retrieve a single user object based on `id`.'
   }
 }];

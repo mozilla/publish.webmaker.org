@@ -6,14 +6,14 @@ module.exports = [{
   method: 'GET',
   path: '/files',
   config: {
-    handler: controller.getFiles,
+    handler: controller.getAll.bind(controller),
     description: 'Retrieve a collection of file objects.'
   }
 }, {
   method: 'GET',
   path: '/files/{id}',
   config: {
-    handler: controller.getFile,
+    handler: controller.getOne.bind(controller),
     description: 'Retrieve a single file object based on `id`.',
     validate: {
       params: {

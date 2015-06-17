@@ -4,14 +4,14 @@ module.exports = [{
   method: 'GET',
   path: '/projects',
   config: {
-    handler: controller.getProjects,
+    handler: controller.getAll.bind(controller),
     description: 'Retrieve a collection of project objects.'
   }
 }, {
   method: 'GET',
   path: '/projects/{id}',
   config: {
-    handler: controller.getProject,
+    handler: controller.getOne.bind(controller),
     description: 'Retrieve a single project object based on `id`.'
   }
 }, {

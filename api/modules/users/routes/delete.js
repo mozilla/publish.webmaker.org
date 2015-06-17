@@ -4,7 +4,7 @@ module.exports = [{
   method: 'DELETE',
   path: '/users/{id}',
   config: {
-    handler: controller.deleteUser,
+    handler: controller.delete.bind(controller),
     description: 'Delete a user object based on `id`.'
   }
 }];

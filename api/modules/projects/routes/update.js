@@ -5,7 +5,7 @@ module.exports = [{
   method: 'PUT',
   path: '/projects/{id}',
   config: {
-    handler: controller.updateProject,
+    handler: controller.update.bind(controller),
     description: 'Update a single project object based on `id`.',
     validate: {
       payload: schema

@@ -4,7 +4,7 @@ module.exports = [{
   method: 'DELETE',
   path: '/projects/{id}',
   config: {
-    handler: controller.deleteProject,
+    handler: controller.delete.bind(controller),
     description: 'Delete a single project object based on `id`.'
   }
 }];

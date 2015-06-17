@@ -1,14 +1,16 @@
 var controller = require('../controller');
 var schema = require('../schema');
+var errors = require('../../../classes/errors');
 
 module.exports = [{
   method: 'POST',
   path: '/users',
   config: {
-    handler: controller.createUser,
+    handler: controller.create.bind(controller),
     description: 'Create a new user object.',
     validate: {
-      payload: schema
+      payload: schema,
+      failAction: errors.attrs
     }
   }
 }];
