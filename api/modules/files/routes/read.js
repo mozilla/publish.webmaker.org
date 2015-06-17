@@ -15,6 +15,14 @@ module.exports = [{
   config: {
     handler: controller.getFile,
     description: 'Retrieve a single file object based on `id`.',
+    validate: {
+      params: {
+        id: Joi.number().required()
+      },
+      failAction: function(request, reply, source, error) {
+        reply(Boom.badRequest('`file_id` is invalid'));
+      }
+    }
   }
 }, {
   method: 'GET',

@@ -19,11 +19,20 @@ module.exports = {
     });
   },
   getFile: function(req, reply) {
-    return reply(File.query({
+    File.query({
       where: {
         id: req.params.id
       }
-    }).fetch());
+    }).fetch()
+    .then(function(record) {
+      if (!record) {
+        return Promise.reject('File reference does not exist.');
+      }
+      reply(record.toJSON());
+    })
+    .catch(function(e) {
+      reply(Boom.notFound(e));
+    });
   },
   getProjectFiles: function(req, reply) {
     File.query({
