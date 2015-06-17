@@ -2,7 +2,7 @@ var db = require('../../db');
 var projects = {};
 
 projects.invalid = {
-  id: 0000,
+  id: 'thisisastring',
   title: 12345,
   username: 23241,
   isPublic: null

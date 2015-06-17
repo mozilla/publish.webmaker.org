@@ -1,3 +1,5 @@
+var Boom = require('boom');
+var Joi = require('joi');
 var controller = require('../controller');
 
 module.exports = [{
@@ -19,8 +21,16 @@ module.exports = [{
   path: '/projects/{project_id}/files',
   config: {
     handler: controller.getProjectFiles,
-    description: 'Retrieve a collection of file objects that belong to a single project object, based on `project_id`.'
-  }
+    description: 'Retrieve a collection of file objects that belong to a single project object, based on `project_id`.',
+    validate: {
+      params: {
+        project_id: Joi.number().required()
+      },
+      failAction: function(request, reply, source, error) {
+        reply(Boom.badRequest('`project_id` is invalid'));
+      }
+    }
+  },
 }, {
   method: 'GET',
   path: '/projects/{project_id}/files/{id}',

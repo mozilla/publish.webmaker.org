@@ -14,11 +14,21 @@ module.exports = {
     }).fetch());
   },
   getProjectFiles: function(req, reply) {
-    return reply(File.query({
+    File.query({
       where: {
         project_id: req.params.project_id
       }
-    }).fetchAll());
+    }).fetchAll()
+    .then(function(records) {
+      if(records.models.length < 1) {
+        return Promise.reject('Project reference does not exist.')
+      }
+
+      reply(records.toJSON());
+    })
+    .catch(function(e) {
+      reply(Boom.badRequest(e));
+    });
   },
   getProjectFile: function(req, reply) {
     return reply(File.query({
