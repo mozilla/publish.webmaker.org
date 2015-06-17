@@ -1,6 +1,8 @@
 var Boom = require('boom');
 var Promise = require('bluebird');
-var File = require('./model.js');
+
+var File = require('./model');
+var Project = require('../projects/model');
 
 module.exports = {
   getFiles: function(req, reply) {
@@ -41,12 +43,33 @@ module.exports = {
     });
   },
   getProjectFile: function(req, reply) {
-    return reply(File.query({
+    Project.query({
       where: {
-        project_id: req.params.project_id,
-        id: req.params.id
+        id: req.params.project_id
       }
-    }).fetch());
+    }).fetch()
+    .then(function(record) {
+      if (!record) {
+        return Promise.reject('Project reference does not exist.');
+      }
+
+      return File.query({
+        where: {
+          project_id: req.params.project_id,
+          id: req.params.id
+        }
+      }).fetch();
+    })
+    .then(function(record) {
+      if (!record || !record.id) {
+        return Promise.reject('File reference does not exist.');
+      }
+
+      reply(record.toJSON());
+    })
+    .catch(function(e) {
+      reply(Boom.badRequest(e));
+    });
   },
   createFile: function(req, reply) {
     File.query({

@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/files").getAllByProject;
+var config = require("../../../lib/fixtures/files").getOneByProject;
 var server;
 
 before(function(done) {
@@ -33,7 +33,11 @@ experiment('[Get a file in a project by id]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(200);
-      expect(resp.result).to.be.an.array();
+      expect(resp.result).to.exist();
+      expect(resp.result.id).to.be.a.number();
+      expect(resp.result.project_id).to.be.a.number();
+      expect(resp.result.path).to.be.a.string();
+      expect(resp.result.buffer).to.be.a.buffer();
 
       done();
     });
@@ -44,7 +48,7 @@ experiment('[Get a file in a project by id]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('Project reference does not exist.');
 
@@ -57,9 +61,9 @@ experiment('[Get a file in a project by id]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('Project id is invalid.');
+      expect(resp.result.message).to.equal('`project_id` is invalid');
 
       done();
     });
@@ -70,7 +74,7 @@ experiment('[Get a file in a project by id]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('File reference does not exist.');
 
@@ -83,9 +87,9 @@ experiment('[Get a file in a project by id]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('File id is invalid.');
+      expect(resp.result.message).to.equal('`file_id` is invalid');
 
       done();
     });
