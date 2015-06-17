@@ -4,7 +4,17 @@ var File = require('./model.js');
 
 module.exports = {
   getFiles: function(req, reply) {
-    return reply(File.fetchAll());
+    File.fetchAll()
+    .then(function(records) {
+      if(records.models.length < 1) {
+        return Promise.reject('Project reference does not exist.')
+      }
+
+      reply(records.toJSON());
+    })
+    .catch(function(e) {
+      reply(Boom.badRequest(e));
+    });
   },
   getFile: function(req, reply) {
     return reply(File.query({
