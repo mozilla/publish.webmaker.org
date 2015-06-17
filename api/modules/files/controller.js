@@ -9,7 +9,7 @@ module.exports = {
     File.fetchAll()
     .then(function(records) {
       if(records.models.length < 1) {
-        return Promise.reject('Project reference does not exist.')
+        return reply(Boom.notFound());
       }
 
       reply(records.toJSON());
@@ -35,14 +35,25 @@ module.exports = {
     });
   },
   getProjectFiles: function(req, reply) {
-    File.query({
+    Project.query({
       where: {
-        project_id: req.params.project_id
+        id: req.params.project_id
       }
-    }).fetchAll()
+    }).fetch()
+    .then(function(record) {
+      if (!record) {
+        return Promise.reject('Project reference does not exist.');
+      }
+
+      return File.query({
+        where: {
+          project_id: req.params.project_id
+        }
+      }).fetchAll();
+    })
     .then(function(records) {
       if(records.models.length < 1) {
-        return Promise.reject('Project reference does not exist.')
+        return reply(Boom.notFound());
       }
 
       reply(records.toJSON());
@@ -71,7 +82,7 @@ module.exports = {
     })
     .then(function(record) {
       if (!record || !record.id) {
-        return Promise.reject('File reference does not exist.');
+        return reply(Boom.notFound());
       }
 
       reply(record.toJSON());
