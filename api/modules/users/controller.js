@@ -1,30 +1,46 @@
+var Boom = require('boom');
+var Promise = require('bluebird');
 var User = require('./model.js');
 
 module.exports = {
   getUsers: function(req, reply) {
     if(req.query.name) {
-      return reply(User.query({
+      User.query({
         where: {
           name: req.query.name
         }
-      }).fetch());
+      }).fetch().then(function(record){
+        reply(record.toJSON());
+      });
     }
-    return reply(User.fetchAll());
+    User.fetchAll().then(function(records){
+      reply(records.toJSON());
+    }).catch(function(e){
+      reply(Boom.badRequest(e));
+    });
   },
   getUser: function(req, reply) {
-    return reply(User.query({
+    User.query({
       where: {
         id: req.params.id
       }
-    }).fetch());
+    }).fetch().then(function(record){
+      reply(record.toJSON());
+    }).catch(function(e){
+      reply(Boom.badRequest(e));
+    });
   },
   createUser: function(req, reply) {
-    return reply(User.forge({
+    User.forge({
       name: req.payload.name
-    }).save());
+    }).save().then(function(record){
+      reply(record.toJSON()).code(201);
+    }).catch(function(e){
+      reply(Boom.badRequest(e));
+    });
   },
   updateUser: function(req, reply) {
-    return reply(User.query({
+    User.query({
       where: {
         id: req.params.id
       }
@@ -33,13 +49,21 @@ module.exports = {
     }, { 
       method: 'update',
       patch: 'true' 
-    }));
+    }).then(function(record){
+      reply(record.toJSON()).code(204);
+    }).catch(function(e){
+      reply(Boom.badRequest(e));
+    });
   },
   deleteUser: function(req, reply) {
-    return reply(User.query({
+    User.query({
       where: {
         id: req.params.id
       }
-    }).destroy());
+    }).destroy().then(function(record){
+      reply(record.toJSON()).code(204);
+    }).catch(function(e){
+      reply(Boom.badRequest(e));
+    });
   }
 };

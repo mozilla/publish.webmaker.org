@@ -21,7 +21,7 @@ module.exports = {
     }).fetchAll()
     .then(function(records) {
       if(records.models.length < 1) {
-        return Promise.reject('Project reference does not exist.')
+        return Promise.reject('Project reference does not exist.');
       }
 
       reply(records.toJSON());
@@ -56,10 +56,10 @@ module.exports = {
         .then(function(model) {
           reply(model.toJSON())
             .code(201);
-        })
+        });
       }
 
-      reply(Boom.badRequest('`path` must be unique within a project.'))
+      reply(Boom.badRequest('`path` must be unique within a project.'));
     })
     .catch(function(error) {
       var msg = error.message;
@@ -69,7 +69,7 @@ module.exports = {
           return reply(Boom.badRequest('Associated project does not exist.'));
         }
         if (msg.indexOf('"project_id" must be a number' !== -1)) {
-          return reply(Boom.badRequest('`project_id` invalid'))
+          return reply(Boom.badRequest('`project_id` invalid'));
         }
       }
 

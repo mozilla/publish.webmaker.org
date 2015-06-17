@@ -16,7 +16,7 @@ module.exports = [{
 
         // Look to see if the attribute was passed at all
         if (error.data.details[0].message.indexOf('is required') !== -1) {
-          return reply(Boom.badRequest(failedAttribute + ' must be passed.'))
+          return reply(Boom.badRequest(failedAttribute + ' must be passed.'));
         }
 
         // Otherwise the type was invalid

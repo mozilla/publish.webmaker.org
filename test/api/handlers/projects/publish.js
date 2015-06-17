@@ -7,17 +7,17 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/files").update;
+var config = require("../../../lib/fixtures/projects").publish;
 var server;
 
 before(function(done) {
   require('../../../lib/mocks/server')(function(obj) {
     server = obj;
 
-    config(function(err, update) {
+    config(function(err, publish) {
       if (err) throw err;
 
-      config = update;
+      config = publish;
       done();
     });
   });
@@ -27,20 +27,16 @@ after(function(done) {
   server.stop(done);
 });
 
-// PUT /projects/:project_id
-experiment('[Update a project by id]', function() {
+// POST /projects/:project_id/publish
+experiment('[Publish a project]', function() {
   test('success case', function(done) {
     var opts = config.success.default;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(200);
+      expect(resp.statusCode).to.equal(201);
       expect(resp.result).to.exist();
-      expect(resp.result.id).to.be.a.number();
-      expect(resp.result.user_id).to.be.a.number();
-      expect(resp.result.date_created).to.be.a.string();
-      expect(resp.result.date_updated).to.equal(config.success.default.date_updated);
-      expect(resp.result.title).to.be.a.string();
-
+      expect(resp.result.publish_url).to.be.a.string();
+ 
       done();
     });
   });

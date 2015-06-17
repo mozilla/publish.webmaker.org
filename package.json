@@ -28,6 +28,7 @@
   "homepage": "https://github.com/mozilla/publish.webmaker.org",
   "dependencies": {
     "bluebird": "^2.9.30",
+    "aws-sdk": "^2.1.34",
     "bookshelf": "^0.8.1",
     "boom": "^2.7.2",
     "bunyan": "^1.3.6",
