@@ -1,4 +1,5 @@
 var Boom = require('boom');
+var Promise = require('bluebird');
 var File = require('./model.js');
 
 module.exports = {
@@ -84,10 +85,24 @@ module.exports = {
       where: {
         id: req.params.id
       }
-    }).destroy().then(function() {
+    }).fetch().then(function(result) {
+      if (!result) {
+        return Promise.reject('File does not exist.');
+      }
+
+      return result.destroy();
+    }).then(function() {
       reply().code(204);
     }).catch(function(e) {
-      reply(Boom.badImplementation(e));
+      var msg = e.message;
+
+      if (msg) {
+        if (msg.indexOf('where "id"') !== -1) {
+          return reply(Boom.badRequest('`file_id` invalid.'));
+        }
+      }
+
+      reply(Boom.badRequest(e));
     });
   }
 };

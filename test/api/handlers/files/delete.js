@@ -32,13 +32,18 @@ experiment('[Delete a file by id]', function() {
   test('success case', function(done) {
     var opts = config.success.default;
 
-    // This deletes one of the seeded files, and
-    // should succeed as long as the DB has been
-    // freshly seeded before the tests run.
+    // Create, then attempt a delete of a file.
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(204);
+      expect(resp.statusCode).to.equal(201);
 
-      done();
+      server.inject({
+        url: '/files/' + resp.result.id,
+        method: 'delete'
+      }, function(resp) {
+        expect(resp.statusCode).to.equal(204);
+
+        done();
+      });
     });
   });
 

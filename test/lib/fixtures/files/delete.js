@@ -16,6 +16,20 @@ module.exports = function(cb) {
     validProjects = projects.valid;
     invalidProject = projects.invalid;
 
+    // This is used to create a file record, which is then
+    // deleted.
+    del.success = {
+      default: {
+        url: '/files',
+        method: 'post',
+        payload: {
+          project_id: validProjects[0].id,
+          path: '/test.txt',
+          buffer: new Buffer('test')
+        }
+      }
+    };
+
     del.fail = {
       fileDoesNotExist: {
         url: '/files/999999',
