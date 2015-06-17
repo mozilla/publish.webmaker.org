@@ -33,14 +33,13 @@ experiment('[Update a project by id]', function() {
     var opts = config.success.default;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(201);
+      expect(resp.statusCode).to.equal(200);
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.user_id).to.be.a.number();
       expect(resp.result.date_created).to.be.a.string();
       expect(resp.result.date_updated).to.equal(config.success.default.date_updated);
       expect(resp.result.title).to.be.a.string();
-      expect(resp.result.tags).to.be.a.string();
 
       done();
     });

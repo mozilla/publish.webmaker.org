@@ -1,3 +1,5 @@
+var Boom = require('boom');
+var Joi = require('joi');
 var controller = require('../controller');
 var query = require('../query');
 
@@ -16,6 +18,14 @@ module.exports = [{
   path: '/users/{id}',
   config: {
     handler: controller.getUser,
-    description: 'Retrieve a single user object based on `id`.'
+    description: 'Retrieve a single user object based on `id`.',
+    validate: {
+      params: {
+        id: Joi.number().required()
+      },
+      failAction: function(request, reply, source, error) {
+        reply(Boom.badRequest('`user_id` is invalid'));
+      }
+    }
   }
 }];

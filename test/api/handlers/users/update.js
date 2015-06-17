@@ -33,7 +33,7 @@ experiment('[Update a user by id]', function() {
     var opts = config.success.default;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(201);
+      expect(resp.statusCode).to.equal(204);
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.name).to.be.a.string();

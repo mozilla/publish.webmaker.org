@@ -36,6 +36,7 @@ experiment('[Publish a project]', function() {
       expect(resp.statusCode).to.equal(201);
       expect(resp.result).to.exist();
       expect(resp.result.publish_url).to.be.a.string();
+ 
       done();
     });
   });
