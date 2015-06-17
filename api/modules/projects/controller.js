@@ -1,7 +1,6 @@
 var Model = require('./model');
-var Project = require('../projects/model');
 var BaseController = require('../../classes/base_controller');
-
+var Publisher = require('../../classes/publisher');
 var controller = new BaseController(Model);
 
 controller.payload = function(payload){
@@ -16,20 +15,64 @@ controller.payload = function(payload){
 };
 
 controller.getUserProjects = function(req, reply) {
-  return reply(Project.query({
+  var result = Model.query({
     where: {
       user_id: req.params.user_id
     }
-  }).fetchAll());
+  }).fetchAll()
+  .then(function(records){
+    if(!records) { throw Boom.notFound() }
+
+    return req.generateResponse(records.toJSON())
+       .code(200);
+  });
+  return reply(result)
 };
 
 controller.getUserProject = function(req, reply) {
-  return reply(Project.query({
+  var result = Model.query({
     where: {
       user_id: req.params.user_id,
       id: req.params.id
     }
-  }).fetch());
+  }).fetch()
+  .then(function(record) {
+    if(!record) { throw Boom.notFound(); }
+ 
+    return req.generateResponse(record.toJSON())
+      .code(200);
+  })
+  return reply(result);
+};
+
+controller.publishProject = function(req, reply) {
+  var result = Model.query({
+    where: {
+      id: req.params.id
+    }
+  }).fetch()
+  .then(function(record){
+    if(!record) { throw Boom.notFound(); }
+
+    return req.generateResponse(Publisher.publish(record))
+      .code(201);
+  });
+  return reply(result);
+};
+
+controller.unpublishProject = function(req, reply) {
+  var result = Model.query({
+    where: {
+      id: req.params.id
+    }
+  }).fetch()
+  .then(function(record){
+    if(!record) { throw Boom.notFound(); }
+ 
+    return req.generateResponse(Publisher.unpublish(record))
+      .code(201);
+  });
+  return reply(result);
 };
 
 module.exports = controller;
