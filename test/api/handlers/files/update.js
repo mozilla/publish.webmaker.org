@@ -48,9 +48,9 @@ experiment('[Update a file by id]', function() {
     var opts = config.fail.fileDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(404);
+      expect(resp.statusCode).to.equal(500);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Not Found');
+      expect(resp.result.error).to.equal('Update failed');
 
       done();
     });

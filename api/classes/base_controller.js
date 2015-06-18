@@ -41,21 +41,24 @@ BaseController.prototype.create = function(req, reply) {
 };
 
 BaseController.prototype.update = function(req, reply) {
+  var reqData = this.data(req);
   var result = this.Model.query({
     where: {
       id: req.params.id
     }
   })
-  .save(this.data(req), {
-    method: 'update',
-    patch: 'true',
-    require: 'true'
-  })
-  .call('fetch')
+  .fetch({ require: true })
   .then(function(record) {
     if (!record) { throw Boom.notFound(); }
-    return req.generateResponse(record.toJSON())
-      .code(201);
+    record.set(reqData);
+    if (!record.hasChanged()) {
+      throw Boom.create(500, 'Update failed');
+    }
+    return record
+      .save(record.changed, { patch: true, method: 'update' });
+  })
+  .then(function (updatedState) {
+    return req.generateResponse(updatedState.toJSON()).code(201);
   });
   return reply(result);
 };
