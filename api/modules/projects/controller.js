@@ -1,16 +1,17 @@
+var Boom = require('boom');
 var Model = require('./model');
 var BaseController = require('../../classes/base_controller');
 var Publisher = require('../../classes/publisher');
 var controller = new BaseController(Model);
 
-controller.payload = function(payload){
-  return { 
+controller.payload = function(payload) {
+  return {
     title: payload.title,
-    user_id: req.payload.user_id,
-    tags: req.payload.tags,
-    description: req.payload.description,
-    date_created: req.payload.date_created,
-    date_updated: req.payload.date_updated
+    user_id: payload.user_id,
+    tags: payload.tags,
+    description: payload.description,
+    date_created: payload.date_created,
+    date_updated: payload.date_updated
   };
 };
 
@@ -20,13 +21,12 @@ controller.getUserProjects = function(req, reply) {
       user_id: req.params.user_id
     }
   }).fetchAll()
-  .then(function(records){
-    if(!records) { throw Boom.notFound() }
-
+  .then(function(records) {
+    if (!records) { throw Boom.notFound(); }
     return req.generateResponse(records.toJSON())
        .code(200);
   });
-  return reply(result)
+  return reply(result);
 };
 
 controller.getUserProject = function(req, reply) {
@@ -37,11 +37,10 @@ controller.getUserProject = function(req, reply) {
     }
   }).fetch()
   .then(function(record) {
-    if(!record) { throw Boom.notFound(); }
- 
+    if (!record) { throw Boom.notFound(); }
     return req.generateResponse(record.toJSON())
       .code(200);
-  })
+  });
   return reply(result);
 };
 
@@ -51,9 +50,8 @@ controller.publishProject = function(req, reply) {
       id: req.params.id
     }
   }).fetch()
-  .then(function(record){
-    if(!record) { throw Boom.notFound(); }
-
+  .then(function(record) {
+    if (!record) { throw Boom.notFound(); }
     return req.generateResponse(Publisher.publish(record))
       .code(201);
   });
@@ -66,9 +64,8 @@ controller.unpublishProject = function(req, reply) {
       id: req.params.id
     }
   }).fetch()
-  .then(function(record){
-    if(!record) { throw Boom.notFound(); }
- 
+  .then(function(record) {
+    if (!record) { throw Boom.notFound(); }
     return req.generateResponse(Publisher.unpublish(record))
       .code(201);
   });

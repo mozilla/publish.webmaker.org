@@ -23,7 +23,7 @@ module.exports = [{
   }
 }, {
   method: 'GET',
-   path: '/users/{user_id}/projects/{id}',
+  path: '/users/{user_id}/projects/{id}',
   config: {
     handler: controller.getUserProject,
     description: 'Retrieve a sinle project object based on `id` belonging to a single user object, based on `user_id`.'

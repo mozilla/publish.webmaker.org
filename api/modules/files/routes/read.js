@@ -38,7 +38,7 @@ module.exports = [{
         reply(Boom.badRequest('`project_id` is invalid'));
       }
     }
-  },
+  }
 }, {
   method: 'GET',
   path: '/projects/{project_id}/files/{id}',

@@ -18,7 +18,7 @@ exports.up = function (knex) {
       t.integer('project_id').notNullable().references('id').inTable('projects').onDelete('CASCADE');
       t.text('path').notNullable();
       t.specificType('buffer', 'bytea').notNullable();
-    })
+    });
 };
 
 

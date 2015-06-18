@@ -1,20 +1,18 @@
 var Boom = require('boom');
-var Promise = require('bluebird');
 
 function BaseController(model)  {
   this.Model = model;
 }
 
 BaseController.prototype.getAll = function(req, reply) {
-    var result = this.Model.fetchAll()
-    .then(function(records) {
-      if(!records) { throw Boom.notFound(); }
-      
-      return req.generateResponse(records.toJSON())
-        .code(200);
-    });
-    return reply(result);
-  };
+  var result = this.Model.fetchAll()
+  .then(function(records) {
+    if (!records) { throw Boom.notFound(); }
+    return req.generateResponse(records.toJSON())
+      .code(200);
+  });
+  return reply(result);
+};
 
 BaseController.prototype.getOne = function(req, reply) {
   var result = this.Model.query({
@@ -23,11 +21,10 @@ BaseController.prototype.getOne = function(req, reply) {
     }
   }).fetch()
   .then(function(record) {
-    if(!record) { throw Boom.notFound(); }
- 
+    if (!record) { throw Boom.notFound(); }
     return req.generateResponse(record.toJSON())
       .code(200);
-  })
+  });
   return reply(result);
 };
 
@@ -35,8 +32,7 @@ BaseController.prototype.create = function(req, reply) {
   var result = this.Model.forge(this.payload(req.payload))
     .save()
     .then(function(record) {
-      if(!record) { throw Boom.notFound(); }
- 
+      if (!record) { throw Boom.notFound(); }
       return req.generateResponse(record.toJSON())
         .code(201);
     });
@@ -51,9 +47,8 @@ BaseController.prototype.update = function(req, reply) {
   }).save(this.payload(req.payload), {
     method: 'update',
     patch: 'true'
-  }).then(function(record){
-    if(!record) { throw Boom.notFound(); }
-
+  }).then(function(record) {
+    if (!record) { throw Boom.notFound(); }
     return req.generateResponse(record.toJSON())
       .code(201);
   });
@@ -61,15 +56,15 @@ BaseController.prototype.update = function(req, reply) {
 };
 
 BaseController.prototype.delete = function(req, reply) {
-  var result = Model.query({
+  var result = this.Model.query({
     where: {
       id: req.params.id
     }
   }).fetch().destroy().then(function(record) {
     return req.generateResponse(record.toJSON())
       .code(204);
-  })
+  });
   return reply(result);
- };
+};
 
 module.exports = BaseController;
