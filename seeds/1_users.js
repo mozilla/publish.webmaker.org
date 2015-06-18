@@ -7,7 +7,7 @@ exports.seed = function(knex, Promise) {
   return dropTables(knex)
     .then(function() { return createTables(knex); })
 
-    .then(function() { return knex('users').insert({ id: 1, name: 'ag_dubs' }); })
+    .then(function() { return knex('users').insert({ id: 1, name: 'ag-dubs' }); })
     .then(function() { return knex('users').insert({ id: 2, name: 'k88hudson' }); })
     .then(function() { return knex('users').insert({ id: 3, name: 'jbuckca' }); });
 };
