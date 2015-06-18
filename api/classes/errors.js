@@ -11,3 +11,7 @@ module.exports.attrs =  function(request, reply, source, error) {
   // Otherwise the type was invalid
   return reply(Boom.badRequest(failedAttribute + ' invalid'));
 };
+
+module.exports.id = function(request, reply, source, error) {
+  return reply(Boom.badRequest('`id` invalid'));
+};
