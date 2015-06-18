@@ -56,10 +56,9 @@ experiment('[Delete a user by id]', function() {
     var opts = config.fail.userDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
+      expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("User does not exist.");
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -72,7 +71,7 @@ experiment('[Delete a user by id]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`user_id` invalid.');
+      expect(resp.result.message).to.equal('`id` invalid');
 
       done();
     });

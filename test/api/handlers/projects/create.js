@@ -56,10 +56,9 @@ experiment('[Create a project]', function() {
     var opts = config.fail.userDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
+      expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("Associated project does not exist.");
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -144,19 +143,6 @@ experiment('[Create a project]', function() {
     });
   });
 
-  test('payload must exist', function(done) {
-    var opts = config.fail.payloadAbsent;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('Payload must exist');
-
-      done();
-    });
-  });
-
   test('user_id must exist', function(done) {
     var opts = config.fail.useridAbsent;
 
@@ -204,19 +190,6 @@ experiment('[Create a project]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('`date_updated` must be passed.');
-
-      done();
-    });
-  });
-
-  test('tags must exist', function(done) {
-    var opts = config.fail.tagsAbsent;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`tags` must be passed.');
 
       done();
     });

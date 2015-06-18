@@ -1,27 +1,25 @@
-var Boom = require('boom');
 var Joi = require('joi');
 var controller = require('../controller');
+var Errors = require('../../../classes/errors');
 
 module.exports = [{
   method: 'GET',
   path: '/files',
   config: {
-    handler: controller.getFiles,
+    handler: controller.getAll.bind(controller),
     description: 'Retrieve a collection of file objects.'
   }
 }, {
   method: 'GET',
   path: '/files/{id}',
   config: {
-    handler: controller.getFile,
+    handler: controller.getOne.bind(controller),
     description: 'Retrieve a single file object based on `id`.',
     validate: {
       params: {
-        id: Joi.number().required()
+        id: Joi.number().integer().required()
       },
-      failAction: function(request, reply, source, error) {
-        reply(Boom.badRequest('`file_id` is invalid'));
-      }
+      failAction: Errors.id
     }
   }
 }, {
@@ -32,13 +30,11 @@ module.exports = [{
     description: 'Retrieve a collection of file objects that belong to a single project object, based on `project_id`.',
     validate: {
       params: {
-        project_id: Joi.number().required()
+        project_id: Joi.number().integer().required()
       },
-      failAction: function(request, reply, source, error) {
-        reply(Boom.badRequest('`project_id` is invalid'));
-      }
+      failAction: Errors.id
     }
-  },
+  }
 }, {
   method: 'GET',
   path: '/projects/{project_id}/files/{id}',
@@ -47,16 +43,10 @@ module.exports = [{
     description: 'Retrieve a single file object that belongs to a single project object, based on `project_id`.',
     validate: {
       params: {
-        project_id: Joi.number().required(),
-        id: Joi.number().required()
+        project_id: Joi.number().integer().required(),
+        id: Joi.number().integer().required()
       },
-      failAction: function(request, reply, source, error) {
-        if (error.message.indexOf('"id" must be a number') !== -1) {
-          return reply(Boom.badRequest('`file_id` is invalid'));
-        }
-
-        reply(Boom.badRequest('`project_id` is invalid'));
-      }
+      failAction: Errors.id
     }
   }
 }];

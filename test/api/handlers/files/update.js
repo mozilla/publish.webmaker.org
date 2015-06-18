@@ -48,10 +48,9 @@ experiment('[Update a file by id]', function() {
     var opts = config.fail.fileDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
+      expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("File does not exist.");
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -64,7 +63,7 @@ experiment('[Update a file by id]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`file_id` invalid.');
+      expect(resp.result.message).to.equal('`id` invalid.');
 
       done();
     });

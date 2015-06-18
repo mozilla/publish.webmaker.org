@@ -51,10 +51,9 @@ experiment('[Delete a project by id]', function() {
     var opts = config.fail.projectDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
+      expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("Project does not exist.");
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -67,7 +66,7 @@ experiment('[Delete a project by id]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`project_id` invalid.');
+      expect(resp.result.message).to.equal('`id` invalid.');
 
       done();
     });

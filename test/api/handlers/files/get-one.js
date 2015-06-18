@@ -63,7 +63,7 @@ experiment('[Get one file]', function() {
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.message).to.be.a.string();
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });

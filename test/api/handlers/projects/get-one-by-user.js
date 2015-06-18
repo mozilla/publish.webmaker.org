@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/files").getAllByProject;
+var config = require("../../../lib/fixtures/projects").getOneByUser;
 var server;
 
 before(function(done) {
@@ -37,10 +37,9 @@ experiment('[Get a project of a user]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.user_id).to.be.a.number();
-      expect(resp.result.date_created).to.be.a.string();
-      expect(resp.result.date_updated).to.be.a.string();
+      expect(resp.result.date_created).to.be.a.date();
+      expect(resp.result.date_updated).to.be.a.date();
       expect(resp.result.title).to.be.a.string();
-      expect(resp.result.tags).to.be.a.string();
 
       done();
     });
@@ -50,10 +49,9 @@ experiment('[Get a project of a user]', function() {
     var opts = config.fail.userDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('User reference does not exist.');
+      expect(resp.statusCode).to.equal(404);
+      expect(resp.result).to.exist();
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -66,7 +64,7 @@ experiment('[Get a project of a user]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist;
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('User id is invalid.');
+      expect(resp.result.message).to.equal('`id` invalid');
 
       done();
     });
@@ -76,10 +74,9 @@ experiment('[Get a project of a user]', function() {
     var opts = config.fail.projectDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('Project reference does not exist.');
+      expect(resp.statusCode).to.equal(404);
+      expect(resp.result).to.exist();
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -92,7 +89,7 @@ experiment('[Get a project of a user]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist;
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('Project id is invalid.');
+      expect(resp.result.message).to.equal('`id` invalid');
 
       done();
     });

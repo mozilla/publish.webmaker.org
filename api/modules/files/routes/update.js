@@ -5,7 +5,7 @@ module.exports = [{
   method: 'PUT',
   path: '/files/{id}',
   config: {
-    handler: controller.updateFile,
+    handler: controller.update.bind(controller),
     description: 'Update a single file object based on `id`.',
     validate: {
       payload: schema

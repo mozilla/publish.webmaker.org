@@ -24,11 +24,11 @@ module.exports = function(cb) {
     };
 
     getOne.fail = {
-      invalidFileid: {
+      invalidUserid: {
         url: '/users/' + invalidUser.id,
         method: 'get'
       },
-      fileDoesNotExist: {
+      userDoesNotExist: {
         url: '/users/' + 9999999,
         method: 'get'
       }
