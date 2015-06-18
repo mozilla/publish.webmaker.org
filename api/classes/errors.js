@@ -15,3 +15,7 @@ module.exports.attrs =  function(request, reply, source, error) {
 module.exports.id = function(request, reply, source, error) {
   return reply(Boom.badRequest('`id` invalid'));
 };
+
+module.exports.name = function(request, reply, source, error) {
+  return reply(Boom.badRequest('`name` invalid'));
+}
