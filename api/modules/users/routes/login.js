@@ -1,10 +1,9 @@
 var controller = require('../controller');
 var query = require('../query');
-var Joi = require('joi');
 var Errors = require('../../../classes/errors');
 
 module.exports = [{
-  method: 'GET',
+  method: 'POST',
   path: '/users/login',
   config: {
     handler: controller.login,
