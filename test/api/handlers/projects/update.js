@@ -50,9 +50,9 @@ experiment('[Update a project by id]', function() {
     var opts = config.fail.projectDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(500);
+      expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Update failed');
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
