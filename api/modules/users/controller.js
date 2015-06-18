@@ -16,13 +16,13 @@ controller.data = function(req) {
 controller.login = function(req, reply) {
   var result = Model.query({
     where: {
-      name: req.query.name
+      name: req.payload.name
     }
   }).fetch()
   .then(function(record){
     if(!record){
       Model.forge({
-        name: req.query.name
+        name: req.payload.name
       })
       .save()
       .then(function(newRecord){
