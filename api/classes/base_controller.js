@@ -47,12 +47,12 @@ BaseController.prototype.update = function(req, reply) {
       id: req.params.id
     }
   })
-  .fetch({ require: true })
+  .fetch()
   .then(function(record) {
     if (!record) { throw Boom.notFound(); }
     record.set(reqData);
     if (!record.hasChanged()) {
-      throw Boom.create(500, 'Update failed');
+      throw Boom.create(404);
     }
     return record
       .save(record.changed, { patch: true, method: 'update' });
