@@ -36,6 +36,10 @@ BaseController.prototype.create = function(req, reply) {
       if (!record) { throw Boom.notFound(); }
       return req.generateResponse(record.toJSON())
         .code(201);
+    })
+    .catch(function(e) {
+      // We might want to parse the error types here.
+      reply(e);
     });
   return reply(result);
 };
@@ -74,6 +78,9 @@ BaseController.prototype.delete = function(req, reply) {
     record.destroy();
     return req.generateResponse(record.toJSON())
       .code(204);
+  })
+  .catch(function(e) {
+    return e;
   });
   return reply(result);
 };

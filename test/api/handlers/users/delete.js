@@ -30,8 +30,6 @@ after(function(done) {
 // DELETE /users/:id
 experiment('[Delete a user by id]', function() {
   test('success case', function(done) {
-    var opts = config.success.default;
-
     server.inject({
       url: '/users',
       method: 'post',
@@ -42,7 +40,7 @@ experiment('[Delete a user by id]', function() {
       expect(resp.statusCode).to.equal(201);
 
       server.inject({
-        url: '/users/' + resp.id,
+        url: '/users/' + resp.result.id,
         method: 'delete'
       }, function(resp) {
         expect(resp.statusCode).to.equal(204);
