@@ -3,10 +3,14 @@ var BaseController = require('../../classes/base_controller');
 
 var controller = new BaseController(Model);
 
-controller.payload = function(payload) {
-  return {
-    name: payload.name
+controller.data = function(req) {
+  var data = {
+    name: req.payload.name
   };
+  if (req.params.id) {
+    data.id = req.params.id;
+  }
+  return data;
 };
 
 module.exports = controller;

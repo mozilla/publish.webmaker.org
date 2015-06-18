@@ -1,5 +1,7 @@
 var controller = require('../controller');
 var query = require('../query');
+var Joi = require('joi');
+var Errors = require('../../../classes/errors');
 
 module.exports = [{
   method: 'GET',
@@ -16,6 +18,12 @@ module.exports = [{
   path: '/users/{id}',
   config: {
     handler: controller.getOne.bind(controller),
-    description: 'Retrieve a single user object based on `id`.'
+    description: 'Retrieve a single user object based on `id`.',
+    validate: {
+      params: {
+        id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
   }
 }];

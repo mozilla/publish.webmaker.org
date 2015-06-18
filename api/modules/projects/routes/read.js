@@ -1,4 +1,6 @@
 var controller = require('../controller');
+var Joi = require('joi');
+var Errors = require('../../../classes/errors');
 
 module.exports = [{
   method: 'GET',
@@ -12,7 +14,13 @@ module.exports = [{
   path: '/projects/{id}',
   config: {
     handler: controller.getOne.bind(controller),
-    description: 'Retrieve a single project object based on `id`.'
+    description: 'Retrieve a single project object based on `id`.',
+    validate: {
+      params: {
+        id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
   }
 }, {
   method: 'GET',

@@ -5,12 +5,16 @@ var BaseController = require('../../classes/base_controller');
 
 var controller = new BaseController(Model);
 
-controller.payload = function(payload) {
-  return {
-    path: payload.path,
-    project_id: payload.project_id,
-    buffer: payload.buffer
+controller.data = function(req) {
+  var data =  {
+    path: req.payload.path,
+    project_id: req.payload.project_id,
+    buffer: req.payload.buffer
   };
+  if (req.params.id) {
+    data.id = req.params.id;
+  }
+  return data;
 };
 
 controller.getProjectFiles = function(req, reply) {

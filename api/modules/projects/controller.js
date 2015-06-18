@@ -4,15 +4,19 @@ var BaseController = require('../../classes/base_controller');
 var Publisher = require('../../classes/publisher');
 var controller = new BaseController(Model);
 
-controller.payload = function(payload) {
-  return {
-    title: payload.title,
-    user_id: payload.user_id,
-    tags: payload.tags,
-    description: payload.description,
-    date_created: payload.date_created,
-    date_updated: payload.date_updated
+controller.data = function(req) {
+  var data = {
+    title: req.payload.title,
+    user_id: req.payload.user_id,
+    tags: req.payload.tags,
+    description: req.payload.description,
+    date_created: req.payload.date_created,
+    date_updated: req.payload.date_updated
   };
+  if (req.params.id) {
+    data.id = req.params.id;
+  }
+  return data;
 };
 
 controller.getUserProjects = function(req, reply) {
