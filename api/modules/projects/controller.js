@@ -10,11 +10,11 @@ controller.data = function(req) {
     user_id: req.payload.user_id,
     tags: req.payload.tags,
     description: req.payload.description,
-    date_created: req.payload.date_created,
-    date_updated: req.payload.date_updated
+    date_created: Date.parse(req.payload.date_created),
+    date_updated: Date.parse(req.payload.date_updated)
   };
   if (req.params.id) {
-    data.id = req.params.id;
+    data.id = parseInt(req.params.id);
   }
   return data;
 };

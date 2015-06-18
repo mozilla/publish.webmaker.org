@@ -12,7 +12,7 @@ controller.data = function(req) {
     buffer: new Buffer(req.payload.buffer)
   };
   if (req.params.id) {
-    data.id = req.params.id;
+    data.id = parseInt(req.params.id);
   }
   return data;
 };
