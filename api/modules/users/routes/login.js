@@ -1,5 +1,6 @@
 var controller = require('../controller');
 var query = require('../query');
+var schema = require('../schema');
 var Errors = require('../../../classes/errors');
 
 module.exports = [{
@@ -9,8 +10,8 @@ module.exports = [{
     handler: controller.login,
     description: 'Retrieve the collection of all users.',
     validate: {
-      query: query,
-      failAction: Errors.name  
+      payload: schema,
+      failAction: Errors.attr  
      }
    }
  }];
