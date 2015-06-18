@@ -3,7 +3,6 @@ var schema = require('../schema');
 var Joi = require('joi');
 var Errors = require('../../../classes/errors');
 
-
 module.exports = [{
   method: 'PUT',
   path: '/users/{id}',
