@@ -25,7 +25,7 @@ module.exports = function(cb) {
         payload: {
           project_id: validProjects[0].id,
           path: '/test.txt',
-          buffer: new Buffer('test')
+          buffer: (new Buffer('test')).toJSON().data
         }
       }
     };

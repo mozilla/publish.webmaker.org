@@ -63,11 +63,11 @@ BaseController.prototype.update = function(req, reply) {
       id: req.params.id
     }
   }).fetch().then(function(record){
-    if (!record) { throw Boom.notFound(); }    
+    if (!record) { throw Boom.notFound(); }
     return record.toJSON();
   });
   if (updated_state === current_state) {
-    throw Boom.create(500, 'Update failed.');  
+    throw Boom.create(500, 'Update failed.');
   } else {
     var result = req.generateResponse(updated_state)
       .code(201);

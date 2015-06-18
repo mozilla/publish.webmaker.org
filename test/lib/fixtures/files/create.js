@@ -8,6 +8,9 @@ var validFiles;
 
 var create = {};
 
+// We get buffers from the client as arrays of octets
+var testBuffer = (new Buffer('test')).toJSON().data;
+
 module.exports = function(cb) {
   if (create.success) {
     return cb(null, create);
@@ -31,7 +34,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         }
       };
@@ -43,7 +46,7 @@ module.exports = function(cb) {
           payload: {
             project_id: 9999999,
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         },
         projectidTypeError: {
@@ -52,7 +55,7 @@ module.exports = function(cb) {
           payload: {
             project_id: "thisisastring",
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         },
         pathTypeError: {
@@ -61,10 +64,10 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: 1234,
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         },
-        dataTypeError: {
+        bufferTypeError: {
           url: '/files',
           method: 'post',
           payload: {
@@ -83,7 +86,7 @@ module.exports = function(cb) {
           method: 'post',
           payload: {
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         },
         pathAbsent: {
@@ -91,7 +94,7 @@ module.exports = function(cb) {
           method: 'post',
           payload: {
             project_id: validProjects[0].id,
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         },
         dataAbsent: {
@@ -108,7 +111,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: validFiles[0].path,
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         }
       };
