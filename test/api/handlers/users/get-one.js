@@ -27,7 +27,7 @@ after(function(done) {
   server.stop(done);
 });
 
-// GET /users/:user_id
+// GET /users/:id
 experiment('[Get one user]', function() {
   test('success case', function(done) {
     var opts = config.success.default;
@@ -42,12 +42,12 @@ experiment('[Get one user]', function() {
     });
   });
 
-  test('user_id must be a number', function(done) {
+  test('id must be a number', function(done) {
     var opts = config.fail.invalidUserid;
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.be.a.string();
 
@@ -55,13 +55,13 @@ experiment('[Get one user]', function() {
     });
   });
 
-  test('user_id must represent an existing resource', function(done) {
+  test('id must represent an existing resource', function(done) {
     var opts = config.fail.userDoesNotExist;
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(404);
-      expect(resp.result).to.exist;
-      expect(resp.result.message).to.be.a.string();
+      expect(resp.result).to.exist();
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });

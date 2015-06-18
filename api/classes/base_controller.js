@@ -60,7 +60,8 @@ BaseController.prototype.delete = function(req, reply) {
     where: {
       id: req.params.id
     }
-  }).fetch().destroy().then(function(record) {
+  }).fetch().then(function(record) {
+    record.destroy();
     return req.generateResponse(record.toJSON())
       .code(204);
   });

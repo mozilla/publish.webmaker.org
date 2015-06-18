@@ -68,7 +68,7 @@ experiment('[Create a user]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("`name` must be passed.");
+      expect(resp.result.message).to.equal("`name` invalid");
 
       done();
     });
