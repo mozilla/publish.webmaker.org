@@ -9,6 +9,9 @@ var invalidProject;
 
 var update = {};
 
+// We get buffers from the client as arrays of octets
+var testBuffer = (new Buffer('test')).toJSON().data;
+
 module.exports = function(cb) {
   if (update.success) {
     return cb(null, update);
@@ -33,7 +36,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         }
       };
@@ -45,7 +48,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         },
         fileidTypeError: {
@@ -54,7 +57,7 @@ module.exports = function(cb) {
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            buffer: new Buffer('test')
+            buffer: testBuffer
           }
         }
       };

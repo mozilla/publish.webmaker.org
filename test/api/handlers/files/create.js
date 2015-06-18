@@ -38,7 +38,7 @@ experiment('[Create a file]', function() {
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.project_id).to.be.a.number();
       expect(resp.result.path).to.be.a.string();
-      expect(resp.result.buffer.type).to.equal('Buffer');
+      expect(resp.result.buffer).to.be.a.buffer();
 
       server.inject({
         url: '/files/' + resp.result.id,
@@ -89,8 +89,8 @@ experiment('[Create a file]', function() {
     });
   });
 
-  test('buffer must be a valid type', function(done) {
-    var opts = config.fail.dataTypeError;
+  test('buffer must be an array', function(done) {
+    var opts = config.fail.bufferTypeError;
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);

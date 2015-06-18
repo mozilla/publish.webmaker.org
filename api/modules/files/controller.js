@@ -9,7 +9,7 @@ controller.data = function(req) {
   var data =  {
     path: req.payload.path,
     project_id: req.payload.project_id,
-    buffer: req.payload.buffer
+    buffer: new Buffer(req.payload.buffer)
   };
   if (req.params.id) {
     data.id = req.params.id;
