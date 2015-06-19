@@ -37,8 +37,8 @@ experiment('[Get a project of a user]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.user_id).to.be.a.number();
-      expect(resp.result.date_created).to.be.a.date();
-      expect(resp.result.date_updated).to.be.a.date();
+      expect(resp.result.date_created).to.be.a.string();
+      expect(resp.result.date_updated).to.be.a.string();
       expect(resp.result.title).to.be.a.string();
 
       done();
@@ -62,7 +62,7 @@ experiment('[Get a project of a user]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('`id` invalid');
 
@@ -87,7 +87,7 @@ experiment('[Get a project of a user]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('`id` invalid');
 

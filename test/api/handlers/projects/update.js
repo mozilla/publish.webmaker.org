@@ -37,7 +37,7 @@ experiment('[Update a project by id]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.user_id).to.be.a.number();
-      expect(resp.result.date_created).to.be.a.date();
+      expect(resp.result.date_created).to.be.a.string();
       expect(resp.result.date_updated).to.equal(config.success.default.date_updated);
       expect(resp.result.title).to.be.a.string();
       expect(resp.result.tags).to.be.a.string();
