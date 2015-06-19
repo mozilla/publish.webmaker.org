@@ -58,7 +58,7 @@ experiment('[Get all projects for a user]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist;
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('User id is invalid.');
+      expect(resp.result.message).to.equal('`id` invalid');
 
       done();
     });
