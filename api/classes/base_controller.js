@@ -38,8 +38,7 @@ BaseController.prototype.create = function(req, reply) {
         .code(201);
     })
     .catch(function(e) {
-      // We might want to parse the error types here.
-      reply(e);
+      throw Boom.wrap(e);
     });
   return reply(result);
 };
