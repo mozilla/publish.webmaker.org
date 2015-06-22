@@ -43,7 +43,7 @@ experiment('[Create a project]', function() {
       expect(resp.result.tags).to.be.a.string();
 
       server.inject({
-        url: '/project/' + resp.result.id,
+        url: '/projects/' + resp.result.id,
         method: 'delete'
       }, function (resp) {
         expect(resp.statusCode).to.equal(204);
