@@ -10,6 +10,7 @@ exports.up = function (knex) {
       t.text('title').notNullable();
       t.text('tags');
       t.text('description');
+      t.text('publish_url');
       t.text('date_created').notNullable();
       t.text('date_updated').notNullable();
     })

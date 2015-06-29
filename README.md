@@ -21,7 +21,7 @@ If you also want to run the tests, install the **lab** testing utility globally
 $ npm install -g lab
 ```
 
-3) Copy the distributed environment file via command line, or manually using a code editor:
+3a) Copy the distributed environment file via command line, or manually using a code editor:
 
 ```
 $ npm run env
@@ -29,6 +29,15 @@ $ npm run env
 OR, if you are on Windows
 
 $ COPY env.dist .env
+```
+
+3b) Add your s3 credentials to the `.env` file
+
+```
+ 15 # S3 publish/unpublish
+ 16 # (enter your own info plz)
+ 17 export AWS_ACCESS_KEY_ID = ""
+ 18 export AWS_SECRET_ACCESS_KEY = ""
 ```
 
 4) Create your postgres database, then run migrations and seeds.
