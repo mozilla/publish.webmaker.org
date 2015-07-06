@@ -3,6 +3,7 @@ var Model = require('./model');
 var BaseController = require('../../classes/base_controller');
 var Publisher = require('../../classes/publisher');
 var controller = new BaseController(Model);
+var logger = require('../../../logger');
 
 controller.data = function(req) {
   var data = {
@@ -28,8 +29,9 @@ controller.getUserProjects = function(req, reply) {
   .then(function(records) {
     if (!records) { throw Boom.notFound(); }
     return req.generateResponse(records.toJSON())
-       .code(200);
+      .code(200);
   });
+
   return reply(result);
 };
 
@@ -45,6 +47,7 @@ controller.getUserProject = function(req, reply) {
     return req.generateResponse(record.toJSON())
       .code(200);
   });
+
   return reply(result);
 };
 
@@ -56,9 +59,21 @@ controller.publishProject = function(req, reply) {
   }).fetch()
   .then(function(record) {
     if (!record) { throw Boom.notFound(); }
-    return req.generateResponse(Publisher.publish(record))
-      .code(201);
+
+    return Publisher.publish(record)
+      .then(function() {
+        return req.generateResponse(record).code(200);
+      });
+  })
+  .catch(function(e) {
+    if (e.isBoom) {
+      logger.error(e);
+      return e;
+    }
+
+    return Boom.badImplementation(e);
   });
+
   return reply(result);
 };
 
@@ -70,9 +85,20 @@ controller.unpublishProject = function(req, reply) {
   }).fetch()
   .then(function(record) {
     if (!record) { throw Boom.notFound(); }
-    return req.generateResponse(Publisher.unpublish(record))
-      .code(201);
+
+    return Publisher.unpublish(record)
+      .then(function() {
+        return req.generateResponse(record).code(200);
+      });
+  })
+  .catch(function(e) {
+    if (e.isBoom) {
+      return e;
+    }
+
+    return Boom.badImplementation(e);
   });
+
   return reply(result);
 };
 

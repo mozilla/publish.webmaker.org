@@ -1,14 +1,14 @@
 var controller = require('../controller');
 
 module.exports = [{
-  method: 'POST',
+  method: 'PUT',
   path: '/projects/{id}/publish',
   config: {
     handler: controller.publishProject,
     description: 'Publish a project.'
   }
 }, {
-  method: 'POST',
+  method: 'PUT',
   path: '/projects/{id}/unpublish',
   config: {
     handler: controller.unpublishProject,

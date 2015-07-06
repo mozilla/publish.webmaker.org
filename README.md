@@ -31,15 +31,6 @@ OR, if you are on Windows
 $ COPY env.dist .env
 ```
 
-3b) Add your s3 credentials to the `.env` file
-
-```
- 15 # S3 publish/unpublish
- 16 # (enter your own info plz)
- 17 export AWS_ACCESS_KEY_ID = ""
- 18 export AWS_SECRET_ACCESS_KEY = ""
-```
-
 4) Create your postgres database, then run migrations and seeds.
 
 ```
@@ -74,6 +65,26 @@ to enforce the [`mofo-style-guide`](https://github.com/MozillaFoundation/javascr
 - To run the style checker, use `npm run jscs`.
 - To run the hinter, use `npm run jshint`.
 - To run both, use `npm run lint`.
+
+### S3 Emulation
+
+This project uses [`noxmox`](https://github.com/nephics/noxmox) to allow for development without Amazon S3 credentials. By default emulation is turned on. To view published projects, serve the `/tmp/mox` directory using your favourite local server. Publish will store a reference to this server based on the `PUBLIC_PROJECT_ENDPOINT` environment variable, which defaults to `localhost:8001`.
+
+To use an actual S3 bucket, ensure that the related environment variables are set to allow it:
+
+```
+# S3 publish/unpublish
+# (enter your own info plz)
+export AWS_ACCESS_KEY_ID="your_key"
+export AWS_SECRET_ACCESS_KEY="your_secret"
+export AWS_BUCKET="your_bucket"
+
+# S3 emulation
+export S3_EMULATION=false
+
+# Endpoint for published projects
+export PUBLIC_PROJECT_ENDPOINT="http://your-public-endpoint.com"
+```
 
 ## Documentation
 
