@@ -1,120 +1,146 @@
-var knox = require('knox');
-var client = knox.createClient({
-  key: process.env.AWS_ACCESS_KEY_ID,
-  secret: process.env.AWS_SECRET_ACCESS_KEY,
-  bucket: process.env.AWS_BUCKET
-});
+var Promise = require('bluebird');
+
+var noxmox = require('noxmox');
+
+var client;
+
+if (process.env.S3_EMULATION) {
+  process.env.AWS_BUCKET = 'test';
+
+  client = noxmox.mox.createClient({
+    key: 'local',
+    secret: 'host',
+    bucket: process.env.AWS_BUCKET
+  });
+} else {
+  client = noxmox.nox.createClient({
+    key: process.env.AWS_ACCESS_KEY_ID,
+    secret: process.env.AWS_SECRET_ACCESS_KEY,
+    bucket: process.env.AWS_BUCKET
+  });
+}
 
 var log = require('../../logger.js');
 var File = require('../modules/Files/model');
 
-var isPublished = function(project) {
-  return project.get('publish_url') !== null;
-};
-
-var publishFiles = function(project, params) {
-  File.query({
+function modifyFiles(action, project) {
+  return File.query({
     where: {
       project_id: project.id
     }
   }).fetchAll()
   .then(function(records){
-    records.mapThen(function(record) {
-      uploadFile(record, params);
+    var fn = action === 'publish' ? uploadFile : deleteFile;
+
+    return records.mapThen(function(record) {
+      return fn(record, project.get('user_id'));
     });
-  }).catch(function(e) {
-    log.error(e);
-    return false;
+  })
+  .catch(function(e) {
+    return Promise.reject(e);
   });
-  return true;
 };
 
-var uploadFile = function(file) {
-  var buffer = file.get('buffer');
-  var key = file.get('path');  
-  var headers = {
-    'Content-Type': 'application/octet-stream'
-  }
+function uploadFile(file, userId) {
+  return new Promise(function(resolve, reject) {
+    var buffer = file.get('buffer');
+    var path = '/' + userId + file.get('path');
+    var headers = {
+      'Content-Type': 'application/octet-stream',
+      'Content-Length': buffer.length,
+      'x-amz-acl': 'public'
+    };
 
-  client.putBuffer(buffer, key, headers, function(err, res){
-    if(err) {
-      log.error(err)
-    } else {
-      if (200 == res.statusCode) {
-        log.info('Successfully uploaded ' + key);
-      }
-    }
+    var request = client.put(path, headers);
+    request.on('error', function(err) {
+      reject(err);
+    });
+    request.on('continue', function() {
+      request.end(buffer);
+    });
+    request.on('response', function(res) {
+      res.on('error', function(err) {
+        reject(err);
+      });
+      res.on('end', function() {
+        if (res.statusCode === 200) {
+          log.info('Successfully uploaded ' + path);
+          resolve();
+        } else {
+          reject('S3 upload returned ' + res.statusCode);
+        }
+      });
+    });
   });
 }
 
-var deleteFiles = function(project) {
-  File.query({
-    where: {
-      project_id: project.id
-    }
-  }).fetchAll()
-  .then(function(records){
-    client.deleteMultiple(records.models, function(err, res){
-      if(err) {
-        log.error(err);
-      } else {
-        log.info(res.statusCode);
-        log.info('Successfully unpublished ' + project.get('title'));
-      }
-    })
-  }).catch(function(e) {
-    log.error(e);
-    return false;
+function deleteFile(file, userId) {
+  var path = '/' + userId + file.get('path');
+
+  return new Promise(function(resolve, reject) {
+    var request = client.del(path);
+    request.end();
+    request.on('error', function(err) {
+      reject(err);
+    });
+    request.on('response', function(res) {
+      res.on('end', function() {
+        if (res.statusCode === 204) {
+          log.info('Successfully deleted ' + path);
+          resolve();
+        } else {
+          reject('S3 delete returned ' + res.statusCode);
+        }
+      });
+    });
   });
-  return true;
 }
 
-var build_url= function(project) {
-  var url = 'd3g6se91hcs80r.cloudfront.net' + '/' +
-             client.bucket + '/' +
-             project.get('title');
+function buildUrl(project) {
+  var url = process.env.PUBLIC_PROJECT_ENDPOINT + '/' +
+            process.env.AWS_BUCKET + '/' +
+            project.get('user_id') + '/' +
+            project.get('title');
   return url;
 }
 
-var set_url = function(project, url){
-  project.set({ publish_url:  url }).save();
-  return project;
-}
-
-var msg_success = function(project) { 
-  log.info( 'Successfully published ' +
-            project.get('title') +
-            ' to ' + project.get('publish_url'));
-  
-  return project;
-};
-
 exports.publish = function(project) {
-  new Promise(
-    function(resolve, reject) {
-      var success = publishFiles(project);
-      success ? resolve(project) : log.error("Something went wrong.");
-    }
-  )
-  .then(function(project) {
-    set_url(project, build_url(project));
-    msg_success(project);
-  })
-  .catch(function(err){
-    log.error(err);
-  })
+  return modifyFiles('publish', project)
+    .then(function() {
+      return project.set({
+        publish_url: buildUrl(project)
+      }).save();
+    })
+    .then(function() {
+      log.info(
+        'Successfully published ' +
+        project.get('title') +
+        ' to ' + project.get('publish_url')
+      );
+    })
+    .catch(function(e){
+      log.error(e);
+
+      return Promise.reject(e);
+    });
 };
 
 exports.unpublish = function(project) {
-  var message = '';
-  if (isPublished(project)) {
-    project.set({ publish_url: null }).save();
-    message =  'Successfully unpublished ' + project.get('title');
-  } else {
-    message = 'Cannot unpublish an project that is not published.';
-  }
-  log.info(message);
-  return project;
+  return modifyFiles('unpublish', project)
+    .then(function() {
+      return project.set({ publish_url: null }).save();
+    })
+    .then(function() {
+      log.info(
+        'Successfully unpublished ' +
+        project.get('title')
+      );
+    })
+    .catch(function(e) {
+      log.error(e);
+
+      return Promise.reject(e);
+    });
 };
 
 module.exports = exports;
