@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/mozilla/publish.webmaker.org",
   "dependencies": {
-    "aws-sdk": "^2.1.34",
     "bluebird": "^2.9.30",
     "bookshelf": "^0.8.1",
     "boom": "^2.7.2",
@@ -35,6 +34,7 @@
     "joi": "^6.4.3",
     "knex": "^0.8.6",
     "lout": "^6.2.2",
+    "noxmox": "git://github.com/sedge/noxmox.git#master",
     "pg": "^4.4.0",
     "sqlite3": "^3.0.8"
   },
