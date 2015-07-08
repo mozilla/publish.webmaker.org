@@ -1,7 +1,7 @@
 var controller = require('../controller');
 var schema = require('../schema');
 var Joi = require('joi');
-var Errors = require('../../../classes/errors');
+var errors = require('../../../classes/errors');
 
 module.exports = [{
   method: 'PUT',
@@ -14,7 +14,7 @@ module.exports = [{
       params: {
         id: Joi.number().integer().required()
       },
-      failAction: Errors.id
+      failAction: errors.attrs
     }
   }
 }];
