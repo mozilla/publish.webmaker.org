@@ -5,6 +5,6 @@ module.exports = Joi.object().keys({
   user_id: Joi.number().integer().required(),
   date_created: Joi.string().required(),
   date_updated: Joi.string().required(),
-  description: Joi.string(),
-  tags: Joi.string()
+  description: Joi.string().allow('').allow(null),
+  tags: Joi.string().allow(null)
 });
