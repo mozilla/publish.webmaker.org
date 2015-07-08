@@ -21,7 +21,7 @@ if (process.env.S3_EMULATION) {
 }
 
 var log = require('../../logger.js');
-var File = require('../modules/Files/model');
+var File = require('../modules/files/model');
 
 function modifyFiles(action, project) {
   return File.query({
