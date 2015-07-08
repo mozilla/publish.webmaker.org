@@ -61,7 +61,7 @@ BaseController.prototype.update = function(req, reply) {
       .save(record.changed, { patch: true, method: 'update' });
   })
   .then(function (updatedState) {
-    return req.generateResponse(updatedState.toJSON()).code(201);
+    return req.generateResponse(updatedState.toJSON()).code(200);
   });
   return reply(result);
 };
