@@ -5,6 +5,15 @@ var Publisher = require('../../classes/publisher');
 var controller = new BaseController(Model);
 var logger = require('../../../logger');
 
+function generateErrorResponse(e) {
+  if (e.isBoom) {
+    logger.error(e);
+    return e;
+  }
+
+  return Boom.badImplementation(e);
+}
+
 controller.data = function(req) {
   var data = {
     title: req.payload.title,
@@ -65,14 +74,7 @@ controller.publishProject = function(req, reply) {
         return req.generateResponse(record).code(200);
       });
   })
-  .catch(function(e) {
-    if (e.isBoom) {
-      logger.error(e);
-      return e;
-    }
-
-    return Boom.badImplementation(e);
-  });
+  .catch(generateErrorResponse);
 
   return reply(result);
 };
@@ -85,19 +87,14 @@ controller.unpublishProject = function(req, reply) {
   }).fetch()
   .then(function(record) {
     if (!record) { throw Boom.notFound(); }
+    if (!record.attributes.publish_url) { throw Boom.notFound(); }
 
     return Publisher.unpublish(record)
       .then(function() {
         return req.generateResponse(record).code(200);
       });
   })
-  .catch(function(e) {
-    if (e.isBoom) {
-      return e;
-    }
-
-    return Boom.badImplementation(e);
-  });
+  .catch(generateErrorResponse);
 
   return reply(result);
 };

@@ -48,7 +48,7 @@ function uploadFile(file, userId) {
     var headers = {
       'Content-Type': 'application/octet-stream',
       'Content-Length': buffer.length,
-      'x-amz-acl': 'public'
+      'x-amz-acl': 'public-read'
     };
 
     var request = client.put(path, headers);
@@ -59,17 +59,12 @@ function uploadFile(file, userId) {
       request.end(buffer);
     });
     request.on('response', function(res) {
-      res.on('error', function(err) {
-        reject(err);
-      });
-      res.on('end', function() {
-        if (res.statusCode === 200) {
-          log.info('Successfully uploaded ' + path);
-          resolve();
-        } else {
-          reject('S3 upload returned ' + res.statusCode);
-        }
-      });
+      if (res.statusCode === 200) {
+        log.info('Successfully uploaded ' + path);
+        resolve();
+      } else {
+        reject('S3 upload returned ' + res.statusCode);
+      }
     });
   });
 }
@@ -79,20 +74,18 @@ function deleteFile(file, userId) {
 
   return new Promise(function(resolve, reject) {
     var request = client.del(path);
-    request.end();
     request.on('error', function(err) {
       reject(err);
     });
     request.on('response', function(res) {
-      res.on('end', function() {
-        if (res.statusCode === 204) {
-          log.info('Successfully deleted ' + path);
-          resolve();
-        } else {
-          reject('S3 delete returned ' + res.statusCode);
-        }
-      });
+      if (res.statusCode === 204) {
+        log.info('Successfully deleted ' + path);
+        resolve();
+      } else {
+        reject('S3 delete returned ' + res.statusCode);
+      }
     });
+    request.end();
   });
 }
 
