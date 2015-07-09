@@ -1,6 +1,6 @@
 var Promise = require('bluebird');
-
 var noxmox = require('noxmox');
+var mime = require('mime');
 
 var client;
 
@@ -46,7 +46,7 @@ function uploadFile(file, userId) {
     var buffer = file.get('buffer');
     var path = '/' + userId + file.get('path');
     var headers = {
-      'Content-Type': 'application/octet-stream',
+      'Content-Type': mime.lookup(path),
       'Content-Length': buffer.length,
       'x-amz-acl': 'public-read'
     };
@@ -91,7 +91,6 @@ function deleteFile(file, userId) {
 
 function buildUrl(project) {
   var url = process.env.PUBLIC_PROJECT_ENDPOINT + '/' +
-            process.env.AWS_BUCKET + '/' +
             project.get('user_id') + '/' +
             project.get('title');
   return url;
