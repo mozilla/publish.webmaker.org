@@ -21,7 +21,7 @@ controller.login = function(req, reply) {
   }).fetch()
   .then(function(record){
     if(!record){
-      Model.forge({
+      return Model.forge({
         name: req.payload.name
       })
       .save()
