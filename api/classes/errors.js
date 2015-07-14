@@ -1,4 +1,5 @@
 var Boom = require('boom');
+var logger = require('../../lib/logger');
 
 module.exports.attrs =  function(request, reply, source, error) {
   var failedAttribute = '`' + error.data.details[0].path + '`';
@@ -18,4 +19,13 @@ module.exports.id = function(request, reply, source, error) {
 
 module.exports.name = function(request, reply, source, error) {
   return reply(Boom.badRequest('`name` invalid'));
-}
+};
+
+module.exports.generateErrorResponse = function(e) {
+  logger.error(e);
+  if (e.isBoom) {
+    return e;
+  }
+
+  return Boom.badImplementation(e);
+};
