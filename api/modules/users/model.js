@@ -1,9 +1,11 @@
 var BaseModel = require('../../classes/base_model');
 
+var Projects = require('../projects/model');
+
 var instanceProps = {
   tableName: 'users',
-  projects: function () {
-    return this.hasMany(require('../projects/model'));
+  projects: function() {
+    return this.hasMany(Projects);
   }
 };
 
