@@ -1,17 +1,17 @@
-var controller = require('../controller');
-var query = require('../query');
+var errors = require('../../../classes/errors');
+
 var schema = require('../schema');
-var Errors = require('../../../classes/errors');
+var controller = require('../controller');
 
 module.exports = [{
   method: 'POST',
   path: '/users/login',
   config: {
-    handler: controller.login,
-    description: 'Retrieve the collection of all users.',
+    handler: controller.login.bind(controller),
+    description: 'Retrieve the user with the passed username, creating if necessary.',
     validate: {
       payload: schema,
-      failAction: Errors.attr  
-     }
-   }
- }];
+      failAction: errors.attr
+    }
+  }
+}];

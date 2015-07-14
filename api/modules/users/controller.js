@@ -1,6 +1,10 @@
-var Model = require('./model');
-var BaseController = require('../../classes/base_controller');
+var Boom = require('boom');
+var Promise = require('bluebird');
 
+var Model = require('./model');
+var errors = require('../../classes/errors');
+
+var BaseController = require('../../classes/base_controller');
 var controller = new BaseController(Model);
 
 controller.data = function(req) {
@@ -14,27 +18,36 @@ controller.data = function(req) {
 };
 
 controller.login = function(req, reply) {
-  var result = Model.query({
-    where: {
-      name: req.payload.name
+  var self = this;
+
+  var result = Promise.resolve().then(function() {
+    // First, check if the auth matches the requested user
+    if (req.payload.name !== req.auth.credentials.username) {
+      throw Boom.unauthorized();
     }
-  }).fetch()
-  .then(function(record){
-    if(!record){
-      return Model.forge({
+
+    return self.Model.query({
+      where: {
+        name: req.payload.name
+      }
+    }).fetch();
+  })
+  .then(function(record) {
+    if (!record) {
+      return self.Model.forge({
         name: req.payload.name
       })
       .save()
-      .then(function(newRecord){
+      .then(function(newRecord) {
         return req.generateResponse(newRecord.toJSON())
           .code(201);
       });
-    } else {
-      return req.generateResponse(record.toJSON())
-        .code(200);
     }
-  });
-  console.log(result);
+    return req.generateResponse(record.toJSON())
+      .code(200);
+  })
+  .catch(errors.generateErrorResponse);
+
   return reply(result);
 };
 

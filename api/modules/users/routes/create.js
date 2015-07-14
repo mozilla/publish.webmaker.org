@@ -6,7 +6,7 @@ module.exports = [{
   method: 'POST',
   path: '/users',
   config: {
-    handler: controller.create.bind(controller),
+    handler: controller.login.bind(controller),
     description: 'Create a new user object.',
     validate: {
       payload: schema,
