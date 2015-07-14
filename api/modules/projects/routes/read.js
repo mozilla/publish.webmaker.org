@@ -1,52 +1,43 @@
-var controller = require('../controller');
 var Joi = require('joi');
-var Errors = require('../../../classes/errors');
+
+var errors = require('../../../classes/errors');
+var prereqs = require('../../../classes/prerequisites');
+
+var controller = require('../controller');
+var Model = require('../model');
 
 module.exports = [{
   method: 'GET',
-  path: '/projects',
-  config: {
-    handler: controller.getAll.bind(controller),
-    description: 'Retrieve a collection of project objects.'
-  }
-}, {
-  method: 'GET',
   path: '/projects/{id}',
   config: {
+    pre: [
+      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateOwnership()
+    ],
     handler: controller.getOne.bind(controller),
     description: 'Retrieve a single project object based on `id`.',
     validate: {
       params: {
         id: Joi.number().integer().required()
       },
-      failAction: Errors.id
+      failAction: errors.id
     }
   }
 }, {
   method: 'GET',
   path: '/users/{user_id}/projects',
   config: {
-    handler: controller.getUserProjects,
+    pre: [
+      prereqs.confirmRecordExists(Model, 'param', 'user_id'),
+      prereqs.validateOwnership()
+    ],
+    handler: controller.getAll.bind(controller),
     description: 'Retrieve a collection of project objects belonging to a single user object, based on `user_id`.',
     validate: {
       params: {
         user_id: Joi.number().integer().required()
       },
-      failAction: Errors.id
+      failAction: errors.id
     }
-  }
-}, {
-  method: 'GET',
-  path: '/users/{user_id}/projects/{id}',
-  config: {
-    handler: controller.getUserProject,
-    description: 'Retrieve a sinle project object based on `id` belonging to a single user object, based on `user_id`.',
-    validate: {
-      params: {
-        user_id: Joi.number().integer().required(),
-        id: Joi.number().integer().required()
-      },
-      failAction: Errors.id
-    }  
   }
 }];

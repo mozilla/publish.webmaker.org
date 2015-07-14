@@ -1,17 +1,28 @@
 var controller = require('../controller');
+var prereqs = require('../../../classes/prerequisites');
+
+var Model = require('../model');
 
 module.exports = [{
   method: 'PUT',
   path: '/projects/{id}/publish',
   config: {
-    handler: controller.publishProject,
+    pre: [
+      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateOwnership()
+    ],
+    handler: controller.publishProject.bind(controller),
     description: 'Publish a project.'
   }
 }, {
   method: 'PUT',
   path: '/projects/{id}/unpublish',
   config: {
-    handler: controller.unpublishProject,
+    pre: [
+      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateOwnership()
+    ],
+    handler: controller.unpublishProject.bind(controller),
     description: 'Unpublish a project.'
   }
 }];

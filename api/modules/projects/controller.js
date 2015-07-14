@@ -1,18 +1,12 @@
 var Boom = require('boom');
-var Model = require('./model');
+var Promise = require('bluebird');
+
+var errors = require('../../classes/errors');
 var BaseController = require('../../classes/base_controller');
 var Publisher = require('../../classes/publisher');
+
+var Model = require('./model');
 var controller = new BaseController(Model);
-var logger = require('../../../logger');
-
-function generateErrorResponse(e) {
-  if (e.isBoom) {
-    logger.error(e);
-    return e;
-  }
-
-  return Boom.badImplementation(e);
-}
 
 controller.data = function(req) {
   var data = {
@@ -29,64 +23,24 @@ controller.data = function(req) {
   return data;
 };
 
-controller.getUserProjects = function(req, reply) {
-  var result = Model.query({
-    where: {
-      user_id: req.params.user_id
-    }
-  }).fetchAll()
-  .then(function(records) {
-    if (!records) { throw Boom.notFound(); }
-    return req.generateResponse(records.toJSON())
-      .code(200);
-  });
-
-  return reply(result);
-};
-
-controller.getUserProject = function(req, reply) {
-  var result = Model.query({
-    where: {
-      user_id: req.params.user_id,
-      id: req.params.id
-    }
-  }).fetch()
-  .then(function(record) {
-    if (!record) { throw Boom.notFound(); }
-    return req.generateResponse(record.toJSON())
-      .code(200);
-  });
-
-  return reply(result);
-};
-
 controller.publishProject = function(req, reply) {
-  var result = Model.query({
-    where: {
-      id: req.params.id
-    }
-  }).fetch()
-  .then(function(record) {
-    if (!record) { throw Boom.notFound(); }
+  var result = Promise.resolve().then(function() {
+    var record = req.pre.records.models[0];
 
     return Publisher.publish(record)
       .then(function() {
         return req.generateResponse(record).code(200);
       });
   })
-  .catch(generateErrorResponse);
+  .catch(errors.generateErrorResponse);
 
   return reply(result);
 };
 
 controller.unpublishProject = function(req, reply) {
-  var result = Model.query({
-    where: {
-      id: req.params.id
-    }
-  }).fetch()
-  .then(function(record) {
-    if (!record) { throw Boom.notFound(); }
+  var result = Promise.resolve().then(function() {
+    var record = req.pre.records.models[0];
+
     if (!record.attributes.publish_url) { throw Boom.notFound(); }
 
     return Publisher.unpublish(record)
@@ -94,7 +48,7 @@ controller.unpublishProject = function(req, reply) {
         return req.generateResponse(record).code(200);
       });
   })
-  .catch(generateErrorResponse);
+  .catch(errors.generateErrorResponse);
 
   return reply(result);
 };
