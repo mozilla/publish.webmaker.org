@@ -20,26 +20,15 @@ if (process.env.S3_EMULATION) {
   });
 }
 
-var log = require('../../logger.js');
+var log = require('../../lib/logger.js');
 var File = require('../modules/files/model');
 
-function modifyFiles(action, project) {
-  return File.query({
-    where: {
-      project_id: project.id
-    }
-  }).fetchAll()
-  .then(function(records){
-    var fn = action === 'publish' ? uploadFile : deleteFile;
-
-    return records.mapThen(function(record) {
-      return fn(record, project.get('user_id'));
-    });
-  })
-  .catch(function(e) {
-    return Promise.reject(e);
-  });
-};
+function buildUrl(project) {
+  var url = process.env.PUBLIC_PROJECT_ENDPOINT + '/' +
+            project.get('user_id') + '/' +
+            project.get('title');
+  return url;
+}
 
 function uploadFile(file, userId) {
   return new Promise(function(resolve, reject) {
@@ -89,11 +78,22 @@ function deleteFile(file, userId) {
   });
 }
 
-function buildUrl(project) {
-  var url = process.env.PUBLIC_PROJECT_ENDPOINT + '/' +
-            project.get('user_id') + '/' +
-            project.get('title');
-  return url;
+function modifyFiles(action, project) {
+  return File.query({
+    where: {
+      project_id: project.id
+    }
+  }).fetchAll()
+  .then(function(records) {
+    var fn = action === 'publish' ? uploadFile : deleteFile;
+
+    return records.mapThen(function(record) {
+      return fn(record, project.get('user_id'));
+    });
+  })
+  .catch(function(e) {
+    return Promise.reject(e);
+  });
 }
 
 exports.publish = function(project) {
@@ -110,7 +110,7 @@ exports.publish = function(project) {
         ' to ' + project.get('publish_url')
       );
     })
-    .catch(function(e){
+    .catch(function(e) {
       log.error(e);
 
       return Promise.reject(e);
