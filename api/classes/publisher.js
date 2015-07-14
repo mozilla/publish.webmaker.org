@@ -35,6 +35,7 @@ function uploadFile(file, userId) {
     var buffer = file.get('buffer');
     var path = '/' + userId + file.get('path');
     var headers = {
+      'Cache-Control': 'private max-age=0',
       'Content-Type': mime.lookup(path),
       'Content-Length': buffer.length,
       'x-amz-acl': 'public-read'
