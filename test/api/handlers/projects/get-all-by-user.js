@@ -7,14 +7,14 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/projects").getAllByUser;
+var config = require('../../../lib/fixtures/projects').getAllByUser;
 var server;
 
 before(function(done) {
   require('../../../lib/mocks/server')(function(obj) {
     server = obj;
     config(function(err, getAllByUser) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = getAllByUser;
       done();
@@ -44,7 +44,7 @@ experiment('[Get all projects for a user]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(404);
-      expect(resp.result).to.exist;
+      expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Not Found');
 
       done();

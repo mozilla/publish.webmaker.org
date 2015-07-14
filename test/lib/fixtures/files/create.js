@@ -11,24 +11,29 @@ var create = {};
 // We get buffers from the client as arrays of octets
 var testBuffer = (new Buffer('test')).toJSON().data;
 
+var userToken = {
+  authorization: 'token ag-dubs'
+};
+
 module.exports = function(cb) {
   if (create.success) {
     return cb(null, create);
   }
 
   retrieveTestFiles(function(err, files) {
-    if (err) return cb(err);
+    if (err) { return cb(err); }
 
     validFiles = files.valid;
 
     retrieveTestProjects(function(err, projects) {
-      if (err) return cb(err);
+      if (err) { return cb(err); }
 
       validProjects = projects.valid;
       invalidProject = projects.invalid;
 
       create.success = {
         default: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
@@ -41,6 +46,7 @@ module.exports = function(cb) {
 
       create.fail = {
         projectDoesNotExist: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
@@ -50,15 +56,17 @@ module.exports = function(cb) {
           }
         },
         projectidTypeError: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
-            project_id: "thisisastring",
+            project_id: 'thisisastring',
             path: '/test.txt',
             buffer: testBuffer
           }
         },
         pathTypeError: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
@@ -68,20 +76,23 @@ module.exports = function(cb) {
           }
         },
         bufferTypeError: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
             project_id: validProjects[0].id,
             path: '/test.txt',
-            buffer: "thisisastring"
+            buffer: 'thisisastring'
           }
         },
         payloadAbsent: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {}
         },
         projectidAbsent: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
@@ -90,6 +101,7 @@ module.exports = function(cb) {
           }
         },
         pathAbsent: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
@@ -98,14 +110,16 @@ module.exports = function(cb) {
           }
         },
         dataAbsent: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
             project_id: validProjects[0].id,
-            path: '/test.txt',
+            path: '/test.txt'
           }
         },
         duplicatePath: {
+          headers: userToken,
           url: '/files',
           method: 'post',
           payload: {
@@ -119,4 +133,4 @@ module.exports = function(cb) {
       cb(null, create);
     });
   });
-}
+};

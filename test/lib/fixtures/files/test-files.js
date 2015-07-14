@@ -2,8 +2,8 @@ var db = require('../../db');
 var files = {};
 
 files.invalid = {
-  id: "thisisastring",
-  project_id: "thisisastring",
+  id: 'thisisastring',
+  project_id: 'thisisastring',
   path: 123,
   buffer: 'thisisastring'
 };
@@ -21,4 +21,4 @@ module.exports = function(cb) {
     .catch(function(e) {
       cb(e);
     });
-}
+};

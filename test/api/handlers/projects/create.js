@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/projects").create;
+var config = require('../../../lib/fixtures/projects').create;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, create) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = create;
       done();
@@ -44,11 +44,14 @@ experiment('[Create a project]', function() {
 
       server.inject({
         url: '/projects/' + resp.result.id,
-        method: 'delete'
+        method: 'delete',
+        headers: {
+          authorization: 'token ag-dubs'
+        }
       }, function (resp) {
         expect(resp.statusCode).to.equal(204);
         done();
-      })
+      });
     });
   });
 

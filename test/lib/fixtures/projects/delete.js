@@ -5,19 +5,24 @@ var invalidUser;
 
 var del = {};
 
+var userToken = {
+  authorization: 'token ag-dubs'
+};
+
 module.exports = function(cb) {
   if (del.success) {
     return cb(null, del);
   }
 
   retrieveTestUsers(function(err, users) {
-    if (err) return cb(err);
+    if (err) { return cb(err); }
 
     validUsers = users.valid;
     invalidUser = users.invalid;
 
     del.success = {
       default: {
+        headers: userToken,
         url: '/projects',
         payload: {
           title: 'Test project',
@@ -29,14 +34,16 @@ module.exports = function(cb) {
         },
         method: 'post'
       }
-    }
+    };
 
     del.fail = {
       projectDoesNotExist: {
+        headers: userToken,
         url: '/projects/999999',
         method: 'delete'
       },
       projectidTypeError: {
+        headers: userToken,
         url: '/projects/thisisastring',
         method: 'delete'
       }
@@ -44,4 +51,4 @@ module.exports = function(cb) {
 
     cb(null, del);
   });
-}
+};

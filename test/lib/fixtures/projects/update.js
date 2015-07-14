@@ -5,19 +5,24 @@ var invalidProject;
 
 var update = {};
 
+var userToken = {
+  authorization: 'token ag-dubs'
+};
+
 module.exports = function(cb) {
   if (update.success) {
     return cb(null, update);
   }
 
   retrieveTestProjects(function(err, projects) {
-    if (err) return cb(err);
+    if (err) { return cb(err); }
 
     validProjects = projects.valid;
     invalidProject = projects.invalid;
 
     update.success = {
       default: {
+        headers: userToken,
         url: '/projects/' + validProjects[0].id,
         method: 'put',
         payload: {
@@ -33,6 +38,7 @@ module.exports = function(cb) {
 
     update.fail = {
       projectDoesNotExist: {
+        headers: userToken,
         url: '/projects/999999',
         method: 'put',
         payload: {
@@ -45,6 +51,7 @@ module.exports = function(cb) {
         }
       },
       projectidTypeError: {
+        headers: userToken,
         url: '/projects/thisisastring',
         method: 'put',
         payload: {
@@ -60,4 +67,4 @@ module.exports = function(cb) {
 
     cb(null, update);
   });
-}
+};

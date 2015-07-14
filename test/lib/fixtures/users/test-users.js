@@ -19,4 +19,4 @@ module.exports = function(cb) {
     .catch(function(e) {
       cb(e);
     });
-}
+};

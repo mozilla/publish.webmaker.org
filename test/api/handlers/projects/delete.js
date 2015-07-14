@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/projects").delete;
+var config = require('../../../lib/fixtures/projects').delete;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, del) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = del;
       done();
@@ -37,13 +37,16 @@ experiment('[Delete a project by id]', function() {
       expect(resp.statusCode).to.equal(201);
 
       server.inject({
-        url: '/projects/' + resp.id,
-        method: 'delete'
+        url: '/projects/' + resp.result.id,
+        method: 'delete',
+        headers: {
+          authorization: 'token ag-dubs'
+        }
       }, function(resp) {
         expect(resp.statusCode).to.equal(204);
 
         done();
-      })
+      });
     });
   });
 

@@ -5,19 +5,24 @@ var invalidUser;
 
 var create = {};
 
+var userToken = {
+  authorization: 'token ag-dubs'
+};
+
 module.exports = function(cb) {
   if (create.success) {
     return cb(null, create);
   }
 
   retrieveTestUsers(function(err, users) {
-    if (err) return cb(err);
+    if (err) { return cb(err); }
 
     validUsers = users.valid;
     invalidUser = users.invalid;
 
     create.success = {
       default: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -33,6 +38,7 @@ module.exports = function(cb) {
 
     create.fail = {
       userDoesNotExist: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -46,11 +52,12 @@ module.exports = function(cb) {
       },
 
       useridTypeError: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
           title: 'Test project',
-          user_id: "thisisastring",
+          user_id: 'thisisastring',
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
@@ -58,6 +65,7 @@ module.exports = function(cb) {
         }
       },
       titleTypeError: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -70,6 +78,7 @@ module.exports = function(cb) {
         }
       },
       dateCreatedTypeError: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -82,6 +91,7 @@ module.exports = function(cb) {
         }
       },
       dateUpdatedTypeError: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -94,6 +104,7 @@ module.exports = function(cb) {
         }
       },
       descriptionTypeError: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -106,6 +117,7 @@ module.exports = function(cb) {
         }
       },
       tagsTypeError: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -119,11 +131,13 @@ module.exports = function(cb) {
       },
 
       payloadAbsent: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {}
       },
       useridAbsent: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -135,6 +149,7 @@ module.exports = function(cb) {
         }
       },
       titleAbsent: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -146,6 +161,7 @@ module.exports = function(cb) {
         }
       },
       dateCreatedAbsent: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -157,6 +173,7 @@ module.exports = function(cb) {
         }
       },
       dateUpdatedAbsent: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -168,6 +185,7 @@ module.exports = function(cb) {
         }
       },
       tagsAbsent: {
+        headers: userToken,
         url: '/projects',
         method: 'post',
         payload: {
@@ -182,4 +200,4 @@ module.exports = function(cb) {
 
     cb(null, create);
   });
-}
+};

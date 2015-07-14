@@ -1,5 +1,5 @@
 var retrieveTestFiles = require('./test-files');
-var retrieveProjectFiles = require('../projects').testProjects
+var retrieveProjectFiles = require('../projects').testProjects;
 
 var validFiles;
 var invalidFile;
@@ -12,25 +12,30 @@ var update = {};
 // We get buffers from the client as arrays of octets
 var testBuffer = (new Buffer('test')).toJSON().data;
 
+var userToken = {
+  authorization: 'token ag-dubs'
+};
+
 module.exports = function(cb) {
   if (update.success) {
     return cb(null, update);
   }
 
   retrieveProjectFiles(function(err, projects) {
-    if (err) return cb(err);
+    if (err) { return cb(err); }
 
     validProjects = projects.valid;
     invalidProject = projects.invalid;
 
     retrieveTestFiles(function(err, files) {
-      if (err) return cb(err);
+      if (err) { return cb(err); }
 
       validFiles = files.valid;
       invalidFile = files.invalid;
 
       update.success = {
         default: {
+          headers: userToken,
           url: '/files/' + validFiles[0].id,
           method: 'put',
           payload: {
@@ -43,6 +48,7 @@ module.exports = function(cb) {
 
       update.fail = {
         fileDoesNotExist: {
+          headers: userToken,
           url: '/files/999999',
           method: 'put',
           payload: {
@@ -52,6 +58,7 @@ module.exports = function(cb) {
           }
         },
         fileidTypeError: {
+          headers: userToken,
           url: '/files/thisisastring',
           method: 'put',
           payload: {
@@ -65,5 +72,4 @@ module.exports = function(cb) {
       cb(null, update);
     });
   });
-
-}
+};

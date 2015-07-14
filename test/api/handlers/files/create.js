@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/files").create;
+var config = require('../../../lib/fixtures/files').create;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, create) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = create;
       done();
@@ -42,11 +42,14 @@ experiment('[Create a file]', function() {
 
       server.inject({
         url: '/files/' + resp.result.id,
-        method: 'delete'
+        method: 'delete',
+        headers: {
+          authorization: 'token ag-dubs'
+        }
       }, function (resp) {
         expect(resp.statusCode).to.equal(204);
         done();
-      })
+      });
     });
   });
 
@@ -57,7 +60,7 @@ experiment('[Create a file]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("Associated project does not exist.");
+      expect(resp.result.message).to.equal('Associated project does not exist.');
 
       done();
     });

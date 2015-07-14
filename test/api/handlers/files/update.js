@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/files").update;
+var config = require('../../../lib/fixtures/files').update;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, update) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = update;
       done();

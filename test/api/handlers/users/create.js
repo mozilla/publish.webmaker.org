@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/users").create;
+var config = require('../../../lib/fixtures/users').create;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, create) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = create;
       done();
@@ -40,11 +40,14 @@ experiment('[Create a user]', function() {
 
       server.inject({
         url: '/users/' + resp.result.id,
-        method: 'delete'
+        method: 'delete',
+        headers: {
+          authorization: 'token TestUser'
+        }
       }, function (resp) {
         expect(resp.statusCode).to.equal(204);
         done();
-      })
+      });
     });
   });
 
@@ -55,7 +58,7 @@ experiment('[Create a user]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("`name` must be passed.");
+      expect(resp.result.message).to.equal('`name` must be passed.');
 
       done();
     });
@@ -68,11 +71,10 @@ experiment('[Create a user]', function() {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal("`name` invalid");
+      expect(resp.result.message).to.equal('`name` invalid');
 
       done();
     });
   });
-
 });
 

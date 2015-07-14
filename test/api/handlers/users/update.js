@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/users").update;
+var config = require('../../../lib/fixtures/users').update;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, update) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = update;
       done();
@@ -30,15 +30,44 @@ after(function(done) {
 // PUT /users/:id
 experiment('[Update a user by id]', function() {
   test('success case', function(done) {
-    var opts = config.success.default;
+    server.inject({
+      url: '/users',
+      method: 'post',
+      payload: {
+        name: 'TestUser'
+      },
+      headers: {
+        authorization: 'token TestUser'
+      }
+    }, function(resp) {
+      expect(resp.statusCode).to.equal(201);
 
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(200);
-      expect(resp.result).to.exist();
-      expect(resp.result.id).to.be.a.number();
-      expect(resp.result.name).to.be.a.string();
+      server.inject({
+        url: '/users/' + resp.result.id,
+        method: 'put',
+        payload: {
+          name: 'NewUserName'
+        },
+        headers: {
+          authorization: 'token TestUser'
+        }
+      }, function(resp) {
+        expect(resp.statusCode).to.equal(200);
+        expect(resp.result).to.exist();
+        expect(resp.result.id).to.be.a.number();
+        expect(resp.result.name).to.be.a.string();
 
-      done();
+        server.inject({
+          url: '/users/' + resp.result.id,
+          method: 'delete',
+          headers: {
+            authorization: 'token UpdatedTestUser'
+          }
+        }, function (resp) {
+          expect(resp.statusCode).to.equal(204);
+          done();
+        });
+      });
     });
   });
 

@@ -5,13 +5,17 @@ var invalidProject;
 
 var del = {};
 
+var userToken = {
+  authorization: 'token ag-dubs'
+};
+
 module.exports = function(cb) {
   if (del.success) {
     return cb(null, del);
   }
 
   retrieveTestProjects(function(err, projects) {
-    if (err) return cb(err);
+    if (err) { return cb(err); }
 
     validProjects = projects.valid;
     invalidProject = projects.invalid;
@@ -20,6 +24,7 @@ module.exports = function(cb) {
     // deleted.
     del.success = {
       default: {
+        headers: userToken,
         url: '/files',
         method: 'post',
         payload: {
@@ -32,10 +37,12 @@ module.exports = function(cb) {
 
     del.fail = {
       fileDoesNotExist: {
+        headers: userToken,
         url: '/files/999999',
         method: 'delete'
       },
       fileidTypeError: {
+        headers: userToken,
         url: '/files/thisisastring',
         method: 'delete'
       }
@@ -43,4 +50,4 @@ module.exports = function(cb) {
 
     cb(null, del);
   });
-}
+};

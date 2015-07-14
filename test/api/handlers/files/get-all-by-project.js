@@ -7,14 +7,14 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/files").getAllByProject;
+var config = require('../../../lib/fixtures/files').getAllByProject;
 var server;
 
 before(function(done) {
   require('../../../lib/mocks/server')(function(obj) {
     server = obj;
     config(function(err, getAllByProject) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = getAllByProject;
       done();

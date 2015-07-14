@@ -7,7 +7,7 @@ var before = lab.before;
 var after = lab.after;
 var expect = require('code').expect;
 
-var config = require("../../../lib/fixtures/users").delete;
+var config = require('../../../lib/fixtures/users').delete;
 var server;
 
 before(function(done) {
@@ -15,7 +15,7 @@ before(function(done) {
     server = obj;
 
     config(function(err, del) {
-      if (err) throw err;
+      if (err) { throw err; }
 
       config = del;
       done();
@@ -34,14 +34,20 @@ experiment('[Delete a user by id]', function() {
       url: '/users',
       method: 'post',
       payload: {
-        name: 'testName'
+        name: 'TestUser'
+      },
+      headers: {
+        authorization: 'token TestUser'
       }
     }, function(resp) {
       expect(resp.statusCode).to.equal(201);
 
       server.inject({
         url: '/users/' + resp.result.id,
-        method: 'delete'
+        method: 'delete',
+        headers: {
+          authorization: 'token TestUser'
+        }
       }, function(resp) {
         expect(resp.statusCode).to.equal(204);
 
