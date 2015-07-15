@@ -49,7 +49,15 @@ server.register({ register: require('./api') }, function(err) {
     });
     throw err;
   }
-  server.start(function() {
+  server.start(function(err) {
+    if (err) {
+      server.log('error', {
+        message: 'Error starting server',
+        error: err
+      });
+      throw err;
+    }
+
     server.log('info', { server: server.info }, 'Server started');
   });
 });
