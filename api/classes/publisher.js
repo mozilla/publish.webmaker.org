@@ -23,17 +23,17 @@ if (process.env.S3_EMULATION) {
 var log = require('../../lib/logger.js');
 var File = require('../modules/files/model');
 
-function buildUrl(project) {
+function buildUrl(project, user) {
   var url = process.env.PUBLIC_PROJECT_ENDPOINT + '/' +
-            project.get('user_id') + '/' +
-            project.get('title');
+            user.get('name') + '/' +
+            project.get('id');
   return url;
 }
 
-function uploadFile(file, userId) {
+function uploadFile(file, root) {
   return new Promise(function(resolve, reject) {
     var buffer = file.get('buffer');
-    var path = '/' + userId + file.get('path');
+    var path = root + file.get('path');
     var headers = {
       'Cache-Control': 'private max-age=0',
       'Content-Type': mime.lookup(path),
@@ -59,8 +59,8 @@ function uploadFile(file, userId) {
   });
 }
 
-function deleteFile(file, userId) {
-  var path = '/' + userId + file.get('path');
+function deleteFile(file, root) {
+  var path = root + file.get('path');
 
   return new Promise(function(resolve, reject) {
     var request = client.del(path);
@@ -79,29 +79,37 @@ function deleteFile(file, userId) {
   });
 }
 
-function modifyFiles(action, project) {
+function modifyFiles(action, project, user) {
   return File.query({
     where: {
       project_id: project.id
     }
   }).fetchAll()
   .then(function(records) {
-    var fn = action === 'publish' ? uploadFile : deleteFile;
-
     return records.mapThen(function(record) {
-      return fn(record, project.get('user_id'));
+      return action(record, '/' + user.get('name') + '/' + project.get('id'));
     });
+  })
+  .then(function() {
+    return buildUrl(project, user);
   })
   .catch(function(e) {
     return Promise.reject(e);
   });
 }
 
+function getUser(project) {
+  return project.user().query({}).fetch();
+}
+
 exports.publish = function(project) {
-  return modifyFiles('publish', project)
-    .then(function() {
+  return getUser(project)
+    .then(function(user) {
+      return modifyFiles(uploadFile, project, user);
+    })
+    .then(function(url) {
       return project.set({
-        publish_url: buildUrl(project)
+        publish_url: url
       }).save();
     })
     .then(function() {
@@ -119,7 +127,10 @@ exports.publish = function(project) {
 };
 
 exports.unpublish = function(project) {
-  return modifyFiles('unpublish', project)
+  return getUser(project)
+    .then(function(user) {
+      return modifyFiles(deleteFile, project, user);
+    })
     .then(function() {
       return project.set({ publish_url: null }).save();
     })
