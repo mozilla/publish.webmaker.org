@@ -6,5 +6,6 @@ module.exports = Joi.object().keys({
   date_created: Joi.string().required(),
   date_updated: Joi.string().required(),
   description: Joi.string().allow('').allow(null),
-  tags: Joi.string().allow(null)
+  tags: Joi.string().allow(null),
+  published_id: Joi.number().allow(null)
 });
