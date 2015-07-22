@@ -11,7 +11,14 @@ module.exports = [{
   method: 'PUT',
   path: '/files/{id}',
   config: {
+    payload: {
+      allow: 'multipart/form-data',
+      parse: true,
+      output: 'file',
+      maxBytes: 1048576 * 5 // 5mb
+    },
     pre: [
+      prereqs.trackTemporaryFile(),
       prereqs.confirmRecordExists(Model, 'param', 'id'),
       prereqs.validateOwnership()
     ],

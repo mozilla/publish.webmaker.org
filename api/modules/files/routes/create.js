@@ -9,7 +9,14 @@ module.exports = [{
   method: 'POST',
   path: '/files',
   config: {
+    payload: {
+      allow: 'multipart/form-data',
+      parse: true,
+      output: 'file',
+      maxBytes: 1048576 * 5 // 5mb
+    },
     pre: [
+      prereqs.trackTemporaryFile(),
       prereqs.validateCreationPermission('project_id', Project)
     ],
     handler: controller.create.bind(controller),

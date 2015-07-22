@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 var Hapi = require('hapi');
 var Hoek = require('hoek');
 
@@ -49,6 +51,27 @@ server.register({ register: require('./api') }, function(err) {
     });
     throw err;
   }
+
+  server.ext('onPreResponse', function(req, reply) {
+    if (req.response.isBoom) {
+      return reply.continue();
+    }
+
+    // Once a successful request completes, we delete any
+    // temporary files we created
+    req.response.once('finish', function() {
+      if (req.app.tmpFile) {
+        fs.unlink(req.app.tmpFile, function(err) {
+          if (err) {
+            throw 'Failed to destroy temporary file with ' + err;
+          }
+        });
+      }
+    });
+
+    reply.continue();
+  });
+
   server.start(function(err) {
     if (err) {
       server.log('error', {

@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 var BaseController = require('../../classes/base_controller');
 var errors = require('../../classes/errors');
 
@@ -7,10 +9,14 @@ var controller = new BaseController(Model);
 var PublishedFiles = require('../publishedFiles/model');
 
 controller.data = function(req) {
+  // We've already cached the path of the temporary file
+  // in a prerequisite function
+  var buffer = fs.readFileSync(req.pre.tmpFile);
+
   var data =  {
     path: req.payload.path,
     project_id: req.payload.project_id,
-    buffer: new Buffer(req.payload.buffer)
+    buffer: buffer
   };
   if (req.params.id) {
     data.id = parseInt(req.params.id);

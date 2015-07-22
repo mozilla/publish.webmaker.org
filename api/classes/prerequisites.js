@@ -1,5 +1,6 @@
 var Boom = require('boom');
 var Promise = require('bluebird');
+
 var Users = require('../modules/users/model');
 var errors = require('./errors');
 
@@ -149,6 +150,26 @@ prerequisites.validateCreationPermission = function(foreignKey, model) {
       .catch(errors.generateErrorResponse);
 
       reply(result);
+    }
+  };
+};
+
+/**
+ * trackTemporaryFile()
+ *
+ * Stores paths to temporary files in req.app for clearing after a request completes
+ * and in req.pre for use in the handler
+ */
+prerequisites.trackTemporaryFile = function() {
+  return {
+    assign: 'tmpFile',
+    method: function trackTemporaryFile(req, reply) {
+      var buffer = req.payload.buffer;
+
+      // Store the paths for after the request completes
+      req.app.tmpFile = buffer.path;
+
+      reply(buffer.path);
     }
   };
 };
