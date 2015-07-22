@@ -1,26 +1,10 @@
 var Promise = require('bluebird');
-var noxmox = require('noxmox');
 var mime = require('mime');
 
-var client;
-
-if (process.env.S3_EMULATION) {
-  process.env.AWS_BUCKET = 'test';
-
-  client = noxmox.mox.createClient({
-    key: 'local',
-    secret: 'host',
-    bucket: process.env.AWS_BUCKET
-  });
-} else {
-  client = noxmox.nox.createClient({
-    key: process.env.AWS_ACCESS_KEY_ID,
-    secret: process.env.AWS_SECRET_ACCESS_KEY,
-    bucket: process.env.AWS_BUCKET
-  });
-}
+var client = require('../../lib/amazon-client').create();
 
 var log = require('../../lib/logger.js');
+var Remix = require('../../lib/remix');
 
 var File = require('../modules/files/model');
 var PublishedFiles = require('../modules/publishedFiles/model');
@@ -66,18 +50,17 @@ function getPublishedFiles(publishedProject) {
 /**
  * Publish helpers
  */
-function uploadFile(file, root) {
-  return new Promise(function(resolve, reject) {
-    var buffer = file.get('buffer');
-    var path = root + file.get('path');
-    var headers = {
-      'Cache-Control': 'private max-age=0',
-      'Content-Type': mime.lookup(path),
-      'Content-Length': buffer.length,
-      'x-amz-acl': 'public-read'
-    };
+function upload(path, buffer, mimeType) {
+  var headers = {
+    'Cache-Control': 'private max-age=0',
+    'Content-Type': mimeType,
+    'Content-Length': buffer.length,
+    'x-amz-acl': 'public-read'
+  };
 
-    var request = client.put(path, headers);
+  var request = client.put(path, headers);
+
+  return new Promise(function(resolve, reject) {
     request.on('error', function(err) {
       reject(err);
     });
@@ -93,6 +76,18 @@ function uploadFile(file, root) {
       }
     });
   });
+}
+
+function uploadFile(file, root, remixMetadata) {
+  var buffer = file.get('buffer');
+  var path = root + file.get('path');
+  var mimeType = mime.lookup(path);
+
+  if(mimeType === 'text/html') {
+    buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
+  }
+
+  return upload(path, buffer, mimeType);
 }
 
 function deleteFileRemotely(file, root) {
@@ -115,15 +110,15 @@ function deleteFileRemotely(file, root) {
   });
 }
 
-function modifyPublishedFiles(action, project, user, files) {
+function modifyPublishedFiles(action, project, user, files, remixMetadata) {
   return Promise.resolve()
   .then(function() {
     if (files.length) {
       return files.mapThen(function(file) {
-        return action(file, '/' + user.get('name') + '/' + project.get('id'));
+        return action(file, '/' + user.get('name') + '/' + project.get('id'), remixMetadata);
       });
     }
-    return action(files, '/' + user.get('name') + '/' + project.get('id'));
+    return action(files, '/' + user.get('name') + '/' + project.get('id'), remixMetadata);
   });
 }
 
@@ -136,6 +131,7 @@ exports.publish = function publish(project) {
 
   var publishedFiles;
   var publishedProject;
+  var remixMetadata;
 
   var projectFiles = {};
   var publishedProjectFiles = {};
@@ -170,6 +166,13 @@ exports.publish = function publish(project) {
     })
     .then(function(p) {
       publishedProject = p;
+      remixMetadata = {
+        projectId: publishedProject.get('id'),
+        projectTitle: publishedProject.get('title'),
+        projectAuthor: user.get('name'),
+        dateUpdated: project.get('date_updated'),
+        host: Remix.resourceHost
+      };
     });
   })
   // Then, fetch all the project's files
@@ -263,7 +266,7 @@ exports.publish = function publish(project) {
     })
     .then(function(f) {
       return Promise.map(f, function(toBePublished) {
-        modifyPublishedFiles(uploadFile, project, user, toBePublished);
+        modifyPublishedFiles(uploadFile, project, user, toBePublished, remixMetadata);
       });
     });
   })
@@ -297,7 +300,7 @@ exports.publish = function publish(project) {
           buffer: originalFile.get('buffer')
         }).save()
         .then(function() {
-          return modifyPublishedFiles(uploadFile, project, user, model);
+          return modifyPublishedFiles(uploadFile, project, user, model, remixMetadata);
         });
       });
     });
