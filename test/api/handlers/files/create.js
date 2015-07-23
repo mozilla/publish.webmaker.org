@@ -79,32 +79,6 @@ experiment('[Create a file]', function() {
     });
   });
 
-  test('path must be a valid type', function(done) {
-    var opts = config.fail.pathTypeError;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`path` invalid');
-
-      done();
-    });
-  });
-
-  test('buffer must be an array', function(done) {
-    var opts = config.fail.bufferTypeError;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`buffer` invalid');
-
-      done();
-    });
-  });
-
   test('project_id must exist', function(done) {
     var opts = config.fail.projectidAbsent;
 

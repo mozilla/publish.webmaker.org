@@ -8,12 +8,34 @@ var validFiles;
 
 var create = {};
 
-// We get buffers from the client as arrays of octets
-var testBuffer = (new Buffer('test')).toJSON().data;
-
-var userToken = {
-  authorization: 'token ag-dubs'
+var validHeaders = {
+  authorization: 'token ag-dubs',
+  'content-type': 'multipart/form-data; boundary=AaB03x'
 };
+
+function constructMultipartPayload(fields, data) {
+  var payload = '';
+
+  fields.forEach(function(field) {
+    payload += '--AaB03x\r\n';
+    payload += 'content-disposition: form-data; name="' + field.name + '"\r\n';
+    payload += '\r\n' + field.content + '\r\n';
+  });
+
+  if (!data) {
+    payload += '--AaB03x--\r\n';
+    return payload;
+  }
+
+  payload += '--AaB03x\r\n';
+  payload += 'content-disposition: form-data; name="' + data.name + '"; ';
+  payload += 'filename="' + data.filename + '"\r\n';
+  payload += 'Content-Type: ' + data.contentType + '\r\n';
+  payload += '\r\n' + data.content + '\r\r\n';
+  payload += '--AaB03x--\r\n';
+
+  return payload;
+}
 
 module.exports = function(cb) {
   if (create.success) {
@@ -33,100 +55,160 @@ module.exports = function(cb) {
 
       create.success = {
         default: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: validProjects[0].id,
-            path: '/test.txt',
-            buffer: testBuffer
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: validProjects[0].id
+            },
+            {
+              name: 'path',
+              content: '/test.txt'
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         }
       };
 
       create.fail = {
         projectDoesNotExist: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: 9999999,
-            path: '/test.txt',
-            buffer: testBuffer
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: 9999999
+            },
+            {
+              name: 'path',
+              content: '/test.txt'
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         },
         projectidTypeError: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: 'thisisastring',
-            path: '/test.txt',
-            buffer: testBuffer
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: 'thisisastring'
+            },
+            {
+              name: 'path',
+              content: '/test.txt'
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         },
         pathTypeError: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: validProjects[0].id,
-            path: 1234,
-            buffer: testBuffer
-          }
-        },
-        bufferTypeError: {
-          headers: userToken,
-          url: '/files',
-          method: 'post',
-          payload: {
-            project_id: validProjects[0].id,
-            path: '/test.txt',
-            buffer: 'thisisastring'
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: validProjects[0].id
+            },
+            {
+              name: 'path',
+              content: 1234
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         },
         payloadAbsent: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
           payload: {}
         },
         projectidAbsent: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            path: '/test.txt',
-            buffer: testBuffer
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'path',
+              content: '/test.txt'
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         },
         pathAbsent: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: validProjects[0].id,
-            buffer: testBuffer
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: validProjects[0].id
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         },
         dataAbsent: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: validProjects[0].id,
-            path: '/test.txt'
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: validProjects[0].id
+            },
+            {
+              name: 'path',
+              content: '/test.txt'
+            }
+          ])
         },
         duplicatePath: {
-          headers: userToken,
+          headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: {
-            project_id: validProjects[0].id,
-            path: validFiles[0].path,
-            buffer: testBuffer
-          }
+          payload: constructMultipartPayload([
+            {
+              name: 'project_id',
+              content: validProjects[0].id
+            },
+            {
+              name: 'path',
+              content: validFiles[0].path
+            }
+          ], {
+            name: 'buffer',
+            filename: 'test.txt',
+            contentType: 'text/plain',
+            content: 'test data'
+          })
         }
       };
 
