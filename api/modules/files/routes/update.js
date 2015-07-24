@@ -15,7 +15,7 @@ module.exports = [{
       allow: 'multipart/form-data',
       parse: true,
       output: 'file',
-      maxBytes: 1048576 * 5 // 5mb
+      maxBytes: process.env.FILE_SIZE_LIMIT || 1048576 * 5 // 5mb
     },
     pre: [
       prereqs.trackTemporaryFile(),

@@ -9,6 +9,8 @@ require('./lib/environment');
 Hoek.assert(process.env.API_HOST, 'Must define API_HOST');
 Hoek.assert(process.env.PORT, 'Must define PORT');
 
+var extensions = require('./adaptors/extensions');
+
 var connection = {
   host: process.env.API_HOST,
   port: process.env.PORT
@@ -52,25 +54,7 @@ server.register({ register: require('./api') }, function(err) {
     throw err;
   }
 
-  server.ext('onPreResponse', function(req, reply) {
-    if (req.response.isBoom) {
-      return reply.continue();
-    }
-
-    // Once a successful request completes, we delete any
-    // temporary files we created
-    req.response.once('finish', function() {
-      if (req.app.tmpFile) {
-        fs.unlink(req.app.tmpFile, function(err) {
-          if (err) {
-            throw 'Failed to destroy temporary file with ' + err;
-          }
-        });
-      }
-    });
-
-    reply.continue();
-  });
+  server.ext('onPreResponse', extensions.clearTemporaryFile);
 
   server.start(function(err) {
     if (err) {

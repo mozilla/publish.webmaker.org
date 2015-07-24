@@ -157,7 +157,7 @@ prerequisites.validateCreationPermission = function(foreignKey, model) {
 /**
  * trackTemporaryFile()
  *
- * Stores paths to temporary files in req.app for clearing after a request completes
+ * Stores the path to a temporary file in req.app for clearing after a request completes
  * and in req.pre for use in the handler
  */
 prerequisites.trackTemporaryFile = function() {
