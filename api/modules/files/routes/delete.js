@@ -12,6 +12,7 @@ module.exports = [{
   config: {
     pre: [
       prereq.confirmRecordExists(Model, 'param', 'id'),
+      prereq.validateUser(),
       prereq.validateOwnership()
     ],
     handler: controller.delete.bind(controller),

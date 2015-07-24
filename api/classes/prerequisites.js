@@ -48,18 +48,18 @@ prerequisites.confirmRecordExists = function(model, mode, requestKey, databaseKe
 };
 
 /**
- * validateOwnership()
+ * validateUser()
  *
- * Ensures the authenticated user is the owner of the
- * resource being manipulated or requested.
+ * Ensures that the user sending the request exists in the
+ * current context. This means that the user should have hit the
+ * /users/login route first
  *
  * @return {Promise}
  */
-prerequisites.validateOwnership = function() {
+prerequisites.validateUser = function() {
   return {
-    method: function validateOwnership(req, reply) {
-      var resource = req.pre.records.models[0];
-
+    assign: 'user',
+    method: function validateUser(req, reply) {
       var result = Users.query({
         where: {
           name: req.auth.credentials.username
@@ -71,27 +71,49 @@ prerequisites.validateOwnership = function() {
           throw Boom.badImplementation('User doesn\'t exist!');
         }
 
-        return Promise.resolve().then(function() {
-          // Check if the resource is the owning user, otherwise fetch
-          // the user it's owned by
-          if (resource.tableName === 'users') {
-            return resource;
-          }
-          return resource.user().query({})
-            .fetch()
-            .then(function(owner) {
-              if (!owner) {
-                // This should never ever happen
-                throw Boom.badImplementation('An owning user could not be found. Mayday!');
-              }
-              return owner;
-            });
-        })
-        .then(function(owner) {
-          if (owner.get('id') !== authenticatedUser.get('id')) {
-            throw Boom.unauthorized();
-          }
-        });
+        return authenticatedUser;
+      })
+      .catch(errors.generateErrorResponse);
+
+      return reply(result);
+    }
+  };
+};
+
+/**
+ * validateOwnership()
+ *
+ * Ensures the authenticated user is the owner of the
+ * resource being manipulated or requested.
+ *
+ * @return {Promise}
+ */
+prerequisites.validateOwnership = function() {
+  return {
+    method: function validateOwnership(req, reply) {
+      var resource = req.pre.records.models[0];
+      var authenticatedUser = req.pre.user;
+
+      var result = Promise.resolve().then(function() {
+        // Check if the resource is the owning user, otherwise fetch
+        // the user it's owned by
+        if (resource.tableName === 'users') {
+          return resource;
+        }
+        return resource.user().query({})
+          .fetch()
+          .then(function(owner) {
+            if (!owner) {
+              // This should never ever happen
+              throw Boom.badImplementation('An owning user could not be found. Mayday!');
+            }
+            return owner;
+          });
+      })
+      .then(function(owner) {
+        if (owner.get('id') !== authenticatedUser.get('id')) {
+          throw Boom.unauthorized();
+        }
       })
       .catch(errors.generateErrorResponse);
 

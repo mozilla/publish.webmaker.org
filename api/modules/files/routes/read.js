@@ -12,6 +12,7 @@ module.exports = [{
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.getOne.bind(controller),
@@ -29,6 +30,7 @@ module.exports = [{
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, 'param', 'project_id'),
+      prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.getAll.bind(controller),

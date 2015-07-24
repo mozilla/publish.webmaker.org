@@ -20,6 +20,7 @@ module.exports = [{
     pre: [
       prereqs.trackTemporaryFile(),
       prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.update.bind(controller),

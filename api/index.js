@@ -9,6 +9,9 @@ exports.register = function api(server, options, next) {
       },
       {
         register: require('./modules/files/routes')
+      },
+      {
+        register: require('./modules/publishedProjects/routes')
       }
     ], function(err) {
     if ( err ) {

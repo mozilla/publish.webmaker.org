@@ -9,6 +9,7 @@ module.exports = [{
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.publishProject.bind(controller),
@@ -20,6 +21,7 @@ module.exports = [{
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.unpublishProject.bind(controller),
