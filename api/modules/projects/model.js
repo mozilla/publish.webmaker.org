@@ -7,6 +7,9 @@ var instanceProps = {
   },
   files: function() {
     return this.hasMany(require('../files/model'));
+  },
+  publishedProject: function() {
+    return this.belongsTo(require('../publishedProjects/model'), 'published_id');
   }
 };
 

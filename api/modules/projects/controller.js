@@ -53,4 +53,23 @@ controller.unpublishProject = function(req, reply) {
   return reply(result);
 };
 
+controller.delete = function(req, reply) {
+  var self = this;
+  var project = req.pre.records.models[0];
+
+  // If this project is published, we have to
+  // unpublish it before it can be safely deleted.
+  Promise.resolve().then(function() {
+    if (project.get('published_id')) {
+      return Publisher.unpublish(project);
+    }
+  })
+  .then(function() {
+    BaseController.prototype.delete.call(self, req, reply);
+  })
+  .catch(function(e) {
+    reply(errors.generateErrorResponse(e));
+  });
+};
+
 module.exports = controller;

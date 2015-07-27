@@ -83,7 +83,7 @@ function uploadFile(file, root, remixMetadata) {
   var path = root + file.get('path');
   var mimeType = mime.lookup(path);
 
-  if(mimeType === 'text/html') {
+  if (mimeType === 'text/html') {
     buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
   }
 
@@ -335,7 +335,8 @@ exports.unpublish = function unpublish(project) {
       .then(function() {
         // Then, remove the reference from the parent project
         return project.set({
-          published_id: null
+          published_id: null,
+          publish_url: null
         }).save();
       })
       .then(function() {

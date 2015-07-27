@@ -8,7 +8,7 @@ var instanceProps = {
     return this.belongsTo(Projects);
   },
   user: function() {
-    return this.belongsTo(require('../user/model')).through(Projects);
+    return this.belongsTo(require('../users/model')).through(Projects);
   },
   publishedFiles: function() {
     return this.hasMany(require('../publishedFiles/model'));
