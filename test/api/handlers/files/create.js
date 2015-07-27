@@ -57,10 +57,9 @@ experiment('[Create a file]', function() {
     var opts = config.fail.projectDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
+      expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('Associated project does not exist.');
+      expect(resp.result.error).to.equal('Not Found');
 
       done();
     });
@@ -113,19 +112,6 @@ experiment('[Create a file]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('`buffer` must be passed.');
-
-      done();
-    });
-  });
-
-  test('path must be unique in a project', function(done) {
-    var opts = config.fail.duplicatePath;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`path` must be unique within a project.');
 
       done();
     });

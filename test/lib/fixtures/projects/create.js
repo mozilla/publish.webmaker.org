@@ -43,7 +43,7 @@ module.exports = function(cb) {
         method: 'post',
         payload: {
           title: 'Test project',
-          user_id: validUsers[0].id,
+          user_id: 999999,
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',

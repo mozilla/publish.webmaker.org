@@ -59,9 +59,9 @@ experiment('[Create a project]', function() {
     var opts = config.fail.userDoesNotExist;
 
     server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(404);
+      expect(resp.statusCode).to.equal(401);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Not Found');
+      expect(resp.result.error).to.equal('Unauthorized');
 
       done();
     });
