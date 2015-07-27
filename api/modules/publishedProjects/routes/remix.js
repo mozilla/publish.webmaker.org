@@ -14,7 +14,8 @@ module.exports = [{
       prereqs.validateUser()
     ],
     handler: controller.clone.bind(controller),
-    description: 'Copy a published project with the given `id` and its files into the current user\'s projects and files respectively',
+    description: 'Copy a published project with the given `id` and its files into' +
+      ' the current user\'s projects and files respectively',
     validate: {
       params: {
         id: Joi.number().integer().required()

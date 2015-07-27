@@ -42,7 +42,7 @@ controller.clone = function(req, reply) {
     }).fetchAll();
   })
   .then(function(files) {
-    if(!files.length) { throw Boom.badImplementation(); }
+    if (!files.length) { throw Boom.badImplementation(); }
 
     return files.mapThen(function(file) {
       return copyFile(file, project.get('id'));
