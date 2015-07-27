@@ -8,7 +8,7 @@ var Publisher = require('../../classes/publisher');
 var Model = require('./model');
 var controller = new BaseController(Model);
 
-controller.data = function(req) {
+controller.formatRequestData = function(req) {
   var data = {
     title: req.payload.title,
     user_id: req.payload.user_id,

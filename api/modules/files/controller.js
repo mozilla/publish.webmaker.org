@@ -8,7 +8,7 @@ var controller = new BaseController(Model);
 
 var PublishedFiles = require('../publishedFiles/model');
 
-controller.data = function(req) {
+controller.formatRequestData = function(req) {
   // We've already cached the path of the temporary file
   // in a prerequisite function
   var buffer = fs.readFileSync(req.pre.tmpFile);

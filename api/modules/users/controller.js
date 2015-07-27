@@ -7,7 +7,7 @@ var errors = require('../../classes/errors');
 var BaseController = require('../../classes/base_controller');
 var controller = new BaseController(Model);
 
-controller.data = function(req) {
+controller.formatRequestData = function(req) {
   var data = {
     name: req.payload.name
   };

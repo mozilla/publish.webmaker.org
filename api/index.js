@@ -12,6 +12,9 @@ exports.register = function api(server, options, next) {
       },
       {
         register: require('./modules/publishedProjects/routes')
+      },
+      {
+        register: require('./modules/publishedFiles/routes')
       }
     ], function(err) {
     if ( err ) {
@@ -28,7 +31,9 @@ exports.register = function api(server, options, next) {
             'routes': {
               'users': '/users',
               'projects': '/projects',
-              'files': '/files'
+              'files': '/files',
+              'publishedProjects': '/publishedProjects',
+              'publishedFiles': '/publishedFiles'
             }
           }, null, 2)
         );

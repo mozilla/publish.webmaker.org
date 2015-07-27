@@ -6,23 +6,30 @@ function BaseController(model)  {
   this.Model = model;
 }
 
-BaseController.prototype.data = function(req) {
+BaseController.prototype.formatRequestData = function(req) {
   // Abstract base method,
   // formats data for database entry
 };
 
+BaseController.prototype.formatResponseData = function(model) {
+  // Base method to format data that will be sent in the response
+  // By default, it returns the model as is
+  return model;
+};
+
 BaseController.prototype.getOne = function(req, reply) {
-  var record = req.pre.records.models[0];
-  reply(req.generateResponse(record.toJSON())
+  var record = this.formatResponseData(req.pre.records.models[0].toJSON());
+  reply(req.generateResponse(record)
     .code(200));
 };
 
 BaseController.prototype.getAll = function(req, reply) {
-  reply(req.generateResponse(req.pre.records.toJSON()));
+  var records = req.pre.records.toJSON().map(this.formatResponseData);
+  reply(req.generateResponse(records));
 };
 
 BaseController.prototype.update = function(req, reply) {
-  var reqData = this.data(req);
+  var reqData = this.formatRequestData(req);
 
   var result = Promise.resolve().then(function() {
     var record = req.pre.records.models[0];
@@ -45,7 +52,7 @@ BaseController.prototype.update = function(req, reply) {
 
 BaseController.prototype.create = function(req, reply) {
   var result = this.Model
-    .forge(this.data(req))
+    .forge(this.formatRequestData(req))
     .save()
     .then(function(record) {
       if (!record) { throw Boom.notFound(); }
