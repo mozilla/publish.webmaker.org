@@ -12,4 +12,12 @@ cache:
   directories:
   - node_modules
 notifications:
-  irc: "irc.mozilla.org#publish"
+  irc: irc.mozilla.org#publish
+deploy:
+  provider: heroku
+  api_key:
+    secure: dx1+PCVCac/FRKD7MIR54ZGpDkgjIR8hn4iiBas840x6tSwRFUOrOrdOYVzuWpJw2+iCCZMmSnO3uR5/0CVvmchUG+UtE80iEJ6kda6BQR3mNfGh832XVLERLsBDFyBBZFRx45uqHe2v+eor1b5ckyPd24y/HVGn2gL8vuU3epGiv1kWFgBjWxYb5PMZ5tmoeSsP7MDNSw3BnMzRhyAM4yBkbrjlKHCZmRNXw0K0yrFzVXjiGAF9+6vwdS3q6F1NTslwYWyyJhuks4K3eFtbma/AUCL1RETyt/9aajC614mLshXKWH6Nf8dtIaGKhySmA1k1EgocE6tYUse+1kSyW3PovxwH3l+Z7bUzPoHKPQHG3B/GsWlt+JljT33AC8sE/x5IAiamEl4SnI85B3293XgGv0YvrUPl2kXxnVz0qFX3NObgA306QeFfm4PDqGGhuPv5QAjWZT1exLPEZivI2GG1Q/vUN2Yv8PXpt3p6m9t9twM6Tuw9KWA96hH4dnWN1acJZB7p7+pA/4K6NHE16sUgFDTwAAgy/rVUdw4D8YqIeu/DQN4eruNBJCx7vdO9En327CDx7Mf+ml3ozMSviiwdTXsZiWK2IMH4UYMTROOMyrLd2LsllP7u0NZz8FerBUyI3+Each6JaiwLozSshZES+LLrYavGBv4RtBndOJA=
+  on:
+    branch: master
+    repo: mozilla/publish.webmaker.org
+  app: damp-anchorage-2948
