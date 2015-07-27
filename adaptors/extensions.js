@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 exports.clearTemporaryFile = function clearTemporaryFile(req, reply) {
   if (req.response.isBoom) {
     return reply.continue();

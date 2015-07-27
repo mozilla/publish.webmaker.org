@@ -1,5 +1,3 @@
-var fs = require('fs');
-
 var Hapi = require('hapi');
 var Hoek = require('hoek');
 
