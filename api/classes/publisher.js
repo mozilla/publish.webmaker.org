@@ -266,7 +266,7 @@ exports.publish = function publish(project) {
     })
     .then(function(f) {
       return Promise.map(f, function(toBePublished) {
-        modifyPublishedFiles(uploadFile, project, user, toBePublished, remixMetadata);
+        return modifyPublishedFiles(uploadFile, project, user, toBePublished, remixMetadata);
       });
     });
   })
