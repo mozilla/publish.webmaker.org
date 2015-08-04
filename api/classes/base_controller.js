@@ -36,7 +36,7 @@ BaseController.prototype.update = function(req, reply) {
 
     record.set(reqData);
     if (!record.hasChanged()) {
-      throw Boom.notFound();
+      return record;
     }
 
     return record

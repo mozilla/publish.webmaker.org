@@ -95,4 +95,46 @@ experiment('[Update a user by id]', function() {
       done();
     });
   });
+
+  test('returns a 200 when nothing is updated', function(done) {
+    server.inject({
+      url: '/users',
+      method: 'post',
+      payload: {
+        name: 'TestUser'
+      },
+      headers: {
+        authorization: 'token TestUser'
+      }
+    }, function(resp) {
+      expect(resp.statusCode).to.equal(201);
+
+      server.inject({
+        url: '/users/' + resp.result.id,
+        method: 'put',
+        payload: {
+          name: 'TestUser'
+        },
+        headers: {
+          authorization: 'token TestUser'
+        }
+      }, function(resp) {
+        expect(resp.statusCode).to.equal(200);
+        expect(resp.result).to.exist();
+        expect(resp.result.id).to.be.a.number();
+        expect(resp.result.name).to.be.a.string();
+
+        server.inject({
+          url: '/users/' + resp.result.id,
+          method: 'delete',
+          headers: {
+            authorization: 'token TestUser'
+          }
+        }, function (resp) {
+          expect(resp.statusCode).to.equal(204);
+          done();
+        });
+      });
+    });
+  });
 });
