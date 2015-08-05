@@ -54,8 +54,7 @@ function upload(path, buffer, mimeType) {
   var headers = {
     'Cache-Control': 'private max-age=0',
     'Content-Type': mimeType,
-    'Content-Length': buffer.length,
-    'x-amz-acl': 'public-read'
+    'Content-Length': buffer.length
   };
 
   var request = client.put(path, headers);
