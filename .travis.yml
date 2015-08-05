@@ -20,4 +20,4 @@ deploy:
   on:
     branch: master
     repo: mozilla/publish.webmaker.org
-  app: damp-anchorage-2948
+  app: publish-webmaker-org-staging
