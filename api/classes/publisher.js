@@ -52,7 +52,7 @@ function getPublishedFiles(publishedProject) {
  */
 function upload(path, buffer, mimeType) {
   var headers = {
-    'Cache-Control': 'private max-age=0',
+    'Cache-Control': 'max-age=0',
     'Content-Type': mimeType,
     'Content-Length': buffer.length
   };
