@@ -10,7 +10,10 @@ module.exports = [{
   method: 'PUT',
   config: {
     pre: [
-      prereqs.confirmRecordExists(model, 'param', 'id'),
+      prereqs.confirmRecordExists(model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
       prereqs.validateUser()
     ],
     handler: controller.remix.bind(controller),

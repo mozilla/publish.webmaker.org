@@ -8,7 +8,10 @@ module.exports = [{
   path: '/projects/{id}/publish',
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
@@ -20,7 +23,10 @@ module.exports = [{
   path: '/projects/{id}/unpublish',
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],

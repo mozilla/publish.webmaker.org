@@ -21,20 +21,31 @@ var prerequisites = {};
  *
  * @return {Promise}
  */
-prerequisites.confirmRecordExists = function(model, mode, requestKey, databaseKey) {
-  databaseKey = databaseKey || requestKey;
+prerequisites.confirmRecordExists = function(model, config) {
+  config = config || {};
+  config.databaseKey = config.databaseKey || config.requestKey;
 
   return {
     assign: 'records',
     method: function(req, reply) {
-      var options = {};
-      if (requestKey) {
-        options.where = {};
-        options.where[databaseKey] = mode === 'param' ? req.params[requestKey] : req.payload[requestKey];
+      var queryOptions = {};
+      if (config.requestKey) {
+        queryOptions.where = {};
+
+        if (config.mode === 'param') {
+          queryOptions.where[config.databaseKey] = req.params[config.requestKey];
+        } else {
+          queryOptions.where[config.databaseKey] = req.payload[config.requestKey];
+        }
       }
 
-      var result = model.query(options)
-        .fetchAll()
+      var fetchOptions;
+      if (config.columns) {
+        fetchOptions = { columns: config.columns };
+      }
+
+      var result = model.query(queryOptions)
+        .fetchAll(fetchOptions)
         .then(function(records) {
           if (records.length === 0) { throw Boom.notFound(); }
 

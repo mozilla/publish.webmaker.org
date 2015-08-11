@@ -12,7 +12,10 @@ module.exports = [{
   config: {
     auth: false,
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'id')
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
     ],
     handler: controller.getOne.bind(controller),
     description: 'Retrieve a single published file object based on `id`.',
@@ -29,7 +32,10 @@ module.exports = [{
   config: {
     auth: false,
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'published_id')
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'published_id'
+      }),
     ],
     handler: controller.getAll.bind(controller),
     description: 'Retrieve a collection of published file objects that belong to a single published project object, ' +

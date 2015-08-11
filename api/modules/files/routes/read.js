@@ -11,7 +11,10 @@ module.exports = [{
   path: '/files/{id}',
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
@@ -29,7 +32,10 @@ module.exports = [{
   path: '/projects/{project_id}/files',
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'project_id'),
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'project_id'
+      }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],

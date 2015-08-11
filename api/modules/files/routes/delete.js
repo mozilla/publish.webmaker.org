@@ -11,7 +11,10 @@ module.exports = [{
   path: '/files/{id}',
   config: {
     pre: [
-      prereq.confirmRecordExists(Model, 'param', 'id'),
+      prereq.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
       prereq.validateUser(),
       prereq.validateOwnership()
     ],

@@ -12,7 +12,10 @@ module.exports = [{
   config: {
     auth: false,
     pre: [
-      prereqs.confirmRecordExists(Model, 'param', 'id')
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      })
     ],
     handler: controller.getOne.bind(controller),
     description: 'Retrieve a single published project object based on `id`.',

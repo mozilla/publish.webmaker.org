@@ -19,7 +19,10 @@ module.exports = [{
     },
     pre: [
       prereqs.trackTemporaryFile(),
-      prereqs.confirmRecordExists(Model, 'param', 'id'),
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'id'
+      }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
