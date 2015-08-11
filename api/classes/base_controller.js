@@ -1,5 +1,6 @@
 var Boom = require('boom');
 var Promise = require('bluebird');
+var archiver = require('archiver');
 var errors = require('./errors');
 
 function BaseController(model)  {
@@ -76,5 +77,38 @@ BaseController.prototype.delete = function(req, reply) {
 
   reply(result);
 };
+
+BaseController.prototype.getAllAsMeta = function(req, reply) {
+  reply(req.generateResponse(req.pre.records.toJSON()));
+};
+
+BaseController.prototype.getAllAsTar = function(req, reply) {
+  var files = req.pre.records.models;
+  var self = this;
+
+  function createTarStream() {
+    var archive = archiver('tar');
+
+    return Promise.map(files, function(file) {
+      return self.Model.query({
+        where: {
+          id: file.get('id')
+        },
+        columns: ['buffer']
+      }).fetch()
+      .then(function(model) {
+        archive.append(model.get('buffer'), { name: file.get('path') });
+      });
+    }).then(function() {
+      archive.finalize();
+
+      return archive;
+    });
+  }
+
+  return reply(createTarStream())
+    .header('Content-Type', 'application/x-tar');
+};
+
 
 module.exports = BaseController;

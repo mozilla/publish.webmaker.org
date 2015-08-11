@@ -70,4 +70,27 @@ module.exports = [{
       failAction: Errors.id
     }
   }
+}, {
+  method: 'GET',
+  path: '/projects/{project_id}/files/tar',
+  config: {
+    pre: [
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'project_id',
+        columns: ['id', 'path']
+      }),
+      prereqs.validateUser(),
+      prereqs.validateOwnership()
+    ],
+    handler: controller.getAllAsTar.bind(controller),
+    description: 'Retrieve a tar file containing a collection of file objects that belong to a ' +
+    'single project object, based on `project_id`.',
+    validate: {
+      params: {
+        project_id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
+  }
 }];

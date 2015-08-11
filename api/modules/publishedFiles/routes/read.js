@@ -15,7 +15,7 @@ module.exports = [{
       prereqs.confirmRecordExists(Model, {
         mode: 'param',
         requestKey: 'id'
-      }),
+      })
     ],
     handler: controller.getOne.bind(controller),
     description: 'Retrieve a single published file object based on `id`.',
@@ -35,7 +35,7 @@ module.exports = [{
       prereqs.confirmRecordExists(Model, {
         mode: 'param',
         requestKey: 'published_id'
-      }),
+      })
     ],
     handler: controller.getAll.bind(controller),
     description: 'Retrieve a collection of published file objects that belong to a single published project object, ' +
@@ -51,21 +51,42 @@ module.exports = [{
   method: 'GET',
   path: '/publishedProjects/{published_id}/publishedFiles/meta',
   config: {
+    auth: false,
     pre: [
       prereqs.confirmRecordExists(Model, {
         mode: 'param',
         requestKey: 'published_id',
         columns: ['id', 'published_id', 'file_id', 'path']
-      }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      })
     ],
     handler: controller.getAllAsMeta.bind(controller),
-    description: 'Retrieve a collection of publishedFile objects that belong to a single project object, based on 
-    + `published_id`. Omits `buffer` attribute.',
+    description: 'Retrieve a collection of publishedFile objects that belong to a single project object, based on ' +
+    '`published_id`. Omits `buffer` attribute.',
     validate: {
       params: {
-        project_id: Joi.number().integer().required()
+        published_id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
+  }
+}, {
+  method: 'GET',
+  path: '/publishedProjects/{published_id}/publishedFiles/tar',
+  config: {
+    auth: false,
+    pre: [
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'published_id',
+        columns: ['id', 'path']
+      })
+    ],
+    handler: controller.getAllAsTar.bind(controller),
+    description: 'Retrieve a collection of publishedFile objects that belong to a single project object, based on ' +
+    '`published_id`. Omits `buffer` attribute.',
+    validate: {
+      params: {
+        published_id: Joi.number().integer().required()
       },
       failAction: Errors.id
     }
