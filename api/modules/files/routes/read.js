@@ -48,4 +48,26 @@ module.exports = [{
       failAction: Errors.id
     }
   }
+}, {
+  method: 'GET',
+  path: '/projects/{project_id}/files/meta',
+  config: {
+    pre: [
+      prereqs.confirmRecordExists(Model, {
+        mode: 'param',
+        requestKey: 'project_id',
+        columns: ['id', 'project_id', 'path']
+      }),
+      prereqs.validateUser(),
+      prereqs.validateOwnership()
+    ],
+    handler: controller.getAllAsMeta.bind(controller),
+    description: 'Retrieve a collection of file objects that belong to a single project object, based on `project_id`.',
+    validate: {
+      params: {
+        project_id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
+  }
 }];

@@ -9,4 +9,8 @@ controller.formatResponseData = function(publishedFile) {
   return publishedFile;
 };
 
+controller.getAllAsMeta = function(req, reply) {
+  reply(req.generateResponse(req.pre.records.toJSON()));
+};
+
 module.exports = controller;
