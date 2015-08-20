@@ -341,26 +341,37 @@ exports.publish = function publish(project) {
 };
 
 exports.unpublish = function unpublish(project) {
-  return Promise.join(getUserForProject(project),
-                      getPublishedProject(project),
-                      function(user, publishedProject) {
-    // First, collect published files
+  function getUserAndPublishedProject(callback) {
+    var user = getUserForProject(project);
+    var publishedProject = getPublishedProject(project);
+
+    return Promise.join(user, publishedProject, callback);
+  }
+
+  function destroyPublishedFiles(user, publishedProject) {
+    function deleteFilesFromS3(files) {
+      return modifyPublishedFiles(deleteFileRemotely, project, user, files);
+    }
+
+    function unsetProjectReferences() {
+      return project.set({
+        published_id: null,
+        publish_url: null
+      }).save();
+    }
+
+    function destroyPublishedProject() {
+      return publishedProject.destroy();
+    }
+
     return getPublishedFiles(publishedProject)
-    .then(function(files) {
-      // Then, remove them from s3
-      return modifyPublishedFiles(deleteFileRemotely, project, user, files)
-      .then(function() {
-        // Then, remove the reference from the parent project
-        return project.set({
-          published_id: null,
-          publish_url: null
-        }).save();
-      })
-      .then(function() {
-        // Finally, delete them from the DB in one step
-        return publishedProject.destroy();
-      });
-    });
+      .then(deleteFilesFromS3)
+      .then(unsetProjectReferences)
+      .then(destroyPublishedProject);
+  }
+
+  return getUserAndPublishedProject(function(user, publishedProject) {
+    return destroyPublishedFiles(user, publishedProject);
   })
   .then(function() {
     return project.set({ publish_url: null }).save();
@@ -370,7 +381,8 @@ exports.unpublish = function unpublish(project) {
       'Successfully unpublished ' +
       project.get('title')
     );
-  });
+  })
+  .catch(reject);
 };
 
 module.exports = exports;
