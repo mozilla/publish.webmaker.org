@@ -65,11 +65,12 @@ BaseController.prototype.create = function(req, reply) {
 };
 
 BaseController.prototype.delete = function(req, reply) {
+  var record = req.pre.records.models[0];
+
   var result = Promise.resolve().then(function() {
-    var record = req.pre.records.models[0];
-
-    record.destroy();
-
+    return record.destroy();
+  })
+  .then(function() {
     return req.generateResponse(record.toJSON())
       .code(204);
   })
