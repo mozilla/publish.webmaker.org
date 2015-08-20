@@ -1,5 +1,6 @@
 var Promise = require('bluebird');
 var mime = require('mime');
+var Path = require('path');
 
 var client = require('../../lib/amazon-client').create();
 
@@ -47,6 +48,23 @@ function getPublishedFiles(publishedProject) {
   }).fetchAll();
 }
 
+// Takes an absolute path and uri-encodes each component
+// of the path to return a fully uri safe path
+function uriSafe(path) {
+  if (path === '/') {
+    return '/';
+  }
+
+  var uriSafePath = '';
+
+  while (path !== '/') {
+    uriSafePath = Path.join('/', encodeURIComponent(Path.basename(path)), uriSafePath);
+    path = Path.dirname(path);
+  }
+
+  return uriSafePath;
+}
+
 /**
  * Publish helpers
  */
@@ -57,7 +75,7 @@ function upload(path, buffer, mimeType) {
     'Content-Length': buffer.length
   };
 
-  var request = client.put(path, headers);
+  var request = client.put(uriSafe(path), headers);
 
   return new Promise(function(resolve, reject) {
     request.on('error', function(err) {
@@ -93,7 +111,7 @@ function deleteFileRemotely(file, root) {
   var path = root + file.get('path');
 
   return new Promise(function(resolve, reject) {
-    var request = client.del(path);
+    var request = client.del(uriSafe(path));
     request.on('error', function(err) {
       reject(err);
     });
