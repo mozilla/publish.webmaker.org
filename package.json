@@ -21,6 +21,9 @@
     "url": "https://github.com/mozilla/publish.webmaker.org/issues"
   },
   "homepage": "https://github.com/mozilla/publish.webmaker.org",
+  "engines": {
+    "node": "0.12.x"
+  },
   "dependencies": {
     "archiver": "^0.14.4",
     "bluebird": "^2.9.30",
