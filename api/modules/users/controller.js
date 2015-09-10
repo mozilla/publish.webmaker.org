@@ -23,7 +23,10 @@ controller.login = function(req, reply) {
   var result = Promise.resolve().then(function() {
     // First, check if the auth matches the requested user
     if (req.payload.name !== req.auth.credentials.username) {
-      throw Boom.unauthorized();
+      throw Boom.unauthorized(null, {
+        debug: true,
+        error: 'Authenticated user doesn\'t match the user requested'
+      });
     }
 
     return self.Model.query({

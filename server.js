@@ -29,7 +29,21 @@ server.connection(connection);
 server.register({
   register: require('hapi-bunyan'),
   options: {
-    logger: require('./lib/logger')
+    logger: require('./lib/logger'),
+    handler: function(eventType) {
+      // In almost every situation we log to bunyan directly
+      // through `req.log[level](...)` which doesn't trigger
+      // a HAPI log event. When a HAPI log event is triggered,
+      // this function determines if the data should be passed to
+      // bunyan to be displayed.
+
+      // Allow HAPI server-level logs (vs HAPI request-level logs)
+      if (eventType === 'log') {
+        // Returning false says "log this as normal"
+        return false;
+      }
+      return true;
+    }
   }
 }, function(err) {
   Hoek.assert(!err, err);
@@ -61,7 +75,8 @@ server.register({ register: require('./api') }, function(err) {
     throw err;
   }
 
-  server.ext('onPreResponse', extensions.clearTemporaryFile);
+  // Server extension hooks
+  server.ext('onPreResponse', [extensions.logRequest, extensions.clearTemporaryFile]);
 
   server.start(function(err) {
     if (err) {

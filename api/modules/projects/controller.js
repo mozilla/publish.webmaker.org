@@ -44,7 +44,12 @@ controller.unpublishProject = function(req, reply) {
   var result = Promise.resolve().then(function() {
     var record = req.pre.records.models[0];
 
-    if (!record.attributes.publish_url) { throw Boom.notFound(); }
+    if (!record.attributes.publish_url) {
+      throw Boom.notFound(null, {
+        debug: true,
+        error: 'This project was not published'
+      });
+    }
 
     return Publisher.unpublish(record)
       .then(function() {

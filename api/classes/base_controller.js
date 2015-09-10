@@ -56,7 +56,11 @@ BaseController.prototype.create = function(req, reply) {
     .forge(this.formatRequestData(req))
     .save()
     .then(function(record) {
-      if (!record) { throw Boom.notFound(); }
+      if (!record) {
+        throw Boom.notFound(null, {
+          error: 'Bookshelf error creating a resource'
+        });
+      }
       return req.generateResponse(record.toJSON())
         .code(201);
     })
