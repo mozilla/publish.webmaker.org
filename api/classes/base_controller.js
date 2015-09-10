@@ -107,8 +107,10 @@ BaseController.prototype.getAllAsTar = function(req, reply) {
     });
   }
 
+  // Normally this type would be application/x-tar, but IE refuses to
+  // decompress a gzipped stream when this is the type.
   return reply(createTarStream())
-    .header('Content-Type', 'application/x-tar');
+    .header('Content-Type', 'application/octet-stream');
 };
 
 
