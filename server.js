@@ -4,6 +4,8 @@ var Hoek = require('hoek');
 // Initialize the environment before anything else happens
 require('./lib/environment');
 
+require('newrelic');
+
 Hoek.assert(process.env.API_HOST, 'Must define API_HOST');
 Hoek.assert(process.env.PORT, 'Must define PORT');
 

@@ -40,6 +40,7 @@
     "knex": "^0.8.6",
     "lout": "^6.2.2",
     "mime": "^1.3.4",
+    "newrelic": "^1.22.0",
     "noxmox": "git://github.com/sedge/noxmox.git#master",
     "pg": "^4.4.0",
     "pg-query-stream": "^0.7.0",
