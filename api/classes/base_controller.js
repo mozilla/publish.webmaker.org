@@ -1,6 +1,6 @@
 var Boom = require('boom');
 var Promise = require('bluebird');
-var archiver = require('archiver');
+var Tar = require('tar-stream');
 var errors = require('./errors');
 
 function BaseController(model)  {
@@ -85,31 +85,29 @@ BaseController.prototype.getAllAsMeta = function(req, reply) {
 
 BaseController.prototype.getAllAsTar = function(req, reply) {
   var files = req.pre.records.models;
+  var tarStream = Tar.pack();
   var self = this;
 
-  function createTarStream() {
-    var archive = archiver('tar');
-
+  function startStreaming(files, model) {
     return Promise.map(files, function(file) {
-      return self.Model.query({
+      return model.query({
         where: {
           id: file.get('id')
         },
         columns: ['buffer']
-      }).fetch()
-      .then(function(model) {
-        archive.append(model.get('buffer'), { name: file.get('path') });
+      }).fetch().then(function(model) {
+        tarStream.entry({ name: file.get('path') }, model.get('buffer'));
       });
     }).then(function() {
-      archive.finalize();
-
-      return archive;
+      tarStream.finalize();
     });
   }
 
+  startStreaming(files, self.Model).catch(errors.generateErrorResponse);
+
   // Normally this type would be application/x-tar, but IE refuses to
   // decompress a gzipped stream when this is the type.
-  return reply(createTarStream())
+  return reply(tarStream)
     .header('Content-Type', 'application/octet-stream');
 };
 

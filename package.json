@@ -25,7 +25,6 @@
     "node": "0.12.x"
   },
   "dependencies": {
-    "archiver": "^0.14.4",
     "bluebird": "^2.9.30",
     "bookshelf": "^0.8.1",
     "boom": "^2.7.2",
@@ -45,7 +44,8 @@
     "pg": "^4.4.0",
     "pg-query-stream": "^0.7.0",
     "request": "^2.58.0",
-    "sqlite3": "^3.0.8"
+    "sqlite3": "^3.0.8",
+    "tar-stream": "^1.2.1"
   },
   "devDependencies": {
     "code": "^1.4.0",
