@@ -7,45 +7,47 @@ var client = require('../../lib/amazon-client').create();
 var log = require('../../lib/logger.js');
 var Remix = require('../../lib/remix');
 
-var File = require('../modules/files/model');
-var PublishedFiles = require('../modules/publishedFiles/model');
-var PublishedProject = require('../modules/publishedProjects/model');
+var Projects = require('../modules/projects/model');
+var PublishedProjects = require('../modules/publishedProjects/model');
+
+// SQL Query Generators
+var UserQueries = require('../modules/users/model').prototype.queries();
+var ProjectQueries = Projects.prototype.queries();
+var PublishedProjectQueries = PublishedProjects.prototype.queries();
+var PublishedFileQueries = require('../modules/publishedFiles/model').prototype.queries();
+
+var reject  = Promise.reject;
 
 /**
  * Utility functions
  */
-function reject(e) {
-  return Promise.reject(e);
+function success(type, username) {
+  return function(message) {
+    log.info('Publish for ' + username + ' - [' + type + '] ' + message);
+  };
 }
 
-function buildUrl(project, user) {
-  var url = process.env.PUBLIC_PROJECT_ENDPOINT + '/' +
-            user.get('name') + '/' +
-            project.get('id');
-  return url;
+function failure(type, username) {
+  return function(err) {
+    log.error({ error: err }, 'Publish for ' + username + ' - [' + type + ']');
+    reject(err);
+  };
 }
 
-/**
- * Model retrieval functions
- */
-function getUserForProject(project) {
-  return project.user().query({}).fetch();
+function getUploadRoot(user, project) {
+  if (!user || !project) {
+    return null;
+  }
+
+  return '/' + user.name + '/' + project.id;
 }
 
-function getPublishedProject(project) {
-  return PublishedProject.query({
-    where: {
-      id: project.get('published_id')
-    }
-  }).fetch();
-}
+function buildUrl(user, project) {
+  if (!user || !project) {
+    return null;
+  }
 
-function getPublishedFiles(publishedProject) {
-  return PublishedFiles.query({
-    where: {
-      published_id: publishedProject.get('id')
-    }
-  }).fetchAll();
+  return process.env.PUBLIC_PROJECT_ENDPOINT + getUploadRoot(user, project);
 }
 
 // Takes an absolute path and uri-encodes each component
@@ -65,10 +67,15 @@ function uriSafe(path) {
   return uriSafePath;
 }
 
+
 /**
- * Publish helpers
+ * Remote communication helpers
  */
-function upload(path, buffer, mimeType) {
+function upload(path, buffer, remixMetadata) {
+  var mimeType = mime.lookup(path);
+  if (mimeType === 'text/html') {
+    buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
+  }
   var headers = {
     'Cache-Control': 'max-age=0',
     'Content-Type': mimeType,
@@ -86,8 +93,7 @@ function upload(path, buffer, mimeType) {
     });
     request.on('response', function(res) {
       if (res.statusCode === 200) {
-        log.info('Successfully uploaded ' + path);
-        resolve();
+        resolve('Uploaded "' + path + '"');
       } else {
         reject('S3 upload returned ' + res.statusCode);
       }
@@ -95,21 +101,7 @@ function upload(path, buffer, mimeType) {
   });
 }
 
-function uploadFile(file, root, remixMetadata) {
-  var buffer = file.get('buffer');
-  var path = root + file.get('path');
-  var mimeType = mime.lookup(path);
-
-  if (mimeType === 'text/html' && !remixMetadata.readonly) {
-    buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
-  }
-
-  return upload(path, buffer, mimeType);
-}
-
-function deleteFileRemotely(file, root) {
-  var path = root + file.get('path');
-
+function remove(path) {
   return new Promise(function(resolve, reject) {
     var request = client.del(uriSafe(path));
     request.on('error', function(err) {
@@ -117,8 +109,7 @@ function deleteFileRemotely(file, root) {
     });
     request.on('response', function(res) {
       if (res.statusCode === 204) {
-        log.info('Successfully deleted ' + path);
-        resolve();
+        resolve('Deleted "' + path + '"');
       } else {
         reject('S3 delete returned ' + res.statusCode);
       }
@@ -127,263 +118,281 @@ function deleteFileRemotely(file, root) {
   });
 }
 
-function modifyPublishedFiles(action, project, user, files, remixMetadata) {
-  return Promise.resolve()
-  .then(function() {
-    if (files.length) {
-      return files.mapThen(function(file) {
-        return action(file, '/' + user.get('name') + '/' + project.get('id'), remixMetadata);
-      });
+
+/**
+ * Record fetching helpers
+ */
+function fetchProjectModel(id) {
+  // We do not use the `ProjectQueries` interface here since we only want
+  // a Bookshelf model to be returned. The `ProjectQueries` interface returns
+  // plain javascript objects. This method is primarily used when we want to
+  // output the same form of data that was sent as an input viz. a Bookshelf
+  // model.
+  return Projects.query({
+    where: {
+      id: id
     }
-    return action(files, '/' + user.get('name') + '/' + project.get('id'), remixMetadata);
+  }).fetch();
+}
+
+function fetchUserForProject() {
+  var self = this;
+
+  return UserQueries.getOne(self.project.user_id)
+  .then(function(user) {
+    self.user = user;
+    return user;
   });
 }
 
+function fetchPublishedProject() {
+  var self = this;
+
+  return PublishedProjectQueries.getOne(self.project.published_id)
+  .then(function(publishedProject) {
+    self.publishedProject = publishedProject;
+    self.publishRoot = getUploadRoot(self.user, publishedProject);
+    return publishedProject;
+  });
+}
+
+
 /**
- * Exports
+ * Record update helpers
  */
-exports.publish = function publish(project) {
-  var user;
-  var files;
+function updateProjectDetails() {
+  var self = this;
+  var publishedProject = self.publishedProject;
 
-  var publishedFiles;
-  var publishedProject;
-  var remixMetadata;
+  return ProjectQueries
+  .updateOne(self.project.id, {
+    publish_url: buildUrl(self.user, publishedProject),
+    published_id: publishedProject && publishedProject.id
+  })
+  .then(ProjectQueries.getOne)
+  .then(function(project) {
+    self.project = project;
+  });
+}
 
-  var projectFiles = {};
-  var publishedProjectFiles = {};
-  var toBeCreated = [];
-  var toBeDeleted = [];
-  var toBeUpdated = [];
+function setRemixDataForPublishedProject() {
+  var self = this;
+
+  self.remixData = {
+    projectId: self.publishedProject.id,
+    projectTitle: self.publishedProject.title,
+    projectAuthor: self.user.name,
+    dateUpdated: self.project.date_updated,
+    host: Remix.resourceHost
+  };
+}
+
+function createOrUpdatePublishedProject() {
+  var self = this;
+  var project = self.project;
+  var projectData = {
+    title: project.title,
+    tags: project.tags,
+    description: project.description
+  };
+
+  return fetchPublishedProject.call(self)
+  .then(function(publishedProject) {
+    if (publishedProject) {
+      return PublishedProjectQueries.updateOne(publishedProject.id, projectData);
+    } else {
+      return PublishedProjectQueries.createOne(projectData);
+    }
+  })
+  .then(PublishedProjectQueries.getOne)
+  .then(function(publishedProject) {
+    self.publishedProject = publishedProject;
+    self.publishRoot = getUploadRoot(self.user, publishedProject);
+  });
+}
+
+
+/**
+ * Remote record update helpers
+ */
+function uploadNewFiles() {
+  var self = this;
+  var remixData = self.remixData;
+  var publishedProject = self.publishedProject;
+  var fileRoot = self.publishRoot;
+  var username = self.user.name;
+
+  return PublishedFileQueries
+  .getAllNewFiles(self.project.id)
+  .then(function(files) {
+    if (!files.length) {
+      return;
+    }
+
+    return Promise.map(files, function(file) {
+      return PublishedFileQueries.createOne({
+        file_id: file.id,
+        published_id: publishedProject.id,
+        path: file.path,
+        buffer: file.buffer
+      })
+      .then(function() {
+        return upload(fileRoot + file.path, file.buffer, remixData);
+      })
+      .then(success('CREATE', username))
+      .catch(failure('CREATE', username));
+    });
+  });
+}
+
+function uploadModifiedFiles() {
+  var self = this;
+  var remixData = self.remixData;
+  var fileRoot = self.publishRoot;
+  var username = self.user.name;
+
+  function updateModelAndUpload(publishedFile) {
+    var id = publishedFile.id;
+    delete publishedFile.id;
+
+    return PublishedFileQueries
+      .updateOne(id, publishedFile)
+      .then(function() {
+        return upload(fileRoot + publishedFile.path, publishedFile.buffer, remixData);
+      })
+      .then(success('UPDATE', username))
+      .catch(failure('UPDATE', username));
+  }
+
+  return PublishedFileQueries
+  .getAllModifiedFiles(self.publishedProject.id)
+  .then(function(publishedFiles) {
+    if (!publishedFiles.length) {
+      return;
+    }
+
+    return Promise.map(publishedFiles, function(publishedFile) {
+      var oldPath = publishedFile.oldPath;
+      delete publishedFile.oldPath;
+
+      if (oldPath === publishedFile.path) {
+        return updateModelAndUpload(publishedFile);
+      }
+
+      return remove(fileRoot + oldPath)
+      .then(function() {
+        return updateModelAndUpload(publishedFile);
+      });
+    });
+  });
+}
+
+
+/**
+ * Record deletion helpers
+ */
+function deletePublishedProject() {
+  var self = this;
+  var publishedProjectId = self.publishedProject.id;
+  self.publishUrl = self.project.publish_url;
+  self.publishedProject = null;
+
+  return updateProjectDetails.call(self)
+  .then(function() {
+    return PublishedProjectQueries.deleteOne(publishedProjectId);
+  });
+}
+
+function deletePublishedFiles() {
+  var self = this;
+  var fileRoot = self.publishRoot;
+  var username = self.user.name;
+
+  return PublishedFileQueries
+  .getAllPaths(self.publishedProject.id)
+  .then(function(publishedFilePaths) {
+    return Promise.map(publishedFilePaths, function(publishedFilePath) {
+      return remove(fileRoot + publishedFilePath)
+      .then(success('DELETE', username))
+      .catch(failure('DELETE', username));
+    });
+  })
+  .then(function() {
+    return PublishedFileQueries.deleteAll(self.publishedProject.id);
+  });
+}
+
+function deleteOldFiles() {
+  var self = this;
+  var fileRoot = self.publishRoot;
+  var username = self.user.name;
+
+  return PublishedFileQueries
+  .getAllDeletedFiles(self.publishedProject.id)
+  .then(function(publishedFiles) {
+    if (!publishedFiles.length) {
+      return;
+    }
+
+    return Promise.map(publishedFiles, function(publishedFile) {
+      return PublishedFileQueries
+      .deleteOne(publishedFile.id)
+      .then(function() {
+        return remove(fileRoot + publishedFile.path);
+      })
+      .then(success('DELETE', username))
+      .catch(failure('DELETE', username));
+    });
+  });
+}
+
+
+/**
+ * API
+ */
+module.exports.publish = function(project) {
+  var self = {
+    project: project.toJSON()
+  };
 
   return Promise.resolve()
-  // First, collect the related user
+  .then(fetchUserForProject.bind(self))
+  .then(createOrUpdatePublishedProject.bind(self))
+  .then(setRemixDataForPublishedProject.bind(self))
+  .then(uploadNewFiles.bind(self))
+  .then(uploadModifiedFiles.bind(self))
+  .then(deleteOldFiles.bind(self))
+  .then(updateProjectDetails.bind(self))
   .then(function() {
-    return getUserForProject(project)
-    .then(function(u) {
-      user = u;
-    });
-  })
-  // Then, collect or create the current project's publishedProject
-  .then(function() {
-    return getPublishedProject(project)
-    .then(function(oldPublishedProject) {
-      if (oldPublishedProject) {
-        return oldPublishedProject.set({
-          title: project.get('title'),
-          tags: project.get('tags'),
-          description: project.get('description')
-        }).save();
-      }
-      return PublishedProject.forge({
-        title: project.get('title'),
-        tags: project.get('tags'),
-        description: project.get('description')
-      }).save();
-    })
-    .then(function(p) {
-      publishedProject = p;
-      remixMetadata = {
-        projectId: publishedProject.get('id'),
-        projectTitle: publishedProject.get('title'),
-        projectAuthor: user.get('name'),
-        dateUpdated: project.get('date_updated'),
-        host: Remix.resourceHost,
-        readonly: project.get('readonly')
-      };
-    });
-  })
-  // Then, fetch all the project's files
-  .then(function() {
-    return File.query({
-      where: {
-        project_id: project.get('id')
-      }
-    }).fetchAll()
-    .then(function(f) {
-      if (f.length === 0) {
-        throw 'No files to be published!';
-      }
+    log.info('Publish for ' + self.user.name + ' - ' +
+             '[PUBLISH] Published ' +
+             '"' + self.project.title + '"' +
+             ' to ' + self.project.publish_url);
 
-      files = f;
-    });
+    return self.project.id;
   })
-  // Then, fetch all the publishedProject's files (if any)
-  .then(function() {
-    return PublishedFiles.query({
-      where: {
-        published_id: publishedProject.get('id')
-      }
-    }).fetchAll()
-    .then(function(f) {
-      if (f.length === 0) {
-        return;
-      }
-      publishedFiles = f;
-    });
-  })
-  // Then, identify which files need to be remotely republished,
-  // deleted or created
-  .then(function() {
-    // We organize the project's 'file' objects by id
-    files.forEach(function(file) {
-      projectFiles[file.get('id')] = file;
-    });
-    var filePrimaryKeys = Object.keys(projectFiles);
-
-    // Nothing published yet?
-    if (!publishedFiles) {
-      return filePrimaryKeys.forEach(function(id) {
-        toBeCreated.push(projectFiles[id]);
-      });
-    }
-
-    // In this step we:
-    //   1) Organize our 'publishedFile' collection to be keyed on
-    //      their foreign key reference to the related 'file'
-    //   2) Collect an array of 'publishedFile' objects whose related
-    //      'file' object has been deleted. These must be unpublished later
-    publishedFiles.forEach(function(publishedFile) {
-      if (publishedFile.get('file_id') === null) {
-        toBeDeleted.push(publishedFile);
-        return;
-      }
-      publishedProjectFiles[publishedFile.get('file_id')] = publishedFile;
-    });
-    var publishedFileForeignKeys = Object.keys(publishedProjectFiles);
-
-    // Next, we identify which 'files' are new since this project was last
-    // published.
-    filePrimaryKeys.forEach(function(primaryKey) {
-      if (publishedFileForeignKeys.indexOf(primaryKey) === -1) {
-        toBeCreated.push(projectFiles[primaryKey]);
-      }
-    });
-
-    // The last step identifies which 'files' have already been published
-    // and don't require deletion
-    publishedFileForeignKeys.forEach(function(foreignKey) {
-      if (filePrimaryKeys.indexOf(foreignKey) !== -1) {
-        toBeUpdated.push(publishedProjectFiles[foreignKey]);
-      }
-    });
-  })
-  // Then, we create 'publishedFile' objects for all new 'files' since last publish
-  .then(function() {
-    if (toBeCreated.length === 0) {
-      return;
-    }
-
-    return Promise.map(toBeCreated, function(file) {
-      return PublishedFiles.forge({
-        file_id: file.get('id'),
-        published_id: publishedProject.get('id'),
-        path: file.get('path'),
-        buffer: file.get('buffer')
-      }).save();
-    })
-    .then(function(f) {
-      return Promise.map(f, function(toBePublished) {
-        return modifyPublishedFiles(uploadFile, project, user, toBePublished, remixMetadata);
-      });
-    });
-  })
-  // Then, we unpublish and delete 'publishedFile' objects for all newly deleted 'files'
-  .then(function() {
-    if (toBeDeleted.length === 0) {
-      return;
-    }
-
-    return Promise.map(toBeDeleted, function(model) {
-      return modifyPublishedFiles(deleteFileRemotely, project, user, model)
-      .then(function() {
-        return model.destroy();
-      });
-    });
-  })
-  // Then, we unpublish and republish all remaining 'files' in case the path or
-  // data has changed
-  .then(function() {
-    if (toBeUpdated.length === 0) {
-      return;
-    }
-
-    return Promise.map(toBeUpdated, function(model) {
-      return modifyPublishedFiles(deleteFileRemotely, project, user, model)
-      .then(function() {
-        var originalFile = projectFiles[model.get('file_id')];
-
-        return model.set({
-          path: originalFile.get('path'),
-          buffer: originalFile.get('buffer')
-        }).save()
-        .then(function() {
-          return modifyPublishedFiles(uploadFile, project, user, model, remixMetadata);
-        });
-      });
-    });
-  })
-  // Then, we make sure the project has up-to-date references
-  .then(function() {
-    return project.set({
-      publish_url: buildUrl(project, user),
-      published_id: publishedProject.get('id')
-    }).save();
-  })
-  // And finally...
-  .then(function() {
-    log.info(
-      'Successfully published ' +
-      project.get('title') +
-      ' to ' + project.get('publish_url')
-    );
-  })
+  .then(fetchProjectModel)
   .catch(reject);
 };
 
-exports.unpublish = function unpublish(project) {
-  function getUserAndPublishedProject(callback) {
-    var user = getUserForProject(project);
-    var publishedProject = getPublishedProject(project);
+module.exports.unpublish = function(project) {
+  var self = {
+    project: project.toJSON()
+  };
 
-    return Promise.join(user, publishedProject, callback);
-  }
-
-  function destroyPublishedFiles(user, publishedProject) {
-    function deleteFilesFromS3(files) {
-      return modifyPublishedFiles(deleteFileRemotely, project, user, files);
-    }
-
-    function unsetProjectReferences() {
-      return project.set({
-        published_id: null,
-        publish_url: null
-      }).save();
-    }
-
-    function destroyPublishedProject() {
-      return publishedProject.destroy();
-    }
-
-    return getPublishedFiles(publishedProject)
-      .then(deleteFilesFromS3)
-      .then(unsetProjectReferences)
-      .then(destroyPublishedProject);
-  }
-
-  return getUserAndPublishedProject(function(user, publishedProject) {
-    return destroyPublishedFiles(user, publishedProject);
-  })
+  return Promise.resolve()
+  .then(fetchUserForProject.bind(self))
+  .then(fetchPublishedProject.bind(self))
+  .then(deletePublishedFiles.bind(self))
+  .then(deletePublishedProject.bind(self))
   .then(function() {
-    return project.set({ publish_url: null }).save();
+    log.info('Publish for ' + self.user.name + ' - ' +
+             '[UNPUBLISH] Unpublished ' +
+             '"' + self.project.title + '"' +
+             ' from ' + self.publishUrl);
+
+    return self.project.id;
   })
-  .then(function() {
-    log.info(
-      'Successfully unpublished ' +
-      project.get('title')
-    );
-  })
+  .then(fetchProjectModel)
   .catch(reject);
 };
-
-module.exports = exports;

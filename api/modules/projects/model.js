@@ -10,6 +10,28 @@ var instanceProps = {
   },
   publishedProject: function() {
     return this.belongsTo(require('../publishedProjects/model'), 'published_id');
+  },
+  queries: function() {
+    var self = this;
+    var Project = this.constructor;
+
+    return {
+      getOne: function(id) {
+        return new Project().query()
+        .where(self.column('id'), id)
+        .then(function(projects) {
+          return projects[0];
+        });
+      },
+      updateOne: function(id, updatedValues) {
+        return new Project().query()
+        .where(self.column('id'), id)
+        .update(updatedValues)
+        .then(function() {
+          return id;
+        });
+      }
+    };
   }
 };
 

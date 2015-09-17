@@ -33,9 +33,9 @@ controller.publishProject = function(req, reply) {
     var record = req.pre.records.models[0];
 
     return Publisher.publish(record)
-      .then(function() {
-        return req.generateResponse(record).code(200);
-      });
+    .then(function(publishedRecord) {
+      return req.generateResponse(publishedRecord).code(200);
+    });
   })
   .catch(errors.generateErrorResponse);
 
@@ -54,9 +54,9 @@ controller.unpublishProject = function(req, reply) {
     }
 
     return Publisher.unpublish(record)
-      .then(function() {
-        return req.generateResponse(record).code(200);
-      });
+    .then(function(unpublishedRecord) {
+      return req.generateResponse(unpublishedRecord).code(200);
+    });
   })
   .catch(errors.generateErrorResponse);
 

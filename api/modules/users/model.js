@@ -6,6 +6,20 @@ var instanceProps = {
   tableName: 'users',
   projects: function() {
     return this.hasMany(Projects);
+  },
+  queries: function() {
+    var self = this;
+    var User = this.constructor;
+
+    return {
+      getOne: function(id) {
+        return new User().query()
+        .where(self.column('id'), id)
+        .then(function(users) {
+          return users[0];
+        });
+      }
+    };
   }
 };
 

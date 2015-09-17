@@ -12,6 +12,40 @@ var instanceProps = {
   },
   publishedFiles: function() {
     return this.hasMany(require('../publishedFiles/model'));
+  },
+  queries: function() {
+    var self = this;
+    var PublishedProject = this.constructor;
+
+    return {
+      getOne: function(id) {
+        return new PublishedProject().query()
+        .where(self.column('id'), id)
+        .then(function(publishedProjects) {
+          return publishedProjects[0];
+        });
+      },
+      createOne: function(data) {
+        return new PublishedProject().query()
+        .insert(data, 'id')
+        .then(function(ids) {
+          return ids[0];
+        });
+      },
+      updateOne: function(id, updatedValues) {
+        return new PublishedProject().query()
+        .where(self.column('id'), id)
+        .update(updatedValues)
+        .then(function() {
+          return id;
+        });
+      },
+      deleteOne: function(id) {
+        return new PublishedProject().query()
+        .where(self.column('id'), id)
+        .del();
+      }
+    };
   }
 };
 
