@@ -11,12 +11,19 @@ Hoek.assert(process.env.PORT, 'Must define PORT');
 
 var extensions = require('./adaptors/extensions');
 
+var server = new Hapi.Server({
+  connections: {
+    routes: {
+      cors: true
+    }
+  }
+});
+
 var connection = {
   host: process.env.API_HOST,
   port: process.env.PORT
 };
 
-var server = new Hapi.Server();
 server.connection(connection);
 
 server.register({
