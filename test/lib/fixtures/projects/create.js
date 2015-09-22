@@ -31,7 +31,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       }
     };
@@ -47,7 +49,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
 
@@ -61,7 +65,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       titleTypeError: {
@@ -74,7 +80,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       dateCreatedTypeError: {
@@ -87,7 +95,9 @@ module.exports = function(cb) {
           date_created: 123,
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       dateUpdatedTypeError: {
@@ -100,7 +110,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: 123,
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       descriptionTypeError: {
@@ -113,7 +125,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 123,
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       tagsTypeError: {
@@ -126,7 +140,39 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 123
+          tags: 123,
+          readonly: false,
+          client: 'test runner'
+        }
+      },
+      readonlyTypeError: {
+        headers: userToken,
+        url: '/projects',
+        method: 'post',
+        payload: {
+          title: 'Test project',
+          user_id: validUsers[0].id,
+          date_created: '01/01/15',
+          date_updated: '01/01/15',
+          description: 'A test project',
+          tags: 'test, project, foo, whiz',
+          readonly: 'false',
+          client: 'test runner'
+        }
+      },
+      clientTypeError: {
+        headers: userToken,
+        url: '/projects',
+        method: 'post',
+        payload: {
+          title: 'Test project',
+          user_id: validUsers[0].id,
+          date_created: '01/01/15',
+          date_updated: '01/01/15',
+          description: 'A test project',
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 1234
         }
       },
 
@@ -145,7 +191,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       titleAbsent: {
@@ -157,7 +205,9 @@ module.exports = function(cb) {
           date_created: '01/01/15',
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       dateCreatedAbsent: {
@@ -169,7 +219,9 @@ module.exports = function(cb) {
           user_id: validUsers[0].id,
           date_updated: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       dateUpdatedAbsent: {
@@ -181,7 +233,9 @@ module.exports = function(cb) {
           user_id: validUsers[0].id,
           date_created: '01/01/15',
           description: 'A test project',
-          tags: 'test, project, foo, whiz'
+          tags: 'test, project, foo, whiz',
+          readonly: false,
+          client: 'test runner'
         }
       },
       tagsAbsent: {
@@ -193,7 +247,37 @@ module.exports = function(cb) {
           user_id: validUsers[0].id,
           date_created: '01/01/15',
           date_updated: '01/01/15',
-          description: 'A test project'
+          description: 'A test project',
+          readonly: false,
+          client: 'test runner'
+        }
+      },
+      readonlyAbsent: {
+        headers: userToken,
+        url: '/projects',
+        method: 'post',
+        payload: {
+          title: 'Test project',
+          user_id: validUsers[0].id,
+          date_created: '01/01/15',
+          date_updated: '01/01/15',
+          description: 'A test project',
+          tags: 'test, project, foo, whiz',
+          client: 'test runner'
+        }
+      },
+      clientAbsent: {
+        headers: userToken,
+        url: '/projects',
+        method: 'post',
+        payload: {
+          title: 'Test project',
+          user_id: validUsers[0].id,
+          date_created: '01/01/15',
+          date_updated: '01/01/15',
+          description: 'A test project',
+          tags: 'test, project, foo, whiz',
+          readonly: false
         }
       }
     };
