@@ -11,6 +11,15 @@ var PublishedFiles = require('../publishedFiles/model');
 var Model = require('./model');
 var controller = new BaseController(Model);
 
+controller.getAll = function(req, reply) {
+ var records = req.pre.records.toJSON()
+     .sort(function(project1, project2) {
+         return  new Date(project2.date_updated).getTime() -   new Date(project1.date_updated).getTime() ;
+     });
+
+ reply(req.generateResponse(records));
+};
+
 controller.formatRequestData = function(req) {
   var data = {
     title: req.payload.title,
