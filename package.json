@@ -44,7 +44,7 @@
     "pg": "^4.4.0",
     "pg-query-stream": "^0.7.0",
     "request": "^2.58.0",
-    "sqlite3": "^3.0.8",
+    "sqlite3": "^3.1.0",
     "tar-stream": "^1.2.1"
   },
   "devDependencies": {
