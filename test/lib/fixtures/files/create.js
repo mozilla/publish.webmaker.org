@@ -1,4 +1,3 @@
- test/api/handlers/files/create.js
 var retrieveTestProjects = require('../projects').testProjects;
 var retrieveTestFiles = require('./test-files');
 
