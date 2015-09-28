@@ -1,7 +1,7 @@
 var Promise = require('bluebird');
 
 exports.up = function (knex) {
-  return Promise.all([  
+  return Promise.all([
     knex.schema.createTable('publishedProjects', function(t) {
       t.increments('id');
       t.text('title').notNullable();
@@ -41,36 +41,8 @@ exports.up = function (knex) {
 
 
 exports.down = function (knex) {
-  return Promise.all([
-    knex.schema.hasTable('users')
-    .then(function(exists) {
-      if (exists) {
-        return knex.raw('DROP TABLE users CASCADE');
-      }
-    }),
-    knex.schema.hasTable('projects')
-    .then(function(exists) {
-      if (exists) {
-        return knex.raw('DROP TABLE projects CASCADE');
-      }
-    }),
-    knex.schema.hasTable('files')
-    .then(function(exists) {
-      if (exists) {
-        return knex.raw('DROP TABLE files CASCADE');
-      }
-    }),
-    knex.schema.hasTable('publishedProjects')
-    .then(function(exists) {
-      if (exists) {
-        return knex.raw('DROP TABLE "publishedProjects" CASCADE');
-      }
-    }),
-    knex.schema.hasTable('publishedFiles')
-    .then(function(exists) {
-      if (exists) {
-        return knex.raw('DROP TABLE "publishedFiles"');
-      }
-    })
-  ]);
+  // We don't allow the reverse operation, as that could lead to
+  // accidentally migrating to an "empty database". If users want
+  // to fully wipe their database, this must be done manually.
+  return Promise.resolve();
 };

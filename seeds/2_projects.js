@@ -1,6 +1,8 @@
 'use strict';
 
 exports.seed = function(knex, Promise) {
+  // There is no insertIfNotExists, so we insert and simply catch the error that might
+  // get generated if there is a record for the project already.
   return Promise.resolve()
   .then(function() {
     return knex('projects').insert({

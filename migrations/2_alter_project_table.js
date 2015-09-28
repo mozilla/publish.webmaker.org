@@ -10,6 +10,7 @@ exports.up = function (knex) {
 };
 
 exports.down = function (knex) {
+  // Note that this is irreversible, and will lead to data loss.
   return Promise.all([
     knex.schema.table('projects', function (t) {
       t.dropColumn('readonly');
