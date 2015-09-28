@@ -1,24 +1,31 @@
 'use strict';
 
 exports.seed = function(knex, Promise) {
-  return Promise.join(
-    knex('projects').insert({
+  // There is no insertIfNotExists, so we insert and simply catch the error that might
+  // get generated if there is a record for the project already.
+  return Promise.resolve()
+  .then(function() {
+    return knex('projects').insert({
       user_id: 1,
       title: 'spacecats-API',
       tags: 'sinatra, api, REST, server, ruby',
       description: 'Venture a very small stage in a vast cosmic arena Euclid billions upon billions!',
       date_created: '2015-06-03T13:21:58+00:00',
       date_updated: '2015-06-03T13:21:58+00:00'
-    }),
-    knex('projects').insert({
+    }).catch(function() { return knex.table('projects'); });
+  })
+  .then(function() {
+    return knex('projects').insert({
       user_id: 1,
       title: 'sinatra-contrib',
       tags: 'ruby, sinatra, community, utilities',
       description: 'Hydrogen atoms Sea of Tranquility are creatures of the cosmos shores of the cosmic ocean.',
       date_created: '2015-06-03T13:21:58+00:00',
       date_updated: '2015-06-03T13:21:58+00:00'
-    }),
-    knex('projects').insert({
+    }).catch(function() { return knex.table('projects'); });
+  })
+  .then(function() {
+    return knex('projects').insert({
       user_id: 2,
       title: 'webmaker-android',
       tags: 'android, mobile, social',
@@ -26,8 +33,10 @@ exports.seed = function(knex, Promise) {
         'the stars made in the interiors of collapsing stars! ',
       date_created: '2015-06-03T13:21:58+00:00',
       date_updated: '2015-06-03T13:21:58+00:00'
-    }),
-    knex('projects').insert({
+    }).catch(function() { return knex.table('projects'); });
+  })
+  .then(function() {
+    return knex('projects').insert({
       user_id: 3,
       title: 'makedrive',
       tags: 'web',
@@ -35,6 +44,19 @@ exports.seed = function(knex, Promise) {
         'of forever consciousness, cosmic fugue Vangelis, globular star cluster.',
       date_created: '2015-06-03T13:21:58+00:00',
       date_updated: '2015-06-03T13:21:58+00:00'
-    })
-  );
+    }).catch(function() { return knex.table('projects'); });
+  })
+  .then(function() {
+    return knex('projects').insert({
+      user_id: 4,
+      title: 'goggles',
+      tags: 'web',
+      description: 'Orions sword a still more glorious dawn awaits at the edge ' +
+        'of forever consciousness, cosmic fugue Vangelis, globular star cluster.',
+      date_created: '2015-06-03T13:21:58+00:00',
+      date_updated: '2015-06-03T13:21:58+00:00',
+      readonly: true,
+      client: "goggles"
+    }).catch(function() { return knex.table('projects'); });
+  });
 };
