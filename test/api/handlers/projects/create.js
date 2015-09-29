@@ -41,6 +41,9 @@ experiment('[Create a project]', function() {
       expect(resp.result.date_updated).to.be.a.string();
       expect(resp.result.title).to.be.a.string();
       expect(resp.result.tags).to.be.a.string();
+      expect(resp.result.readonly).to.be.a.boolean();
+      expect(resp.result.client).to.be.a.string();
+
 
       server.inject({
         url: '/projects/' + resp.result.id,

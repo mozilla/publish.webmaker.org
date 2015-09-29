@@ -16,7 +16,8 @@ exports.seed = function(knex, Promise) {
       tags: 'ruby, sinatra, community, utilities',
       description: 'Hydrogen atoms Sea of Tranquility are creatures of the cosmos shores of the cosmic ocean.',
       date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00'
+      date_updated: '2015-06-03T13:21:58+00:00',
+      readonly: true
     }),
     knex('projects').insert({
       user_id: 2,
@@ -25,7 +26,8 @@ exports.seed = function(knex, Promise) {
       description: 'Gathered by gravity encyclopaedia galactica permanence of ' +
         'the stars made in the interiors of collapsing stars! ',
       date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00'
+      date_updated: '2015-06-03T13:21:58+00:00',
+      client: 'webmaker-android'
     }),
     knex('projects').insert({
       user_id: 3,
@@ -34,7 +36,9 @@ exports.seed = function(knex, Promise) {
       description: 'Orions sword a still more glorious dawn awaits at the edge ' +
         'of forever consciousness, cosmic fugue Vangelis, globular star cluster.',
       date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00'
+      date_updated: '2015-06-03T13:21:58+00:00',
+      readonly: true,
+      client: 'makedrive'
     })
   );
 };
