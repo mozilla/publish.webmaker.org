@@ -18,7 +18,9 @@ controller.formatRequestData = function(req) {
     tags: req.payload.tags,
     description: req.payload.description,
     date_created: req.payload.date_created,
-    date_updated: req.payload.date_updated
+    date_updated: req.payload.date_updated,
+    readonly: req.payload.readonly,
+    client: req.payload.client
   };
   if (req.params.id) {
     data.id = parseInt(req.params.id);

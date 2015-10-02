@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node server",
     "env": "cp env.dist .env",
-    "knex": "knex migrate:latest && knex seed:run",
+    "knex": "npm run migrate && npm run seed",
+    "migrate": "knex migrate:latest",
+    "seed": "knex seed:run",
     "test": "npm run knex && lab -t 80 -c --verbose --colors --assert code --timeout 5000 && npm run lint",
     "lint": "npm run jshint && npm run jscs",
     "jshint": "jshint -c node_modules/mofo-style/linters/.jshintrc api migrations seeds lib adaptors test server.js",
