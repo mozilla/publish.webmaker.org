@@ -100,7 +100,7 @@ function uploadFile(file, root, remixMetadata) {
   var path = root + file.get('path');
   var mimeType = mime.lookup(path);
 
-  if (mimeType === 'text/html') {
+  if (mimeType === 'text/html' && !remixMetadata.readonly) {
     buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
   }
 
@@ -188,7 +188,8 @@ exports.publish = function publish(project) {
         projectTitle: publishedProject.get('title'),
         projectAuthor: user.get('name'),
         dateUpdated: project.get('date_updated'),
-        host: Remix.resourceHost
+        host: Remix.resourceHost,
+        readonly: project.get('readonly')
       };
     });
   })
