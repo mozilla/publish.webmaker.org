@@ -87,27 +87,32 @@ BaseController.prototype.getAllAsMeta = function(req, reply) {
   reply(req.generateResponse(req.pre.records.toJSON()));
 };
 
+// NOTE: creating the tarball for a project can be a lengthy process, so
+// we do it in multiple turns of the event loop, so that other requests
+// don't get blocked.
 BaseController.prototype.getAllAsTar = function(req, reply) {
   var files = req.pre.records.models;
   var tarStream = Tar.pack();
-  var self = this;
+  var model = this.Model;
 
-  function startStreaming(files, model) {
-    return Promise.map(files, function(file) {
-      return model.query({
-        where: {
-          id: file.get('id')
-        },
-        columns: ['buffer']
-      }).fetch().then(function(model) {
+  function processFile(file) {
+    return model.query({
+      where: {
+        id: file.get('id')
+      },
+      columns: ['buffer']
+    }).fetch().then(function(model) {
+      setImmediate(function() {
         tarStream.entry({ name: file.get('path') }, model.get('buffer'));
       });
-    }).then(function() {
-      tarStream.finalize();
     });
   }
 
-  startStreaming(files, self.Model).catch(errors.generateErrorResponse);
+  setImmediate(function() {
+    Promise.map(files, processFile, { concurrency: 2 })
+      .then(function() { tarStream.finalize(); })
+      .catch(errors.generateErrorResponse);
+  });
 
   // Normally this type would be application/x-tar, but IE refuses to
   // decompress a gzipped stream when this is the type.
