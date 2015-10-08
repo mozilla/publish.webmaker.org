@@ -102,8 +102,11 @@ BaseController.prototype.getAllAsTar = function(req, reply) {
       },
       columns: ['buffer']
     }).fetch().then(function(model) {
-      setImmediate(function() {
-        tarStream.entry({ name: file.get('path') }, model.get('buffer'));
+      return new Promise(function(resolve) {
+        setImmediate(function() {
+          tarStream.entry({ name: file.get('path') }, model.get('buffer'));
+          resolve();
+        });
       });
     });
   }
