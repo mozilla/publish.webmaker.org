@@ -48,6 +48,13 @@ Both of these commands require that you have [PostGres](http://www.postgresql.or
 $ npm install knex -g
 ```
 
+Also note that subsequent test runs require an empty `publish` database. Test runs will not automatically clear the database for you for data-integrity reasons, so you will need to either manually clear the tables using your preferred PostgreSQL administration utility, or drop and recreate the database:
+
+```
+$ dropdb publish
+$ createdb publish
+```
+
 5) Run the server at the default log level (`'info'`):
 
 ```
