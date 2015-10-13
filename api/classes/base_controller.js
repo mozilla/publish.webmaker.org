@@ -3,6 +3,14 @@ var Promise = require('bluebird');
 var Tar = require('tar-stream');
 var errors = require('./errors');
 
+// This method is used to format the response data for
+// HTTP methods that modify data (e.g. POST, PUT, etc.)
+// so that we only send back data that is relevant and do
+// not unnecessarily serialize all the data from the database.
+function defaultFormatResponse(record) {
+  return record;
+}
+
 function BaseController(model)  {
   this.Model = model;
 }
@@ -29,8 +37,12 @@ BaseController.prototype.getAll = function(req, reply) {
   reply(req.generateResponse(records));
 };
 
-BaseController.prototype.update = function(req, reply) {
+// `formatResponse` is an optional processing function that can be passed
+// in to modify what is sent in the response body. If no function is
+// provided, the full model for the current method is used in the response.
+BaseController.prototype.update = function(req, reply, formatResponse) {
   var reqData = this.formatRequestData(req);
+  formatResponse = typeof formatResponse === 'function' ? formatResponse : defaultFormatResponse;
 
   var result = Promise.resolve().then(function() {
     var record = req.pre.records.models[0];
@@ -44,14 +56,19 @@ BaseController.prototype.update = function(req, reply) {
       .save(record.changed, { patch: true, method: 'update' });
   })
   .then(function (updatedState) {
-    return req.generateResponse(updatedState.toJSON()).code(200);
+    return req.generateResponse(formatResponse(updatedState).toJSON()).code(200);
   })
   .catch(errors.generateErrorResponse);
 
   reply(result);
 };
 
-BaseController.prototype.create = function(req, reply) {
+// `formatResponse` is an optional processing function that can be passed
+// in to modify what is sent in the response body. If no function is
+// provided, the full model for the current method is used in the response.
+BaseController.prototype.create = function(req, reply, formatResponse) {
+  formatResponse = typeof formatResponse === 'function' ? formatResponse : defaultFormatResponse;
+
   var result = this.Model
     .forge(this.formatRequestData(req))
     .save()
@@ -61,7 +78,7 @@ BaseController.prototype.create = function(req, reply) {
           error: 'Bookshelf error creating a resource'
         });
       }
-      return req.generateResponse(record.toJSON())
+      return req.generateResponse(formatResponse(record).toJSON())
         .code(201);
     })
     .catch(errors.generateErrorResponse);
@@ -75,8 +92,7 @@ BaseController.prototype.delete = function(req, reply) {
     return record.destroy();
   })
   .then(function() {
-    return req.generateResponse(record.toJSON())
-      .code(204);
+    return req.generateResponse().code(204);
   })
   .catch(errors.generateErrorResponse);
 

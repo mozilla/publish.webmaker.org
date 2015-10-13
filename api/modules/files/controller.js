@@ -8,6 +8,14 @@ var controller = new BaseController(Model);
 
 var PublishedFiles = require('../publishedFiles/model');
 
+// We do not want to serialize the buffer and send it with the
+// response for Create and Update requests so we strip it out
+// of the response before it is sent.
+function formatResponse(data) {
+  delete data.buffer;
+  return data;
+}
+
 controller.formatRequestData = function(req) {
   // We've already cached the path of the temporary file
   // in a prerequisite function
@@ -22,6 +30,14 @@ controller.formatRequestData = function(req) {
     data.id = parseInt(req.params.id);
   }
   return data;
+};
+
+controller.create = function(req, reply) {
+  return BaseController.prototype.create.call(this, req, reply, formatResponse);
+};
+
+controller.update = function(req, reply) {
+  return BaseController.prototype.update.call(this, req, reply, formatResponse);
 };
 
 controller.delete = function(req, reply) {
