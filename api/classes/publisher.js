@@ -73,7 +73,7 @@ function uriSafe(path) {
  */
 function upload(path, buffer, remixMetadata) {
   var mimeType = mime.lookup(path);
-  if (mimeType === 'text/html') {
+  if (mimeType === 'text/html' && !remixMetadata.readonly) {
     buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
   }
   var headers = {
@@ -183,7 +183,8 @@ function setRemixDataForPublishedProject() {
     projectTitle: self.publishedProject.title,
     projectAuthor: self.user.name,
     dateUpdated: self.project.date_updated,
-    host: Remix.resourceHost
+    host: Remix.resourceHost,
+    readonly: self.project.readonly
   };
 }
 
