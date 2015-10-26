@@ -194,7 +194,8 @@ function createOrUpdatePublishedProject() {
   var projectData = {
     title: project.title,
     tags: project.tags,
-    description: project.description
+    description: project.description,
+    date_updated: (new Date()).toISOString()
   };
 
   return fetchPublishedProject.call(self)
@@ -202,6 +203,7 @@ function createOrUpdatePublishedProject() {
     if (publishedProject) {
       return PublishedProjectQueries.updateOne(publishedProject.id, projectData);
     } else {
+      projectData.date_created = projectData.date_updated;
       return PublishedProjectQueries.createOne(projectData);
     }
   })
