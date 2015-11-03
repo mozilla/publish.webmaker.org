@@ -4,12 +4,24 @@ exports.seed = function(knex, Promise) {
       title: 'sinatra-contrib',
       tags: 'ruby, sinatra, community, utilities',
       description: 'Hydrogen atoms Sea of Tranquility are creatures of the cosmos shores of the cosmic ocean.',
-      date_created: '2015-06-03T16:21:58.000Z',
-      date_updated: '2015-06-03T16:41:58.000Z'
+      date_created: '2015-06-19T17:21:58.000Z',
+      date_updated: '2015-06-23T06:41:58.000Z'
     }),
-    knex('projects').where('id', 2)
-    .update({
-      published_id: 1
+    knex('publishedProjects').insert({
+      title: 'spacecats-API',
+      tags: 'sinatra, api, REST, server, ruby',
+      description: 'Venture a very small stage in a vast cosmic arena Euclid billions upon billions!'
     })
-  );
+  ).then(function() {
+    return Promise.join(
+      knex('projects').where('id', 2)
+      .update({
+        published_id: 1
+      }),
+      knex('projects').where('id', 1)
+      .update({
+        published_id: 2
+      })
+    );
+  });
 };
