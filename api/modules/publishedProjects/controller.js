@@ -9,6 +9,12 @@ var Projects = require('../projects/model');
 var Files = require('../files/model');
 var PublishedFiles = require('../publishedFiles/model');
 
+// Make sure we have the ' (remix)' suffix, adding if necessary,
+// but not re-adding to a title that already has it (remix of remix).
+function ensureRemixSuffix(title) {
+  return title.replace(/( \(remix\))*$/, ' (remix)');
+}
+
 controller.remix = function(req, reply) {
   var publishedProject = req.pre.records.models[0];
   var user = req.pre.user;
@@ -41,7 +47,7 @@ controller.remix = function(req, reply) {
 
   function duplicateProject() {
     return Projects.forge({
-      title: publishedProject.get('title') + ' (remix)',
+      title: ensureRemixSuffix(publishedProject.get('title')),
       user_id: user.get('id'),
       tags: publishedProject.get('tags'),
       description: publishedProject.description,
