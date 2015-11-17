@@ -11,6 +11,14 @@ var instanceProps = {
   publishedProject: function() {
     return this.belongsTo(require('../publishedProjects/model'), 'published_id');
   },
+  parse: function(model) {
+    if (typeof model === 'object') {
+      delete model._date_created;
+      delete model._date_updated;
+    }
+
+    return model;
+  },
   queries: function() {
     var self = this;
     var Project = this.constructor;

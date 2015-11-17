@@ -13,6 +13,14 @@ var instanceProps = {
   publishedFiles: function() {
     return this.hasMany(require('../publishedFiles/model'));
   },
+  parse: function(model) {
+    if (typeof model === 'object') {
+      delete model._date_created;
+      delete model._date_updated;
+    }
+
+    return model;
+  },
   queries: function() {
     var self = this;
     var PublishedProject = this.constructor;
