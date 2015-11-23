@@ -16,18 +16,26 @@ var instanceProps = {
       // Have to do this because of this bug: https://github.com/tgriesser/bookshelf/issues/668
       if (model.date_created) {
         model._date_created = new Date(model.date_created);
+        delete model.date_created;
       }
       if (model.date_updated) {
         model._date_updated = new Date(model.date_updated);
+        delete model.date_updated;
       }
     }
 
     return model;
   },
   parse: function(model) {
-    if (typeof model === 'object') {
-      delete model._date_created;
-      delete model._date_updated;
+    if (typeof model === "object") {
+      if (model._date_created) {
+        model.date_created = model._date_created.toISOString();
+        delete model._date_created;
+      }
+      if (model._date_updated) {
+        model.date_updated = model._date_updated.toISOString();
+        delete model._date_updated;
+      }
     }
 
     return model;
