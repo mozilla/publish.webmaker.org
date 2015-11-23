@@ -36,14 +36,25 @@ controller.formatRequestData = function(req) {
     user_id: req.payload.user_id,
     tags: req.payload.tags,
     description: req.payload.description,
-    date_created: new Date(req.payload.date_created),
-    date_updated: new Date(req.payload.date_updated),
+    date_created: req.payload.date_created,
+    date_updated: req.payload.date_updated,
     readonly: req.payload.readonly,
     client: req.payload.client
   };
   if (req.params.id) {
     data.id = parseInt(req.params.id);
   }
+  return data;
+};
+
+controller.formatResponseData = function(data) {
+  if (isDate(data.date_created)) {
+    data.date_created = data.date_created.toISOString();
+  }
+  if (isDate(data.date_updated)) {
+    data.date_updated = data.date_updated.toISOString();
+  }
+
   return data;
 };
 

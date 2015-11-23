@@ -34,6 +34,17 @@ function formatResponse(model) {
   return model;
 }
 
+controller.formatResponseData = function(data) {
+  if (isDate(data.date_created)) {
+    data.date_created = data.date_created.toISOString();
+  }
+  if (isDate(data.date_updated)) {
+    data.date_updated = data.date_updated.toISOString();
+  }
+
+  return data;
+};
+
 controller.create = function(req, reply) {
   return BaseController.prototype.create.call(this, req, reply, formatResponse);
 };
