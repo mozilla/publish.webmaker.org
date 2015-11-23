@@ -15,10 +15,12 @@ var instanceProps = {
     if (typeof model === 'object') {
       // Have to do this because of this bug: https://github.com/tgriesser/bookshelf/issues/668
       if (model.date_created) {
-        model._date_created = new Date(model.date_created);
+        model._date_created = model.date_created;
+        delete model.date_created;
       }
       if (model.date_updated) {
-        model._date_updated = new Date(model.date_updated);
+        model._date_updated = model.date_updated;
+        delete model.date_updated;
       }
     }
 
@@ -26,8 +28,14 @@ var instanceProps = {
   },
   parse: function(model) {
     if (typeof model === 'object') {
-      delete model._date_created;
-      delete model._date_updated;
+      if (model._date_created) {
+        model.date_created = model._date_created;
+        delete model._date_created;
+      }
+      if (model._date_updated) {
+        model.date_updated = model._date_updated;
+        delete model._date_updated;
+      }
     }
 
     return model;
@@ -41,13 +49,13 @@ var instanceProps = {
         return new Project().query()
         .where(self.column('id'), id)
         .then(function(projects) {
-          return projects[0];
+          return self.parse(projects[0]);
         });
       },
       updateOne: function(id, updatedValues) {
         return new Project().query()
         .where(self.column('id'), id)
-        .update(updatedValues)
+        .update(self.format(updatedValues))
         .then(function() {
           return id;
         });
