@@ -13,7 +13,7 @@ module.exports = function(cb) {
     return cb(null, files);
   }
 
-  db.select().table('files')
+  db.select().table('files').orderBy('id')
     .then(function(rows) {
       files.valid = rows;
       cb(null, files);

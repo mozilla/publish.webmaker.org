@@ -11,7 +11,7 @@ module.exports = function(cb) {
     return cb(null, users);
   }
 
-  db.select().from('users')
+  db.select().from('users').orderBy('id')
     .then(function(rows) {
       users.valid = rows;
       cb(null, users);

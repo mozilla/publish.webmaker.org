@@ -13,7 +13,7 @@ module.exports = function(callback) {
     return callback(null, publishedProjects);
   }
 
-  db.select().table('publishedProjects')
+  db.select().table('publishedProjects').orderBy('id')
   .then(function(rows) {
     publishedProjects.valid = rows;
     callback(null, publishedProjects);
