@@ -6,6 +6,10 @@ exports.up = function (knex, Promise) {
   .orWhereNull('date_updated')
   .select('id', 'date_created', 'date_updated')
   .then(function(publishedProjects) {
+    if (!publishedProjects) {
+      return;
+    }
+
     return Promise.map(publishedProjects, function(publishedProject) {
       var publishedProjectId = publishedProject.id;
       var dateUpdated = publishedProject.date_updated;
@@ -24,6 +28,10 @@ exports.up = function (knex, Promise) {
       return knex('projects')
       .where('published_id', publishedProjectId).select('date_updated')
       .then(function(projects) {
+        if (!projects || !projects[0]) {
+          return;
+        }
+
         var date = projects[0].date_updated;
 
         // Update the date_created and date_updated fields in the
