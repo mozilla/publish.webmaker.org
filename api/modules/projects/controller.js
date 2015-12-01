@@ -11,14 +11,33 @@ var PublishedFiles = require('../publishedFiles/model');
 var Model = require('./model');
 var controller = new BaseController(Model);
 
+// Taken from http://stackoverflow.com/a/643827
+function isDate(val) {
+  return Object.prototype.toString.call(val) === '[object Date]';
+}
+
+function formatResponse(model) {
+  var created = model.get('date_created');
+  var updated = model.get('date_updated');
+
+  if (isDate(created)) {
+    model.set('date_created', created.toISOString());
+  }
+  if (isDate(updated)) {
+    model.set('date_updated', updated.toISOString());
+  }
+
+  return model;
+}
+
 controller.formatRequestData = function(req) {
   var data = {
     title: req.payload.title,
     user_id: req.payload.user_id,
     tags: req.payload.tags,
     description: req.payload.description,
-    date_created: req.payload.date_created,
-    date_updated: req.payload.date_updated,
+    date_created: new Date(req.payload.date_created),
+    date_updated: new Date(req.payload.date_updated),
     readonly: req.payload.readonly,
     client: req.payload.client
   };
@@ -28,11 +47,20 @@ controller.formatRequestData = function(req) {
   return data;
 };
 
+controller.create = function(req, reply) {
+  return BaseController.prototype.create.call(this, req, reply, formatResponse);
+};
+
+controller.update = function(req, reply) {
+  return BaseController.prototype.update.call(this, req, reply, formatResponse);
+};
+
 controller.publishProject = function(req, reply) {
   var result = Promise.resolve().then(function() {
     var record = req.pre.records.models[0];
 
     return Publisher.publish(record)
+    .then(formatResponse)
     .then(function(publishedRecord) {
       return req.generateResponse(publishedRecord).code(200);
     });
@@ -54,6 +82,7 @@ controller.unpublishProject = function(req, reply) {
     }
 
     return Publisher.unpublish(record)
+    .then(formatResponse)
     .then(function(unpublishedRecord) {
       return req.generateResponse(unpublishedRecord).code(200);
     });

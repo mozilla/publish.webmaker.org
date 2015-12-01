@@ -14,11 +14,11 @@ var instanceProps = {
     return this.hasMany(require('../publishedFiles/model'));
   },
   format: function(model) {
-    if(typeof model === "object") {
-      if(model.date_created) {
+    if (typeof model === 'object') {
+      if (model.date_created) {
         model._date_created = new Date(model.date_created);
       }
-      if(model.date_updated) {
+      if (model.date_updated) {
         model._date_updated = new Date(model.date_updated);
       }
     }
@@ -26,7 +26,7 @@ var instanceProps = {
     return model;
   },
   parse: function(model) {
-    if(typeof model === "object") {
+    if (typeof model === 'object') {
       delete model._date_created;
       delete model._date_updated;
     }

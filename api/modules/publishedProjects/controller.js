@@ -15,6 +15,33 @@ function ensureRemixSuffix(title) {
   return title.replace(/( \(remix\))*$/, ' (remix)');
 }
 
+// Taken from http://stackoverflow.com/a/643827
+function isDate(val) {
+  return Object.prototype.toString.call(val) === '[object Date]';
+}
+
+function formatResponse(model) {
+  var created = model.get('date_created');
+  var updated = model.get('date_updated');
+
+  if (isDate(created)) {
+    model.set('date_created', created.toISOString());
+  }
+  if (isDate(updated)) {
+    model.set('date_updated', updated.toISOString());
+  }
+
+  return model;
+}
+
+controller.create = function(req, reply) {
+  return BaseController.prototype.create.call(this, req, reply, formatResponse);
+};
+
+controller.update = function(req, reply) {
+  return BaseController.prototype.update.call(this, req, reply, formatResponse);
+};
+
 controller.remix = function(req, reply) {
   var publishedProject = req.pre.records.models[0];
   var user = req.pre.user;
@@ -55,6 +82,7 @@ controller.remix = function(req, reply) {
       date_updated: req.query.now
     }).save()
     .then(copyFiles)
+    .then(formatResponse)
     .catch(errors.generateErrorResponse);
   }
 
