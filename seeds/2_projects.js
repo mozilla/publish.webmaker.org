@@ -7,16 +7,16 @@ exports.seed = function(knex, Promise) {
       title: 'spacecats-API',
       tags: 'sinatra, api, REST, server, ruby',
       description: 'Venture a very small stage in a vast cosmic arena Euclid billions upon billions!',
-      date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00'
+      _date_created: new Date('2015-06-03T13:21:58+00:00'),
+      _date_updated: new Date('2015-06-03T13:21:58+00:00')
     }),
     knex('projects').insert({
       user_id: 1,
       title: 'sinatra-contrib',
       tags: 'ruby, sinatra, community, utilities',
       description: 'Hydrogen atoms Sea of Tranquility are creatures of the cosmos shores of the cosmic ocean.',
-      date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00',
+      _date_created: new Date('2015-06-03T13:21:58+00:00'),
+      _date_updated: new Date('2015-06-03T13:21:58+00:00'),
       readonly: true
     }),
     knex('projects').insert({
@@ -25,8 +25,8 @@ exports.seed = function(knex, Promise) {
       tags: 'android, mobile, social',
       description: 'Gathered by gravity encyclopaedia galactica permanence of ' +
         'the stars made in the interiors of collapsing stars! ',
-      date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00',
+      _date_created: new Date('2015-06-03T13:21:58+00:00'),
+      _date_updated: new Date('2015-06-03T13:21:58+00:00'),
       client: 'webmaker-android'
     }),
     knex('projects').insert({
@@ -35,8 +35,8 @@ exports.seed = function(knex, Promise) {
       tags: 'web',
       description: 'Orions sword a still more glorious dawn awaits at the edge ' +
         'of forever consciousness, cosmic fugue Vangelis, globular star cluster.',
-      date_created: '2015-06-03T13:21:58+00:00',
-      date_updated: '2015-06-03T13:21:58+00:00',
+      _date_created: new Date('2015-06-03T13:21:58+00:00'),
+      _date_updated: new Date('2015-06-03T13:21:58+00:00'),
       readonly: true,
       client: 'makedrive'
     })

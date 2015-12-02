@@ -4,8 +4,8 @@ exports.seed = function(knex, Promise) {
       title: 'sinatra-contrib',
       tags: 'ruby, sinatra, community, utilities',
       description: 'Hydrogen atoms Sea of Tranquility are creatures of the cosmos shores of the cosmic ocean.',
-      date_created: '2015-06-19T17:21:58.000Z',
-      date_updated: '2015-06-23T06:41:58.000Z'
+      _date_created: new Date('2015-06-19T17:21:58.000Z'),
+      _date_updated: new Date('2015-06-23T06:41:58.000Z')
     }),
     knex('publishedProjects').insert({
       title: 'spacecats-API',
