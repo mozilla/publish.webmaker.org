@@ -16,11 +16,11 @@ var instanceProps = {
   format: function(model) {
     if (typeof model === 'object') {
       if (model.date_created) {
-        model._date_created = new Date(model.date_created);
+        model._date_created = model.date_created;
         delete model.date_created;
       }
       if (model.date_updated) {
-        model._date_updated = new Date(model.date_updated);
+        model._date_updated = model.date_updated;
         delete model.date_updated;
       }
     }
@@ -28,13 +28,13 @@ var instanceProps = {
     return model;
   },
   parse: function(model) {
-    if (typeof model === "object") {
+    if (typeof model === 'object') {
       if (model._date_created) {
-        model.date_created = model._date_created.toISOString();
+        model.date_created = model._date_created;
         delete model._date_created;
       }
       if (model._date_updated) {
-        model.date_updated = model._date_updated.toISOString();
+        model.date_updated = model._date_updated;
         delete model._date_updated;
       }
     }
@@ -50,12 +50,12 @@ var instanceProps = {
         return new PublishedProject().query()
         .where(self.column('id'), id)
         .then(function(publishedProjects) {
-          return publishedProjects[0];
+          return self.parse(publishedProjects[0]);
         });
       },
       createOne: function(data) {
         return new PublishedProject().query()
-        .insert(data, 'id')
+        .insert(self.format(data), 'id')
         .then(function(ids) {
           return ids[0];
         });
@@ -63,7 +63,7 @@ var instanceProps = {
       updateOne: function(id, updatedValues) {
         return new PublishedProject().query()
         .where(self.column('id'), id)
-        .update(updatedValues)
+        .update(self.format(updatedValues))
         .then(function() {
           return id;
         });
