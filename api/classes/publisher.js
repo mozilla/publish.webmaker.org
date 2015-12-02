@@ -1,4 +1,4 @@
-var Promise = require('bluebird');
+var Promise = require('bluebird'); // jshint ignore:line
 var mime = require('mime');
 var Path = require('path');
 

@@ -1,5 +1,5 @@
 var Boom = require('boom');
-var Promise = require('bluebird');
+var Promise = require('bluebird'); // jshint ignore:line
 
 var errors = require('../../classes/errors');
 var BaseController = require('../../classes/base_controller');
