@@ -9,48 +9,22 @@ var Projects = require('../projects/model');
 var Files = require('../files/model');
 var PublishedFiles = require('../publishedFiles/model');
 
+var dateTracker = require('../../../lib/utils').dateTracker;
+
 // Make sure we have the ' (remix)' suffix, adding if necessary,
 // but not re-adding to a title that already has it (remix of remix).
 function ensureRemixSuffix(title) {
   return title.replace(/( \(remix\))*$/, ' (remix)');
 }
 
-// Taken from http://stackoverflow.com/a/643827
-function isDate(val) {
-  return Object.prototype.toString.call(val) === '[object Date]';
-}
-
-function formatResponse(model) {
-  var created = model.get('date_created');
-  var updated = model.get('date_updated');
-
-  if (isDate(created)) {
-    model.set('date_created', created.toISOString());
-  }
-  if (isDate(updated)) {
-    model.set('date_updated', updated.toISOString());
-  }
-
-  return model;
-}
-
-controller.formatResponseData = function(data) {
-  if (isDate(data.date_created)) {
-    data.date_created = data.date_created.toISOString();
-  }
-  if (isDate(data.date_updated)) {
-    data.date_updated = data.date_updated.toISOString();
-  }
-
-  return data;
-};
+controller.formatResponseData = dateTracker.convertToISOStrings();
 
 controller.create = function(req, reply) {
-  return BaseController.prototype.create.call(this, req, reply, formatResponse);
+  return BaseController.prototype.create.call(this, req, reply, dateTracker.convertToISOStrings(true));
 };
 
 controller.update = function(req, reply) {
-  return BaseController.prototype.update.call(this, req, reply, formatResponse);
+  return BaseController.prototype.update.call(this, req, reply, dateTracker.convertToISOStrings(true));
 };
 
 controller.remix = function(req, reply) {
@@ -84,16 +58,18 @@ controller.remix = function(req, reply) {
   }
 
   function duplicateProject() {
+    var now = (new Date()).toISOString();
+
     return Projects.forge({
       title: ensureRemixSuffix(publishedProject.get('title')),
       user_id: user.get('id'),
       tags: publishedProject.get('tags'),
       description: publishedProject.description,
-      date_created: req.query.now,
-      date_updated: req.query.now
+      date_created: now,
+      date_updated: now
     }).save()
     .then(copyFiles)
-    .then(formatResponse)
+    .then(dateTracker.convertToISOStrings(true))
     .catch(errors.generateErrorResponse);
   }
 

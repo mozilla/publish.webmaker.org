@@ -11,59 +11,38 @@ var PublishedFiles = require('../publishedFiles/model');
 var Model = require('./model');
 var controller = new BaseController(Model);
 
-// Taken from http://stackoverflow.com/a/643827
-function isDate(val) {
-  return Object.prototype.toString.call(val) === '[object Date]';
-}
-
-function formatResponse(model) {
-  var created = model.get('date_created');
-  var updated = model.get('date_updated');
-
-  if (isDate(created)) {
-    model.set('date_created', created.toISOString());
-  }
-  if (isDate(updated)) {
-    model.set('date_updated', updated.toISOString());
-  }
-
-  return model;
-}
+var dateTracker = require('../../../lib/utils').dateTracker;
 
 controller.formatRequestData = function(req) {
+  var now = new Date();
   var data = {
     title: req.payload.title,
     user_id: req.payload.user_id,
     tags: req.payload.tags,
     description: req.payload.description,
-    date_created: req.payload.date_created,
-    date_updated: req.payload.date_updated,
+    date_created: now,
+    date_updated: now,
     readonly: req.payload.readonly,
     client: req.payload.client
   };
+
+  // If it is an update request
   if (req.params.id) {
     data.id = parseInt(req.params.id);
-  }
-  return data;
-};
-
-controller.formatResponseData = function(data) {
-  if (isDate(data.date_created)) {
-    data.date_created = data.date_created.toISOString();
-  }
-  if (isDate(data.date_updated)) {
-    data.date_updated = data.date_updated.toISOString();
+    delete data.date_created;
   }
 
   return data;
 };
+
+controller.formatResponseData = dateTracker.convertToISOStrings();
 
 controller.create = function(req, reply) {
-  return BaseController.prototype.create.call(this, req, reply, formatResponse);
+  return BaseController.prototype.create.call(this, req, reply, dateTracker.convertToISOStrings(true));
 };
 
 controller.update = function(req, reply) {
-  return BaseController.prototype.update.call(this, req, reply, formatResponse);
+  return BaseController.prototype.update.call(this, req, reply, dateTracker.convertToISOStrings(true));
 };
 
 controller.publishProject = function(req, reply) {
@@ -71,7 +50,7 @@ controller.publishProject = function(req, reply) {
     var record = req.pre.records.models[0];
 
     return Publisher.publish(record)
-    .then(formatResponse)
+    .then(dateTracker.convertToISOStrings(true))
     .then(function(publishedRecord) {
       return req.generateResponse(publishedRecord).code(200);
     });
@@ -93,7 +72,7 @@ controller.unpublishProject = function(req, reply) {
     }
 
     return Publisher.unpublish(record)
-    .then(formatResponse)
+    .then(dateTracker.convertToISOStrings(true))
     .then(function(unpublishedRecord) {
       return req.generateResponse(unpublishedRecord).code(200);
     });

@@ -182,7 +182,7 @@ function setRemixDataForPublishedProject() {
     projectId: self.publishedProject.id,
     projectTitle: self.publishedProject.title,
     projectAuthor: self.user.name,
-    dateUpdated: self.project.date_updated,
+    dateUpdated: self.publishedProject.date_updated.toISOString(),
     host: Remix.resourceHost,
     readonly: self.project.readonly
   };
@@ -195,7 +195,7 @@ function createOrUpdatePublishedProject() {
     title: project.title,
     tags: project.tags,
     description: project.description,
-    date_updated: new Date()
+    date_updated: (new Date()).toISOString()
   };
 
   return fetchPublishedProject.call(self)
