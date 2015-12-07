@@ -84,13 +84,15 @@ controller.remix = function(req, reply) {
   }
 
   function duplicateProject() {
+    var now = new Date();
+
     return Projects.forge({
       title: ensureRemixSuffix(publishedProject.get('title')),
       user_id: user.get('id'),
       tags: publishedProject.get('tags'),
       description: publishedProject.description,
-      date_created: req.query.now,
-      date_updated: req.query.now
+      date_created: now,
+      date_updated: now
     }).save()
     .then(copyFiles)
     .then(formatResponse)

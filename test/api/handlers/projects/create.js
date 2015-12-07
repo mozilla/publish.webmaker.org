@@ -27,6 +27,31 @@ after(function(done) {
   server.stop(done);
 });
 
+function cleanup(id, callback) {
+  server.inject({
+    url: '/projects/' + id,
+    method: 'delete',
+    headers: {
+      authorization: 'token ag-dubs'
+    }
+  }, function (resp) {
+    expect(resp.statusCode).to.equal(204);
+    callback();
+  });
+}
+
+function assertValidResponse(res) {
+  expect(res).to.exist();
+  expect(res.id).to.be.a.number();
+  expect(res.user_id).to.be.a.number();
+  expect(res.date_created).to.be.a.string();
+  expect(res.date_updated).to.be.a.string();
+  expect(res.title).to.be.a.string();
+  expect(res.tags).to.be.a.string();
+  expect(res.readonly).to.be.a.boolean();
+  expect(res.client).to.be.a.string();
+}
+
 // POST /projects
 experiment('[Create a project]', function() {
   test('success case', function(done) {
@@ -34,27 +59,8 @@ experiment('[Create a project]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(201);
-      expect(resp.result).to.exist();
-      expect(resp.result.id).to.be.a.number();
-      expect(resp.result.user_id).to.be.a.number();
-      expect(resp.result.date_created).to.be.a.string();
-      expect(resp.result.date_updated).to.be.a.string();
-      expect(resp.result.title).to.be.a.string();
-      expect(resp.result.tags).to.be.a.string();
-      expect(resp.result.readonly).to.be.a.boolean();
-      expect(resp.result.client).to.be.a.string();
-
-
-      server.inject({
-        url: '/projects/' + resp.result.id,
-        method: 'delete',
-        headers: {
-          authorization: 'token ag-dubs'
-        }
-      }, function (resp) {
-        expect(resp.statusCode).to.equal(204);
-        done();
-      });
+      assertValidResponse(resp.result);
+      cleanup(resp.result.id, done);
     });
   });
 
@@ -96,6 +102,26 @@ experiment('[Create a project]', function() {
     });
   });
 
+  test('date_created may not exist', function(done) {
+    var opts = config.fail.dateCreatedAbsent;
+
+    server.inject(opts, function(resp) {
+      expect(resp.statusCode).to.equal(201);
+      assertValidResponse(resp.result);
+      cleanup(resp.result.id, done);
+    });
+  });
+
+  test('date_updated may not exist', function(done) {
+    var opts = config.fail.dateUpdatedAbsent;
+
+    server.inject(opts, function(resp) {
+      expect(resp.statusCode).to.equal(201);
+      assertValidResponse(resp.result);
+      cleanup(resp.result.id, done);
+    });
+  });
+
   test('date_created must be a valid type', function(done) {
     var opts = config.fail.dateCreatedTypeError;
 
@@ -121,7 +147,6 @@ experiment('[Create a project]', function() {
       done();
     });
   });
-
 
   test('description must be a valid type', function(done) {
     var opts = config.fail.descriptionTypeError;
@@ -170,32 +195,6 @@ experiment('[Create a project]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.error).to.equal('Bad Request');
       expect(resp.result.message).to.equal('`title` must be passed.');
-
-      done();
-    });
-  });
-
-  test('date_created must exist', function(done) {
-    var opts = config.fail.dateCreatedAbsent;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`date_created` must be passed.');
-
-      done();
-    });
-  });
-
-  test('date_updated must exist', function(done) {
-    var opts = config.fail.dateUpdatedAbsent;
-
-    server.inject(opts, function(resp) {
-      expect(resp.statusCode).to.equal(400);
-      expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`date_updated` must be passed.');
 
       done();
     });

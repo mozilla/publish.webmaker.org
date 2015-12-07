@@ -31,19 +31,24 @@ function formatResponse(model) {
 }
 
 controller.formatRequestData = function(req) {
+  var now = new Date();
   var data = {
     title: req.payload.title,
     user_id: req.payload.user_id,
     tags: req.payload.tags,
     description: req.payload.description,
-    date_created: req.payload.date_created,
-    date_updated: req.payload.date_updated,
+    date_created: now,
+    date_updated: now,
     readonly: req.payload.readonly,
     client: req.payload.client
   };
+
+  // If it is an update request
   if (req.params.id) {
     data.id = parseInt(req.params.id);
+    delete data.date_created;
   }
+
   return data;
 };
 
