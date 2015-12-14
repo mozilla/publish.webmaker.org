@@ -11,9 +11,9 @@ var PublishedFiles = require('../publishedFiles/model');
 // We do not want to serialize the buffer and send it with the
 // response for Create and Update requests so we strip it out
 // of the response before it is sent.
-function formatResponse(data) {
-  delete data.buffer;
-  return data;
+function formatResponse(model) {
+  model.unset('buffer');
+  return model;
 }
 
 controller.formatRequestData = function(req) {

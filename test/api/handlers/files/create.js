@@ -38,7 +38,7 @@ experiment('[Create a file]', function() {
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.project_id).to.be.a.number();
       expect(resp.result.path).to.be.a.string();
-      expect(resp.result.buffer).to.be.a.buffer();
+      expect(resp.result.buffer).not.to.exist();
 
       server.inject({
         url: '/files/' + resp.result.id,

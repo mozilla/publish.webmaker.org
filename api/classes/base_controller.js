@@ -7,8 +7,8 @@ var errors = require('./errors');
 // HTTP methods that modify data (e.g. POST, PUT, etc.)
 // so that we only send back data that is relevant and do
 // not unnecessarily serialize all the data from the database.
-function defaultFormatResponse(record) {
-  return record;
+function defaultFormatResponse(model) {
+  return model;
 }
 
 function BaseController(model)  {
