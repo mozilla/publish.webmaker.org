@@ -92,7 +92,7 @@ module.exports = function(cb) {
         payload: {
           title: 'Test project',
           user_id: validUsers[0].id,
-          date_created: 123,
+          date_created: 'This is an invalid date',
           date_updated: '01/01/15',
           description: 'A test project',
           tags: 'test, project, foo, whiz',
@@ -108,7 +108,7 @@ module.exports = function(cb) {
           title: 'Test project',
           user_id: validUsers[0].id,
           date_created: '01/01/15',
-          date_updated: 123,
+          date_updated: 'This is an invalid date',
           description: 'A test project',
           tags: 'test, project, foo, whiz',
           readonly: false,

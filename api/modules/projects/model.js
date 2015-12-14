@@ -11,6 +11,35 @@ var instanceProps = {
   publishedProject: function() {
     return this.belongsTo(require('../publishedProjects/model'), 'published_id');
   },
+  format: function(model) {
+    if (typeof model === 'object') {
+      // Have to do this because of this bug: https://github.com/tgriesser/bookshelf/issues/668
+      if (model.date_created) {
+        model._date_created = model.date_created;
+        delete model.date_created;
+      }
+      if (model.date_updated) {
+        model._date_updated = model.date_updated;
+        delete model.date_updated;
+      }
+    }
+
+    return model;
+  },
+  parse: function(model) {
+    if (typeof model === 'object') {
+      if (model._date_created) {
+        model.date_created = model._date_created;
+        delete model._date_created;
+      }
+      if (model._date_updated) {
+        model.date_updated = model._date_updated;
+        delete model._date_updated;
+      }
+    }
+
+    return model;
+  },
   queries: function() {
     var self = this;
     var Project = this.constructor;
@@ -20,13 +49,13 @@ var instanceProps = {
         return new Project().query()
         .where(self.column('id'), id)
         .then(function(projects) {
-          return projects[0];
+          return self.parse(projects[0]);
         });
       },
       updateOne: function(id, updatedValues) {
         return new Project().query()
         .where(self.column('id'), id)
-        .update(updatedValues)
+        .update(self.format(updatedValues))
         .then(function() {
           return id;
         });
