@@ -2,6 +2,8 @@ var BaseModel = require('../../classes/base_model');
 
 var Projects = require('../projects/model');
 
+var dateTracker = require('../../../lib/utils').dateTracker;
+
 var instanceProps = {
   tableName: 'publishedProjects',
   project: function() {
@@ -13,34 +15,8 @@ var instanceProps = {
   publishedFiles: function() {
     return this.hasMany(require('../publishedFiles/model'));
   },
-  format: function(model) {
-    if (typeof model === 'object') {
-      if (model.date_created) {
-        model._date_created = model.date_created;
-        delete model.date_created;
-      }
-      if (model.date_updated) {
-        model._date_updated = model.date_updated;
-        delete model.date_updated;
-      }
-    }
-
-    return model;
-  },
-  parse: function(model) {
-    if (typeof model === 'object') {
-      if (typeof model._date_created !== 'undefined') {
-        model.date_created = model._date_created;
-        delete model._date_created;
-      }
-      if (typeof model._date_updated !== 'undefined') {
-        model.date_updated = model._date_updated;
-        delete model._date_updated;
-      }
-    }
-
-    return model;
-  },
+  format: dateTracker.formatDatesInModel.bind(this),
+  parse: dateTracker.parseDatesInModel.bind(this),
   queries: function() {
     var self = this;
     var PublishedProject = this.constructor;

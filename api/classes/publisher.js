@@ -195,7 +195,7 @@ function createOrUpdatePublishedProject() {
     title: project.title,
     tags: project.tags,
     description: project.description,
-    date_updated: new Date()
+    date_updated: (new Date()).toISOString()
   };
 
   return fetchPublishedProject.call(self)
