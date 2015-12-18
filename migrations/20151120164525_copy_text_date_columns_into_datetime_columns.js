@@ -1,5 +1,10 @@
 'use strict';
 
+function resolveType(dateStr) {
+  var num = parseInt(dateStr, 10);
+  return isNaN(num) ? dateStr : num;
+}
+
 function getDateFromStr(dateStr, id, table, column) {
   var date;
 
@@ -8,6 +13,7 @@ function getDateFromStr(dateStr, id, table, column) {
   }
 
   try {
+    dateStr = resolveType(dateStr);
     date = new Date(dateStr);
     if (isNaN(date.valueOf())) {
       throw new Error('Date string is not valid');
@@ -36,7 +42,7 @@ function getDatesFromRecord(record, table) {
   }
 
   if (!created && !updated) {
-    created = updated = getDateFromStr();
+    return;
   }
 
   return {
@@ -52,6 +58,10 @@ function copyDates(knex, Promise, table) {
     return Promise.map(records, function(record) {
       var id = record.id;
       var dates = getDatesFromRecord(record, table);
+
+      if (!dates) {
+        return;
+      }
 
       return Promise.join(
         knex(table).update('_date_created', dates.created)
