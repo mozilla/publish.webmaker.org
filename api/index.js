@@ -20,25 +20,39 @@ exports.register = function api(server, options, next) {
     if ( err ) {
       return next(err);
     }
-    server.route({
+    server.route([{
       method: 'GET',
       path: '/',
+      config: {
+        auth: false
+      },
       handler: function (request, reply) {
-        reply(JSON.stringify(
-          {
-            'name': 'publish.webmaker.org',
-            'description': 'the teach.org publishing service for goggles and thimble',
-            'routes': {
-              'users': '/users',
-              'projects': '/projects',
-              'files': '/files',
-              'publishedProjects': '/publishedProjects',
-              'publishedFiles': '/publishedFiles'
-            }
-          }, null, 2)
-        );
+        return reply(request.generateResponse({
+          name: 'publish.webmaker.org',
+          description: 'the teach.org publishing service for goggles and thimble',
+          routes: {
+            users: '/users',
+            projects: '/projects',
+            files: '/files',
+            publishedProjects: '/publishedProjects',
+            publishedFiles: '/publishedFiles'
+          }
+        })
+        .code(200));
       }
-    });
+    }, {
+      method: 'GET',
+      path: '/healthcheck',
+      config: {
+        auth: false
+      },
+      handler: function (request, reply) {
+        return reply(request.generateResponse({
+          http: 'okay'
+        })
+        .code(200));
+      }
+    }]);
 
     next();
   });
