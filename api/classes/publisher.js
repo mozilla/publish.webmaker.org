@@ -78,7 +78,7 @@ function upload(path, buffer, remixMetadata) {
   }
   var headers = {
     'Cache-Control': 'max-age=0',
-    'Content-Type': mimeType,
+    'Content-Type': mimeType + '; charset=utf-8',
     'Content-Length': buffer.length
   };
 
