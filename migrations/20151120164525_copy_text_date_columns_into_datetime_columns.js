@@ -72,7 +72,7 @@ function copyDates(knex, Promise, table) {
         .where('id', id)
         .whereNull('_date_updated')
       );
-    });
+    }, { concurrency: 25 });
   });
 }
 
