@@ -1,8 +1,11 @@
 'use strict';
 
 function resolveType(dateStr) {
-  var num = parseInt(dateStr, 10);
-  return isNaN(num) ? dateStr : num;
+  if (!isNaN(Date.parse(dateStr))) {
+    return dateStr;
+  }
+
+  return parseInt(dateStr, 10);
 }
 
 function getDateFromStr(dateStr, id, table, column) {
