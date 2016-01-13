@@ -87,6 +87,14 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function (knex, Promise) {
-  // Irreversible, as this can lead to permanent data loss.
-  return Promise.resolve();
+  return Promise.join(
+    knex('projects').update({
+      _date_created: null,
+      _date_updated: null
+    }),
+    knex('publishedProjects').update({
+      _date_created: null,
+      _date_updated: null
+    })
+  );
 };
