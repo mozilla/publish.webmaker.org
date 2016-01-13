@@ -10,6 +10,8 @@ var expect = require('code').expect;
 var config = require('../../../lib/fixtures/publishedProjects').getOne;
 var server;
 
+var validDateResponse = require('../../../lib/utils').validDateResponse;
+
 before(function(done) {
   require('../../../lib/mocks/server')(function(testServer) {
     server = testServer;
@@ -40,8 +42,8 @@ experiment('[Get one published project]', function() {
       expect(response.result.title).to.be.a.string();
       expect(response.result.tags).to.be.a.string();
       expect(response.result.description).to.be.a.string();
-      expect(response.result.date_created).to.be.a.string();
-      expect(response.result.date_updated).to.be.a.string();
+      expect(response.result.date_created).to.satisfy(validDateResponse);
+      expect(response.result.date_updated).to.satisfy(validDateResponse);
 
       done();
     });

@@ -29,11 +29,11 @@ var instanceProps = {
   },
   parse: function(model) {
     if (typeof model === 'object') {
-      if (model._date_created) {
+      if (typeof model._date_created !== 'undefined') {
         model.date_created = model._date_created;
         delete model._date_created;
       }
-      if (model._date_updated) {
+      if (typeof model._date_updated !== 'undefined') {
         model.date_updated = model._date_updated;
         delete model._date_updated;
       }

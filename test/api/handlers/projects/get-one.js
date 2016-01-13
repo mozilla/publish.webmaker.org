@@ -10,6 +10,8 @@ var expect = require('code').expect;
 var config = require('../../../lib/fixtures/projects').getOne;
 var server;
 
+var validDateResponse = require('../../../lib/utils').validDateResponse;
+
 before(function(done) {
   require('../../../lib/mocks/server')(function(obj) {
     server = obj;
@@ -38,8 +40,8 @@ experiment('[Get one project]', function() {
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
       expect(resp.result.user_id).to.be.a.number();
-      expect(resp.result.date_created).to.be.a.string();
-      expect(resp.result.date_updated).to.be.a.string();
+      expect(resp.result.date_created).to.satisfy(validDateResponse);
+      expect(resp.result.date_updated).to.satisfy(validDateResponse);
       expect(resp.result.title).to.be.a.string();
       expect(resp.result.tags).to.be.a.string();
 
