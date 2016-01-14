@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/mozilla/publish.webmaker.org",
   "engines": {
-    "node": "0.12.x"
+    "node": "4.2.x"
   },
   "dependencies": {
     "bluebird": "^2.9.30",
