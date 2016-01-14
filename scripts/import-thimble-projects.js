@@ -58,8 +58,8 @@ function mapUsers(users) {
 }
 
 function checkExistence(user) {
-  return publishClient('users')
   var txn = this;
+  return publishClient('users')
   .select()
   .where('name', '=', user.username)
   .transacting(txn)
