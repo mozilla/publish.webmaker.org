@@ -11,12 +11,6 @@ var PublishedFiles = require('../publishedFiles/model');
 
 var dateTracker = require('../../../lib/utils').dateTracker;
 
-// Make sure we have the ' (remix)' suffix, adding if necessary,
-// but not re-adding to a title that already has it (remix of remix).
-function ensureRemixSuffix(title) {
-  return title.replace(/( \(remix\))*$/, ' (remix)');
-}
-
 controller.formatResponseData = dateTracker.convertToISOStrings();
 
 controller.create = function(req, reply) {
@@ -61,7 +55,7 @@ controller.remix = function(req, reply) {
     var now = (new Date()).toISOString();
 
     return Projects.forge({
-      title: ensureRemixSuffix(publishedProject.get('title')),
+      title: (req.query && req.query.title) || publishedProject.get('title'),
       user_id: user.get('id'),
       tags: publishedProject.get('tags'),
       description: publishedProject.description,
