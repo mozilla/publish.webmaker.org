@@ -1,9 +1,11 @@
-var BaseModel = require('../../classes/base_model');
+'use strict';
 
-var Projects = require('../projects/model');
+var BaseModel = require(`../../classes/base_model`);
+
+var Projects = require(`../projects/model`);
 
 var instanceProps = {
-  tableName: 'users',
+  tableName: `users`,
   projects: function() {
     return this.hasMany(Projects);
   },
@@ -14,24 +16,22 @@ var instanceProps = {
     return {
       getOne: function(id) {
         return new User().query()
-        .where(self.column('id'), id)
-        .then(function(users) {
-          return users[0];
-        });
+        .where(self.column(`id`), id)
+        .then(users => users[0]);
       }
     };
   }
 };
 
 var classProps = {
-  typeName: 'comics',
+  typeName: `comics`,
   filters: {
     name: function (qb, value) {
-      return qb.whereIn('name', value);
+      return qb.whereIn(`name`, value);
     }
   },
   relations: [
-    'projects'
+    `projects`
   ]
 };
 

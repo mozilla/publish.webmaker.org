@@ -1,26 +1,28 @@
-var Joi = require('joi');
+'use strict';
 
-var errors = require('../../../classes/errors');
-var prereqs = require('../../../classes/prerequisites');
+var Joi = require(`joi`);
 
-var schema = require('../schema');
-var controller = require('../controller');
-var Model = require('../model');
+var errors = require(`../../../classes/errors`);
+var prereqs = require(`../../../classes/prerequisites`);
+
+var schema = require(`../schema`);
+var controller = require(`../controller`);
+var Model = require(`../model`);
 
 module.exports = [{
-  method: 'PUT',
-  path: '/users/{id}',
+  method: `PUT`,
+  path: `/users/{id}`,
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+        mode: `param`,
+        requestKey: `id`
       }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.update.bind(controller),
-    description: 'Update a user object based on `id`.',
+    description: `Update a user object based on \`id\`.`,
     validate: {
       payload: schema,
       params: {

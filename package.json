@@ -10,7 +10,7 @@
     "migrate": "knex migrate:latest",
     "seed": "knex seed:run",
     "test": "npm run knex && lab -t 80 -c --verbose --colors --assert code --timeout 5000 && npm run lint",
-    "lint": "npm run jshint && npm run jscs",
+    "lint": "eslint --config ./node_modules/mofo-style/.eslintrc.yaml --env node --env es6 --rule 'camelcase: [2, {properties: \"never\"}]' api lib adaptors test server.js",
     "jshint": "jshint -c node_modules/mofo-style/linters/.jshintrc api migrations seeds lib adaptors test server.js",
     "jscs": "jscs -c node_modules/mofo-style/linters/.jscsrc api migrations seeds lib adaptors test server.js"
   },
@@ -52,8 +52,7 @@
   "devDependencies": {
     "code": "^1.4.0",
     "cross-spawn": "^0.4.0",
-    "jscs": "^1.13.1",
-    "jshint": "^2.8.0",
+    "eslint": "^2.3.0",
     "lab": "^5.9.0",
     "mofo-style": "latest"
   }

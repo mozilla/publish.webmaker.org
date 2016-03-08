@@ -1,7 +1,9 @@
+'use strict';
+
 // General utility functions for tests
 
 function validDateResponse(val) {
-  return typeof val === 'string' || val === null;
+  return typeof val === `string` || val === null;
 }
 
 module.exports = {

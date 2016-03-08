@@ -1,8 +1,10 @@
-var db = require('../../db');
+'use strict';
+
+var db = require(`../../db`);
 var projects = {};
 
 projects.invalid = {
-  id: 'thisisastring',
+  id: `thisisastring`,
   title: 12345,
   username: 23241,
   isPublic: null
@@ -13,9 +15,9 @@ module.exports = function(cb) {
     return cb(null, projects);
   }
 
-  db.select().table('projects').orderBy('id')
-    .then(function(rows) {
-      rows.forEach(function(row) {
+  db.select().table(`projects`).orderBy(`id`)
+    .then(rows => {
+      rows.forEach(row => {
         if (row._date_created) {
           row.date_created = row._date_created.toISOString();
           delete row._date_created;
@@ -28,7 +30,5 @@ module.exports = function(cb) {
       projects.valid = rows;
       cb(null, projects);
     })
-    .catch(function(e) {
-      cb(e);
-    });
+    .catch(cb);
 };

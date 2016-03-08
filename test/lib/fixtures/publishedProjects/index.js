@@ -1,5 +1,7 @@
-module.exports = {
-  getOne: require('./get-one'),
+'use strict';
 
-  testPublishedProjects: require('./test-publishedProjects')
+module.exports = {
+  getOne: require(`./get-one`),
+
+  testPublishedProjects: require(`./test-publishedProjects`)
 };

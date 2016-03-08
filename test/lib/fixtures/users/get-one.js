@@ -1,4 +1,6 @@
-var retrieveTestUsers = require('./test-users');
+'use strict';
+
+var retrieveTestUsers = require(`./test-users`);
 
 var validUsers;
 var invalidUser;
@@ -6,7 +8,7 @@ var invalidUser;
 var getOne = {};
 
 var userToken = {
-  authorization: 'token ag-dubs'
+  authorization: `token ag-dubs`
 };
 
 module.exports = function(cb) {
@@ -14,7 +16,7 @@ module.exports = function(cb) {
     return cb(null, getOne);
   }
 
-  retrieveTestUsers(function(err, users) {
+  retrieveTestUsers((err, users) => {
     if (err) { return cb(err); }
 
     validUsers = users.valid;
@@ -23,21 +25,21 @@ module.exports = function(cb) {
     getOne.success = {
       default: {
         headers: userToken,
-        url: '/users/' + validUsers[0].id,
-        method: 'get'
+        url: `/users/` + validUsers[0].id,
+        method: `get`
       }
     };
 
     getOne.fail = {
       invalidUserid: {
         headers: userToken,
-        url: '/users/' + invalidUser.id,
-        method: 'get'
+        url: `/users/` + invalidUser.id,
+        method: `get`
       },
       userDoesNotExist: {
         headers: userToken,
-        url: '/users/' + 9999999,
-        method: 'get'
+        url: `/users/` + 9999999,
+        method: `get`
       }
     };
 

@@ -1,36 +1,39 @@
-var Promise = require('bluebird'); // jshint ignore:line
-var mime = require('mime');
-var Path = require('path');
+'use strict';
 
-var client = require('../../lib/amazon-client').create();
+var Promise = require(`bluebird`);
+var mime = require(`mime`);
+var Path = require(`path`);
 
-var log = require('../../lib/logger.js');
-var Remix = require('../../lib/remix');
+var client = require(`../../lib/amazon-client`).create();
 
-var Projects = require('../modules/projects/model');
-var PublishedProjects = require('../modules/publishedProjects/model');
+var log = require(`../../lib/logger.js`);
+var Remix = require(`../../lib/remix`);
+
+var Projects = require(`../modules/projects/model`);
+var PublishedProjects = require(`../modules/publishedProjects/model`);
 
 // SQL Query Generators
-var UserQueries = require('../modules/users/model').prototype.queries();
+var UserQueries = require(`../modules/users/model`).prototype.queries();
 var ProjectQueries = Projects.prototype.queries();
 var PublishedProjectQueries = PublishedProjects.prototype.queries();
-var PublishedFileQueries = require('../modules/publishedFiles/model').prototype.queries();
+var PublishedFileQueries = require(`../modules/publishedFiles/model`).prototype.queries();
 
-var reject  = Promise.reject;
+var rejectPromise = Promise.reject;
 
 /**
  * Utility functions
  */
+
 function success(type, username) {
   return function(message) {
-    log.info('Publish for ' + username + ' - [' + type + '] ' + message);
+    log.info(`Publish for ` + username + ` - [` + type + `] ` + message);
   };
 }
 
 function failure(type, username) {
   return function(err) {
-    log.error({ error: err }, 'Publish for ' + username + ' - [' + type + ']');
-    reject(err);
+    log.error({ error: err }, `Publish for ` + username + ` - [` + type + `]`);
+    rejectPromise(err);
   };
 }
 
@@ -39,7 +42,7 @@ function getUploadRoot(user, project) {
     return null;
   }
 
-  return '/' + user.name + '/' + project.id;
+  return `/` + user.name + `/` + project.id;
 }
 
 function buildUrl(user, project) {
@@ -53,14 +56,14 @@ function buildUrl(user, project) {
 // Takes an absolute path and uri-encodes each component
 // of the path to return a fully uri safe path
 function uriSafe(path) {
-  if (path === '/') {
-    return '/';
+  if (path === `/`) {
+    return `/`;
   }
 
-  var uriSafePath = '';
+  var uriSafePath = ``;
 
-  while (path !== '/') {
-    uriSafePath = Path.join('/', encodeURIComponent(Path.basename(path)), uriSafePath);
+  while (path !== `/`) {
+    uriSafePath = Path.join(`/`, encodeURIComponent(Path.basename(path)), uriSafePath);
     path = Path.dirname(path);
   }
 
@@ -71,47 +74,47 @@ function uriSafe(path) {
 /**
  * Remote communication helpers
  */
+
 function upload(path, buffer, remixMetadata) {
   var mimeType = mime.lookup(path);
-  if (mimeType === 'text/html' && !remixMetadata.readonly) {
+
+  if (mimeType === `text/html` && !remixMetadata.readonly) {
     buffer = new Buffer(Remix.inject(buffer.toString(), remixMetadata));
   }
+
   var headers = {
-    'Cache-Control': 'max-age=0',
-    'Content-Type': mimeType + '; charset=utf-8',
+    'Cache-Control': `max-age=0`,
+    'Content-Type': mimeType + `; charset=utf-8`,
     'Content-Length': buffer.length
   };
 
   var request = client.put(uriSafe(path), headers);
 
-  return new Promise(function(resolve, reject) {
-    request.on('error', function(err) {
-      reject(err);
-    });
-    request.on('continue', function() {
+  return new Promise((resolve, reject) => {
+    request.on(`error`, reject);
+    request.on(`continue`, () => {
       request.end(buffer);
     });
-    request.on('response', function(res) {
+    request.on(`response`, res => {
       if (res.statusCode === 200) {
-        resolve('Uploaded "' + path + '"');
+        resolve(`Uploaded "` + path + `"`);
       } else {
-        reject('S3 upload returned ' + res.statusCode);
+        reject(`S3 upload returned ` + res.statusCode);
       }
     });
   });
 }
 
 function remove(path) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     var request = client.del(uriSafe(path));
-    request.on('error', function(err) {
-      reject(err);
-    });
-    request.on('response', function(res) {
+
+    request.on(`error`, reject);
+    request.on(`response`, res => {
       if (res.statusCode === 204) {
-        resolve('Deleted "' + path + '"');
+        resolve(`Deleted "` + path + `"`);
       } else {
-        reject('S3 delete returned ' + res.statusCode);
+        reject(`S3 delete returned ` + res.statusCode);
       }
     });
     request.end();
@@ -122,6 +125,7 @@ function remove(path) {
 /**
  * Record fetching helpers
  */
+
 function fetchProjectModel(id) {
   // We do not use the `ProjectQueries` interface here since we only want
   // a Bookshelf model to be returned. The `ProjectQueries` interface returns
@@ -139,7 +143,7 @@ function fetchUserForProject() {
   var self = this;
 
   return UserQueries.getOne(self.project.user_id)
-  .then(function(user) {
+  .then(user => {
     self.user = user;
     return user;
   });
@@ -149,7 +153,7 @@ function fetchPublishedProject() {
   var self = this;
 
   return PublishedProjectQueries.getOne(self.project.published_id)
-  .then(function(publishedProject) {
+  .then(publishedProject => {
     self.publishedProject = publishedProject;
     self.publishRoot = getUploadRoot(self.user, publishedProject);
     return publishedProject;
@@ -160,6 +164,7 @@ function fetchPublishedProject() {
 /**
  * Record update helpers
  */
+
 function updateProjectDetails() {
   var self = this;
   var publishedProject = self.publishedProject;
@@ -170,7 +175,7 @@ function updateProjectDetails() {
     published_id: publishedProject && publishedProject.id
   })
   .then(ProjectQueries.getOne)
-  .then(function(project) {
+  .then(project => {
     self.project = project;
   });
 }
@@ -199,7 +204,7 @@ function createOrUpdatePublishedProject() {
   };
 
   return fetchPublishedProject.call(self)
-  .then(function(publishedProject) {
+  .then(publishedProject => {
     if (publishedProject) {
       return PublishedProjectQueries.updateOne(publishedProject.id, projectData);
     } else {
@@ -208,7 +213,7 @@ function createOrUpdatePublishedProject() {
     }
   })
   .then(PublishedProjectQueries.getOne)
-  .then(function(publishedProject) {
+  .then(publishedProject => {
     self.publishedProject = publishedProject;
     self.publishRoot = getUploadRoot(self.user, publishedProject);
   });
@@ -218,6 +223,7 @@ function createOrUpdatePublishedProject() {
 /**
  * Remote record update helpers
  */
+
 function uploadNewFiles() {
   var self = this;
   var remixData = self.remixData;
@@ -227,23 +233,23 @@ function uploadNewFiles() {
 
   return PublishedFileQueries
   .getAllNewFiles(self.project.id)
-  .then(function(files) {
+  .then(files => {
     if (!files.length) {
       return;
     }
 
-    return Promise.map(files, function(file) {
+    return Promise.map(files, file => {
       return PublishedFileQueries.createOne({
         file_id: file.id,
         published_id: publishedProject.id,
         path: file.path,
         buffer: file.buffer
       })
-      .then(function() {
+      .then(() => {
         return upload(fileRoot + file.path, file.buffer, remixData);
       })
-      .then(success('CREATE', username))
-      .catch(failure('CREATE', username));
+      .then(success(`CREATE`, username))
+      .catch(failure(`CREATE`, username));
     });
   });
 }
@@ -256,26 +262,28 @@ function uploadModifiedFiles() {
 
   function updateModelAndUpload(publishedFile) {
     var id = publishedFile.id;
+
     delete publishedFile.id;
 
     return PublishedFileQueries
       .updateOne(id, publishedFile)
-      .then(function() {
+      .then(() => {
         return upload(fileRoot + publishedFile.path, publishedFile.buffer, remixData);
       })
-      .then(success('UPDATE', username))
-      .catch(failure('UPDATE', username));
+      .then(success(`UPDATE`, username))
+      .catch(failure(`UPDATE`, username));
   }
 
   return PublishedFileQueries
   .getAllModifiedFiles(self.publishedProject.id)
-  .then(function(publishedFiles) {
+  .then(publishedFiles => {
     if (!publishedFiles.length) {
       return;
     }
 
-    return Promise.map(publishedFiles, function(publishedFile) {
+    return Promise.map(publishedFiles, publishedFile => {
       var oldPath = publishedFile.oldPath;
+
       delete publishedFile.oldPath;
 
       if (oldPath === publishedFile.path) {
@@ -283,7 +291,7 @@ function uploadModifiedFiles() {
       }
 
       return remove(fileRoot + oldPath)
-      .then(function() {
+      .then(() => {
         return updateModelAndUpload(publishedFile);
       });
     });
@@ -294,14 +302,16 @@ function uploadModifiedFiles() {
 /**
  * Record deletion helpers
  */
+
 function deletePublishedProject() {
   var self = this;
   var publishedProjectId = self.publishedProject.id;
+
   self.publishUrl = self.project.publish_url;
   self.publishedProject = null;
 
   return updateProjectDetails.call(self)
-  .then(function() {
+  .then(() => {
     return PublishedProjectQueries.deleteOne(publishedProjectId);
   });
 }
@@ -313,14 +323,14 @@ function deletePublishedFiles() {
 
   return PublishedFileQueries
   .getAllPaths(self.publishedProject.id)
-  .then(function(publishedFilePaths) {
-    return Promise.map(publishedFilePaths, function(publishedFilePath) {
+  .then(publishedFilePaths => {
+    return Promise.map(publishedFilePaths, publishedFilePath => {
       return remove(fileRoot + publishedFilePath)
-      .then(success('DELETE', username))
-      .catch(failure('DELETE', username));
+      .then(success(`DELETE`, username))
+      .catch(failure(`DELETE`, username));
     });
   })
-  .then(function() {
+  .then(() => {
     return PublishedFileQueries.deleteAll(self.publishedProject.id);
   });
 }
@@ -332,19 +342,19 @@ function deleteOldFiles() {
 
   return PublishedFileQueries
   .getAllDeletedFiles(self.publishedProject.id)
-  .then(function(publishedFiles) {
+  .then(publishedFiles => {
     if (!publishedFiles.length) {
       return;
     }
 
-    return Promise.map(publishedFiles, function(publishedFile) {
+    return Promise.map(publishedFiles, publishedFile => {
       return PublishedFileQueries
       .deleteOne(publishedFile.id)
-      .then(function() {
+      .then(() => {
         return remove(fileRoot + publishedFile.path);
       })
-      .then(success('DELETE', username))
-      .catch(failure('DELETE', username));
+      .then(success(`DELETE`, username))
+      .catch(failure(`DELETE`, username));
     });
   });
 }
@@ -353,49 +363,50 @@ function deleteOldFiles() {
 /**
  * API
  */
+
 module.exports.publish = function(project) {
-  var self = {
+  var context = {
     project: project.toJSON()
   };
 
   return Promise.resolve()
-  .then(fetchUserForProject.bind(self))
-  .then(createOrUpdatePublishedProject.bind(self))
-  .then(setRemixDataForPublishedProject.bind(self))
-  .then(uploadNewFiles.bind(self))
-  .then(uploadModifiedFiles.bind(self))
-  .then(deleteOldFiles.bind(self))
-  .then(updateProjectDetails.bind(self))
-  .then(function() {
-    log.info('Publish for ' + self.user.name + ' - ' +
-             '[PUBLISH] Published ' +
-             '"' + self.project.title + '"' +
-             ' to ' + self.project.publish_url);
+  .then(fetchUserForProject.bind(context))
+  .then(createOrUpdatePublishedProject.bind(context))
+  .then(setRemixDataForPublishedProject.bind(context))
+  .then(uploadNewFiles.bind(context))
+  .then(uploadModifiedFiles.bind(context))
+  .then(deleteOldFiles.bind(context))
+  .then(updateProjectDetails.bind(context))
+  .then(() => {
+    log.info(`Publish for ` + context.user.name + ` - ` +
+             `[PUBLISH] Published ` +
+             `"` + context.project.title + `"` +
+             ` to ` + context.project.publish_url);
 
-    return self.project.id;
+    return context.project.id;
   })
   .then(fetchProjectModel)
-  .catch(reject);
+  .catch(rejectPromise);
 };
 
 module.exports.unpublish = function(project) {
-  var self = {
+  var context = {
     project: project.toJSON()
   };
 
   return Promise.resolve()
-  .then(fetchUserForProject.bind(self))
-  .then(fetchPublishedProject.bind(self))
-  .then(deletePublishedFiles.bind(self))
-  .then(deletePublishedProject.bind(self))
-  .then(function() {
-    log.info('Publish for ' + self.user.name + ' - ' +
-             '[UNPUBLISH] Unpublished ' +
-             '"' + self.project.title + '"' +
-             ' from ' + self.publishUrl);
+  .then(fetchUserForProject.bind(context))
+  .then(fetchPublishedProject.bind(context))
+  .then(deletePublishedFiles.bind(context))
+  .then(deletePublishedProject.bind(context))
+  .then(() => {
+    log.info(`Publish for ` + context.user.name + ` - ` +
+             `[UNPUBLISH] Unpublished ` +
+             `"` + context.project.title + `"` +
+             ` from ` + context.publishUrl);
 
-    return self.project.id;
+    return context.project.id;
   })
   .then(fetchProjectModel)
-  .catch(reject);
+  .catch(rejectPromise);
 };

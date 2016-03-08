@@ -1,12 +1,11 @@
-var retrieveTestUsers = require('./test-users');
+'use strict';
 
-var validUsers;
-var invalidUser;
+var retrieveTestUsers = require(`./test-users`);
 
 var update = {};
 
 var userToken = {
-  authorization: 'token TestUser'
+  authorization: `token TestUser`
 };
 
 module.exports = function(cb) {
@@ -14,27 +13,24 @@ module.exports = function(cb) {
     return cb(null, update);
   }
 
-  retrieveTestUsers(function(err, users) {
+  retrieveTestUsers((err) => {
     if (err) { return cb(err); }
-
-    validUsers = users.valid;
-    invalidUser = users.invalid;
 
     update.fail = {
       userDoesNotExist: {
         headers: userToken,
-        url: '/users/999999',
-        method: 'put',
+        url: `/users/999999`,
+        method: `put`,
         payload: {
-          name: 'NewUserName'
+          name: `NewUserName`
         }
       },
       useridTypeError: {
         headers: userToken,
-        url: '/users/thisisastring',
-        method: 'put',
+        url: `/users/thisisastring`,
+        method: `put`,
         payload: {
-          name: 'NewUserName'
+          name: `NewUserName`
         }
       }
     };

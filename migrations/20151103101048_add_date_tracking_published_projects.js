@@ -2,9 +2,9 @@
 
 exports.up = function (knex, Promise) {
   return Promise.join(
-    knex.schema.table('publishedProjects', function (t) {
-      t.text('_date_created');
-      t.text('_date_updated');
+    knex.schema.table(`publishedProjects`, function (t) {
+      t.text(`_date_created`);
+      t.text(`_date_updated`);
     })
   );
 };

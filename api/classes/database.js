@@ -1,7 +1,9 @@
-var config = require('../../knexfile').development;
+'use strict';
 
-var Knex = require('knex')(config);
-var Bookshelf = require('bookshelf')(Knex);
+var config = require(`../../knexfile`).development;
+
+var Knex = require(`knex`)(config);
+var Bookshelf = require(`bookshelf`)(Knex);
 
 exports.Bookshelf = Bookshelf;
 

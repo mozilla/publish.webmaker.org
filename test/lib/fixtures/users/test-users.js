@@ -1,8 +1,10 @@
-var db = require('../../db');
+'use strict';
+
+var db = require(`../../db`);
 var users = {};
 
 users.invalid = {
-  id: 'thisisastring',
+  id: `thisisastring`,
   username: 1919
 };
 
@@ -11,12 +13,10 @@ module.exports = function(cb) {
     return cb(null, users);
   }
 
-  db.select().from('users').orderBy('id')
-    .then(function(rows) {
+  db.select().from(`users`).orderBy(`id`)
+    .then(rows => {
       users.valid = rows;
       cb(null, users);
     })
-    .catch(function(e) {
-      cb(e);
-    });
+    .catch(cb);
 };

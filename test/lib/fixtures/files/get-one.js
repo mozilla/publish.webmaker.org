@@ -1,4 +1,6 @@
-var retrieveTestFiles = require('../files/test-files');
+'use strict';
+
+var retrieveTestFiles = require(`../files/test-files`);
 
 var validFiles;
 var invalidFile;
@@ -6,7 +8,7 @@ var invalidFile;
 var getOne = {};
 
 var userToken = {
-  authorization: 'token ag-dubs'
+  authorization: `token ag-dubs`
 };
 
 module.exports = function(cb) {
@@ -14,7 +16,7 @@ module.exports = function(cb) {
     return cb(null, getOne);
   }
 
-  retrieveTestFiles(function(err, files) {
+  retrieveTestFiles((err, files) => {
     if (err) { return cb(err); }
 
     validFiles = files.valid;
@@ -23,21 +25,21 @@ module.exports = function(cb) {
     getOne.success = {
       default: {
         headers: userToken,
-        url: '/files/' + validFiles[0].id,
-        method: 'get'
+        url: `/files/` + validFiles[0].id,
+        method: `get`
       }
     };
 
     getOne.fail = {
       invalidFileid: {
         headers: userToken,
-        url: '/files/' + invalidFile.id,
-        method: 'get'
+        url: `/files/` + invalidFile.id,
+        method: `get`
       },
       fileDoesNotExist: {
         headers: userToken,
-        url: '/files/' + 9999999,
-        method: 'get'
+        url: `/files/` + 9999999,
+        method: `get`
       }
     };
 

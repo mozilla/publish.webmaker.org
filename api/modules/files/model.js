@@ -1,10 +1,12 @@
-var BaseModel = require('../../classes/base_model');
+'use strict';
 
-var Projects = require('../projects/model');
-var Users = require('../users/model');
+var BaseModel = require(`../../classes/base_model`);
+
+var Projects = require(`../projects/model`);
+var Users = require(`../users/model`);
 
 var instanceProps = {
-  tableName: 'files',
+  tableName: `files`,
   project: function() {
     return this.belongsTo(Projects);
   },
@@ -14,15 +16,15 @@ var instanceProps = {
 };
 
 var classProps = {
-  typeName: 'files',
+  typeName: `files`,
   filters: {
     project_id: function (qb, value) {
-      return qb.whereIn('project_id', value);
+      return qb.whereIn(`project_id`, value);
     }
   },
   relations: [
-    'project',
-    'user'
+    `project`,
+    `user`
   ]
 };
 

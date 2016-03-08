@@ -1,7 +1,9 @@
+'use strict';
+
 var create = {};
 
 var userToken = {
-  authorization: 'token TestUser'
+  authorization: `token TestUser`
 };
 
 module.exports = function(cb) {
@@ -11,10 +13,10 @@ module.exports = function(cb) {
   create.success = {
     default: {
       headers: userToken,
-      url: '/users',
-      method: 'post',
+      url: `/users`,
+      method: `post`,
       payload: {
-        name: 'TestUser'
+        name: `TestUser`
       }
     }
   };
@@ -22,14 +24,14 @@ module.exports = function(cb) {
   create.fail = {
     nameAbsent: {
       headers: userToken,
-      url: '/users',
-      method: 'post',
+      url: `/users`,
+      method: `post`,
       payload: {}
     },
     invalidName: {
       headers: userToken,
-      url: '/users',
-      method: 'post',
+      url: `/users`,
+      method: `post`,
       payload: {
         name: 12345
       }

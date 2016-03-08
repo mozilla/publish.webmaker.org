@@ -1,17 +1,19 @@
-var Boom = require('boom');
-var Promise = require('bluebird'); // jshint ignore:line
+'use strict';
 
-var errors = require('../../classes/errors');
-var BaseController = require('../../classes/base_controller');
-var Publisher = require('../../classes/publisher');
+var Boom = require(`boom`);
+var Promise = require(`bluebird`); // jshint ignore:line
 
-var Files = require('../files/model');
-var PublishedFiles = require('../publishedFiles/model');
+var errors = require(`../../classes/errors`);
+var BaseController = require(`../../classes/base_controller`);
+var Publisher = require(`../../classes/publisher`);
 
-var Model = require('./model');
+var Files = require(`../files/model`);
+var PublishedFiles = require(`../publishedFiles/model`);
+
+var Model = require(`./model`);
 var controller = new BaseController(Model);
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+var dateTracker = require(`../../../lib/utils`).dateTracker;
 
 controller.formatRequestData = function(req) {
   var now = new Date();
@@ -28,7 +30,7 @@ controller.formatRequestData = function(req) {
 
   // If it is an update request
   if (req.params.id) {
-    data.id = parseInt(req.params.id);
+    data.id = parseInt(req.params.id, 10);
     delete data.date_created;
   }
 
@@ -46,12 +48,12 @@ controller.update = function(req, reply) {
 };
 
 controller.publishProject = function(req, reply) {
-  var result = Promise.resolve().then(function() {
+  var result = Promise.resolve().then(() => {
     var record = req.pre.records.models[0];
 
     return Publisher.publish(record)
     .then(dateTracker.convertToISOStrings(true))
-    .then(function(publishedRecord) {
+    .then(publishedRecord => {
       return req.generateResponse(publishedRecord).code(200);
     });
   })
@@ -61,19 +63,19 @@ controller.publishProject = function(req, reply) {
 };
 
 controller.unpublishProject = function(req, reply) {
-  var result = Promise.resolve().then(function() {
+  var result = Promise.resolve().then(() => {
     var record = req.pre.records.models[0];
 
     if (!record.attributes.publish_url) {
       throw Boom.notFound(null, {
         debug: true,
-        error: 'This project was not published'
+        error: `This project was not published`
       });
     }
 
     return Publisher.unpublish(record)
     .then(dateTracker.convertToISOStrings(true))
-    .then(function(unpublishedRecord) {
+    .then(unpublishedRecord => {
       return req.generateResponse(unpublishedRecord).code(200);
     });
   })
@@ -90,7 +92,7 @@ controller.delete = function(req, reply) {
     function fetchFiles() {
       return Files.query({
         where: {
-          project_id: project.get('id')
+          project_id: project.get(`id`)
         }
       }).fetchAll();
     }
@@ -98,7 +100,7 @@ controller.delete = function(req, reply) {
     function fetchPublishedFiles(file) {
       return PublishedFiles.query({
         where: {
-          file_id: file.get('id')
+          file_id: file.get(`id`)
         }
       }).fetchAll();
     }
@@ -107,18 +109,13 @@ controller.delete = function(req, reply) {
       if (publishedFiles.length === 0) {
         return;
       }
-      return publishedFiles.mapThen(function(publishedFile) {
-        return publishedFile.destroy();
-      });
+      return publishedFiles.mapThen(publishedFile => publishedFile.destroy());
     }
 
     return Promise.resolve()
       .then(fetchFiles)
-      .then(function(files) {
-        return files.mapThen(function(file) {
-          return fetchPublishedFiles(file)
-            .then(clearPublishedFiles);
-        });
+      .then(files => {
+        return files.mapThen(file => fetchPublishedFiles(file).then(clearPublishedFiles));
       });
   }
 
@@ -127,16 +124,16 @@ controller.delete = function(req, reply) {
   // We then do a dummy check to make sure no old publishedFiles
   // exist for this. Horribly inefficent!
   // TODO: https://github.com/mozilla/publish.webmaker.org/issues/140
-  Promise.resolve().then(function() {
-    if (project.get('published_id')) {
+  Promise.resolve().then(() => {
+    if (project.get(`published_id`)) {
       return Publisher.unpublish(project);
     }
   })
   .then(clearAllPublishedFiles)
-  .then(function() {
+  .then(() => {
     BaseController.prototype.delete.call(self, req, reply);
   })
-  .catch(function(e) {
+  .catch(e => {
     reply(errors.generateErrorResponse(e));
   });
 };

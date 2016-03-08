@@ -1,25 +1,27 @@
-var Joi = require('joi');
+'use strict';
 
-var errors = require('../../../classes/errors');
-var prereqs = require('../../../classes/prerequisites');
+var Joi = require(`joi`);
 
-var controller = require('../controller');
-var Model = require('../model');
+var errors = require(`../../../classes/errors`);
+var prereqs = require(`../../../classes/prerequisites`);
+
+var controller = require(`../controller`);
+var Model = require(`../model`);
 
 module.exports = [{
-  method: 'DELETE',
-  path: '/users/{id}',
+  method: `DELETE`,
+  path: `/users/{id}`,
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+        mode: `param`,
+        requestKey: `id`
       }),
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
     handler: controller.delete.bind(controller),
-    description: 'Delete a user object based on `id`.',
+    description: `Delete a user object based on \`id\`.`,
     validate: {
       params: {
         id: Joi.number().integer().required()

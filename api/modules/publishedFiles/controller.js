@@ -1,6 +1,8 @@
-var BaseController = require('../../classes/base_controller');
+'use strict';
 
-var Model = require('./model');
+var BaseController = require(`../../classes/base_controller`);
+
+var Model = require(`./model`);
 
 var controller = new BaseController(Model);
 

@@ -1,12 +1,11 @@
-var retrieveTestUsers = require('./test-users');
+'use strict';
 
-var validUsers;
-var invalidUser;
+var retrieveTestUsers = require(`./test-users`);
 
 var del = {};
 
 var userToken = {
-  authorization: 'token TestUser'
+  authorization: `token TestUser`
 };
 
 module.exports = function(cb) {
@@ -14,22 +13,19 @@ module.exports = function(cb) {
     return cb(null, del);
   }
 
-  retrieveTestUsers(function(err, users) {
+  retrieveTestUsers((err) => {
     if (err) { return cb(err); }
-
-    validUsers = users.valid;
-    invalidUser = users.invalid;
 
     del.fail = {
       userDoesNotExist: {
         headers: userToken,
-        url: '/users/999999',
-        method: 'delete'
+        url: `/users/999999`,
+        method: `delete`
       },
       useridTypeError: {
         headers: userToken,
-        url: '/users/thisisastring',
-        method: 'delete'
+        url: `/users/thisisastring`,
+        method: `delete`
       }
     };
 

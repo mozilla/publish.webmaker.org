@@ -19,13 +19,13 @@ function getDateFromStr(dateStr, id, table, column) {
     dateStr = resolveType(dateStr);
     date = new Date(dateStr);
     if (isNaN(date.valueOf())) {
-      throw new Error('Date string is not valid');
+      throw new Error(`Date string is not valid`);
     }
   } catch (e) {
-    console.error('Record with `id` ' + id + ' ' +
-                  'has an invalid entry for `' + column + '` ' +
-                  'with value ' + dateStr + ' ' +
-                  'in table `' + table + '`');
+    console.error(`Record with \`id\` ` + id + ` ` +
+                  `has an invalid entry for \`` + column + `\` ` +
+                  `with value ` + dateStr + ` ` +
+                  `in table \`` + table + `\``);
   } finally {
     return date;
   }
@@ -33,8 +33,8 @@ function getDateFromStr(dateStr, id, table, column) {
 
 function getDatesFromRecord(record, table) {
   var id = record.id;
-  var created = getDateFromStr(record.date_created, id, table, 'date_created');
-  var updated = getDateFromStr(record.date_updated, id, table, 'date_updated');
+  var created = getDateFromStr(record.date_created, id, table, `date_created`);
+  var updated = getDateFromStr(record.date_updated, id, table, `date_updated`);
 
   if (!created && updated) {
     created = updated;
@@ -56,7 +56,7 @@ function getDatesFromRecord(record, table) {
 
 function copyDates(knex, Promise, table) {
   return knex(table)
-  .select('id', 'date_created', 'date_updated')
+  .select(`id`, `date_created`, `date_updated`)
   .then(function(records) {
     return Promise.map(records, function(record) {
       var id = record.id;
@@ -67,13 +67,13 @@ function copyDates(knex, Promise, table) {
       }
 
       return Promise.join(
-        knex(table).update('_date_created', dates.created)
-        .where('id', id)
-        .whereNull('_date_created'),
+        knex(table).update(`_date_created`, dates.created)
+        .where(`id`, id)
+        .whereNull(`_date_created`),
 
-        knex(table).update('_date_updated', dates.updated)
-        .where('id', id)
-        .whereNull('_date_updated')
+        knex(table).update(`_date_updated`, dates.updated)
+        .where(`id`, id)
+        .whereNull(`_date_updated`)
       );
     }, { concurrency: 25 });
   });
@@ -81,18 +81,18 @@ function copyDates(knex, Promise, table) {
 
 exports.up = function(knex, Promise) {
   return Promise.join(
-    copyDates(knex, Promise, 'projects'),
-    copyDates(knex, Promise, 'publishedProjects')
+    copyDates(knex, Promise, `projects`),
+    copyDates(knex, Promise, `publishedProjects`)
   );
 };
 
 exports.down = function (knex, Promise) {
   return Promise.join(
-    knex('projects').update({
+    knex(`projects`).update({
       _date_created: null,
       _date_updated: null
     }),
-    knex('publishedProjects').update({
+    knex(`publishedProjects`).update({
       _date_created: null,
       _date_updated: null
     })
