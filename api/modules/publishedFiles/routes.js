@@ -1,4 +1,6 @@
-var read = require('./routes/read');
+'use strict';
+
+var read = require(`./routes/read`);
 
 var routes = [].concat(read);
 
@@ -11,5 +13,5 @@ exports.register = function(server, options, next) {
 };
 
 exports.register.attributes = {
-  name: 'publishedFiles'
+  name: `publishedFiles`
 };

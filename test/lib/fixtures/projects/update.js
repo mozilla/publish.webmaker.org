@@ -1,12 +1,13 @@
-var retrieveTestProjects = require('./test-projects');
+'use strict';
+
+var retrieveTestProjects = require(`./test-projects`);
 
 var validProjects;
-var invalidProject;
 
 var update = {};
 
 var userToken = {
-  authorization: 'token ag-dubs'
+  authorization: `token ag-dubs`
 };
 
 module.exports = function(cb) {
@@ -14,22 +15,21 @@ module.exports = function(cb) {
     return cb(null, update);
   }
 
-  retrieveTestProjects(function(err, projects) {
+  retrieveTestProjects((err, projects) => {
     if (err) { return cb(err); }
 
     validProjects = projects.valid;
-    invalidProject = projects.invalid;
 
     update.success = {
       default: {
         headers: userToken,
-        url: '/projects/' + validProjects[0].id,
-        method: 'put',
+        url: `/projects/` + validProjects[0].id,
+        method: `put`,
         payload: {
           title: validProjects[0].title,
           user_id: validProjects[0].user_id,
           date_created: validProjects[0].date_created,
-          date_updated: '01/01/15',
+          date_updated: `01/01/15`,
           description: validProjects[0].description,
           tags: validProjects[0].tags
         }
@@ -39,26 +39,26 @@ module.exports = function(cb) {
     update.fail = {
       projectDoesNotExist: {
         headers: userToken,
-        url: '/projects/999999',
-        method: 'put',
+        url: `/projects/999999`,
+        method: `put`,
         payload: {
           title: validProjects[0].title,
           user_id: validProjects[0].user_id,
           date_created: validProjects[0].date_created,
-          date_updated: '01/01/15',
+          date_updated: `01/01/15`,
           description: validProjects[0].description,
           tags: validProjects[0].tags
         }
       },
       projectidTypeError: {
         headers: userToken,
-        url: '/projects/thisisastring',
-        method: 'put',
+        url: `/projects/thisisastring`,
+        method: `put`,
         payload: {
           title: validProjects[0].title,
           user_id: validProjects[0].user_id,
           date_created: validProjects[0].date_created,
-          date_updated: '01/01/15',
+          date_updated: `01/01/15`,
           description: validProjects[0].description,
           tags: validProjects[0].tags
         }

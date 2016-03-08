@@ -1,11 +1,13 @@
-var db = require('../../db');
+'use strict';
+
+var db = require(`../../db`);
 var files = {};
 
 files.invalid = {
-  id: 'thisisastring',
-  project_id: 'thisisastring',
+  id: `thisisastring`,
+  project_id: `thisisastring`,
   path: 123,
-  buffer: 'thisisastring'
+  buffer: `thisisastring`
 };
 
 module.exports = function(cb) {
@@ -13,12 +15,10 @@ module.exports = function(cb) {
     return cb(null, files);
   }
 
-  db.select().table('files').orderBy('id')
-    .then(function(rows) {
+  db.select().table(`files`).orderBy(`id`)
+    .then(rows => {
       files.valid = rows;
       cb(null, files);
     })
-    .catch(function(e) {
-      cb(e);
-    });
+    .catch(cb);
 };

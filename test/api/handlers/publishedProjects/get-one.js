@@ -1,22 +1,24 @@
-var Lab = require('lab');
+'use strict';
+
+var Lab = require(`lab`);
 var lab = exports.lab = Lab.script();
 
 var experiment = lab.experiment;
 var test = lab.test;
 var before = lab.before;
 var after = lab.after;
-var expect = require('code').expect;
+var expect = require(`code`).expect;
 
-var config = require('../../../lib/fixtures/publishedProjects').getOne;
+var config = require(`../../../lib/fixtures/publishedProjects`).getOne;
 var server;
 
-var validDateResponse = require('../../../lib/utils').validDateResponse;
+var validDateResponse = require(`../../../lib/utils`).validDateResponse;
 
-before(function(done) {
-  require('../../../lib/mocks/server')(function(testServer) {
+before(done => {
+  require(`../../../lib/mocks/server`)(testServer => {
     server = testServer;
 
-    config(function(err, getOne) {
+    config((err, getOne) => {
       if (err) { throw err; }
 
       config = getOne;
@@ -25,16 +27,16 @@ before(function(done) {
   });
 });
 
-after(function(done) {
+after(done => {
   server.stop(done);
 });
 
 // GET /publishedProjects/:publishedProject_id
-experiment('[Get one published project]', function() {
-  test('success case', function(done) {
+experiment(`[Get one published project]`, () => {
+  test(`success case`, done => {
     var options = config.success.default;
 
-    server.inject(options, function(response) {
+    server.inject(options, response => {
       expect(response.statusCode).to.equal(200);
 
       expect(response.result).to.exist();
@@ -49,26 +51,26 @@ experiment('[Get one published project]', function() {
     });
   });
 
-  test('publishedProject_id must be a number', function(done) {
+  test(`publishedProject_id must be a number`, done => {
     var options = config.fail.invalidPublishedProjectId;
 
-    server.inject(options, function(response) {
+    server.inject(options, response => {
       expect(response.statusCode).to.equal(400);
       expect(response.result).to.exist();
-      expect(response.result.error).to.equal('Bad Request');
+      expect(response.result.error).to.equal(`Bad Request`);
       expect(response.result.message).to.be.a.string();
 
       done();
     });
   });
 
-  test('publishedProject_id must represent an existing resource', function(done) {
+  test(`publishedProject_id must represent an existing resource`, done => {
     var options = config.fail.publishedProjectDoesNotExist;
 
-    server.inject(options, function(response) {
+    server.inject(options, response => {
       expect(response.statusCode).to.equal(404);
       expect(response.result).to.exist();
-      expect(response.result.error).to.equal('Not Found');
+      expect(response.result.error).to.equal(`Not Found`);
 
       done();
     });

@@ -1,10 +1,13 @@
-var Bookshelf = require('./database').Bookshelf;
+'use strict';
+
+var Bookshelf = require(`./database`).Bookshelf;
 
 var instanceProps = {
   column: function(columnName, alias, escapeString) {
-    var prefix = escapeString ? '"' : '';
-    var column = prefix + this.tableName + prefix + '.' + prefix + columnName + prefix;
-    return alias ? column + ' AS ' + prefix + alias + prefix : column;
+    var prefix = escapeString ? `"` : ``;
+    var column = prefix + this.tableName + prefix + `.` + prefix + columnName + prefix;
+
+    return alias ? column + ` AS ` + prefix + alias + prefix : column;
   }
 };
 var classProps = {

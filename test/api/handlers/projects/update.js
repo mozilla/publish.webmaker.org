@@ -1,20 +1,22 @@
-var Lab = require('lab');
+'use strict';
+
+var Lab = require(`lab`);
 var lab = exports.lab = Lab.script();
 
 var experiment = lab.experiment;
 var test = lab.test;
 var before = lab.before;
 var after = lab.after;
-var expect = require('code').expect;
+var expect = require(`code`).expect;
 
-var config = require('../../../lib/fixtures/projects').update;
+var config = require(`../../../lib/fixtures/projects`).update;
 var server;
 
-before(function(done) {
-  require('../../../lib/mocks/server')(function(obj) {
+before(done => {
+  require(`../../../lib/mocks/server`)(obj => {
     server = obj;
 
-    config(function(err, update) {
+    config((err, update) => {
       if (err) { throw err; }
 
       config = update;
@@ -23,16 +25,16 @@ before(function(done) {
   });
 });
 
-after(function(done) {
+after(done => {
   server.stop(done);
 });
 
 // PUT /projects/:project_id
-experiment('[Update a project by id]', function() {
-  test('success case', function(done) {
+experiment(`[Update a project by id]`, () => {
+  test(`success case`, done => {
     var opts = config.success.default;
 
-    server.inject(opts, function(resp) {
+    server.inject(opts, resp => {
       expect(resp.statusCode).to.equal(200);
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
@@ -46,26 +48,26 @@ experiment('[Update a project by id]', function() {
     });
   });
 
-  test('project must exist', function(done) {
+  test(`project must exist`, done => {
     var opts = config.fail.projectDoesNotExist;
 
-    server.inject(opts, function(resp) {
+    server.inject(opts, resp => {
       expect(resp.statusCode).to.equal(404);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Not Found');
+      expect(resp.result.error).to.equal(`Not Found`);
 
       done();
     });
   });
 
-  test('project_id must be a number', function(done) {
+  test(`project_id must be a number`, done => {
     var opts = config.fail.projectidTypeError;
 
-    server.inject(opts, function(resp) {
+    server.inject(opts, resp => {
       expect(resp.statusCode).to.equal(400);
       expect(resp.result).to.exist();
-      expect(resp.result.error).to.equal('Bad Request');
-      expect(resp.result.message).to.equal('`id` invalid');
+      expect(resp.result.error).to.equal(`Bad Request`);
+      expect(resp.result.message).to.equal(`\`id\` invalid`);
 
       done();
     });

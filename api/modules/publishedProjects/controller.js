@@ -1,20 +1,22 @@
-var Promise = require('bluebird'); // jshint ignore:line
+'use strict';
 
-var errors = require('../../classes/errors');
-var BaseController = require('../../classes/base_controller');
+var Promise = require(`bluebird`); // jshint ignore:line
 
-var controller = new BaseController(require('./model'));
+var errors = require(`../../classes/errors`);
+var BaseController = require(`../../classes/base_controller`);
 
-var Projects = require('../projects/model');
-var Files = require('../files/model');
-var PublishedFiles = require('../publishedFiles/model');
+var controller = new BaseController(require(`./model`));
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+var Projects = require(`../projects/model`);
+var Files = require(`../files/model`);
+var PublishedFiles = require(`../publishedFiles/model`);
+
+var dateTracker = require(`../../../lib/utils`).dateTracker;
 
 // Make sure we have the ' (remix)' suffix, adding if necessary,
 // but not re-adding to a title that already has it (remix of remix).
 function ensureRemixSuffix(title) {
-  return title.replace(/( \(remix\))*$/, ' (remix)');
+  return title.replace(/( \(remix\))*$/, ` (remix)`);
 }
 
 controller.formatResponseData = dateTracker.convertToISOStrings();
@@ -35,35 +37,33 @@ controller.remix = function(req, reply) {
     function getPublishedFiles() {
       return PublishedFiles.query({
         where: {
-          published_id: publishedProject.get('id')
+          published_id: publishedProject.get(`id`)
         }
       }).fetchAll();
     }
 
     function duplicateFiles(publishedFiles) {
-      return Promise.map(publishedFiles.models, function(publishedFile) {
+      return Promise.map(publishedFiles.models, publishedFile => {
         return Files.forge({
-          path: publishedFile.get('path'),
-          project_id: newProject.get('id'),
-          buffer: publishedFile.get('buffer')
+          path: publishedFile.get(`path`),
+          project_id: newProject.get(`id`),
+          buffer: publishedFile.get(`buffer`)
         }).save();
       });
     }
 
     return getPublishedFiles()
       .then(duplicateFiles)
-      .then(function() {
-        return newProject;
-      });
+      .then(() => newProject);
   }
 
   function duplicateProject() {
     var now = (new Date()).toISOString();
 
     return Projects.forge({
-      title: ensureRemixSuffix(publishedProject.get('title')),
-      user_id: user.get('id'),
-      tags: publishedProject.get('tags'),
+      title: ensureRemixSuffix(publishedProject.get(`title`)),
+      user_id: user.get(`id`),
+      tags: publishedProject.get(`tags`),
       description: publishedProject.description,
       date_created: now,
       date_updated: now

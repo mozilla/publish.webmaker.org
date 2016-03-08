@@ -1,8 +1,10 @@
-var db = require('../../db');
+'use strict';
+
+var db = require(`../../db`);
 var publishedProjects = {};
 
 publishedProjects.invalid = {
-  id: 'thisisastring',
+  id: `thisisastring`,
   title: 12345,
   date_created: 12345,
   date_updated: 12345
@@ -13,9 +15,9 @@ module.exports = function(callback) {
     return callback(null, publishedProjects);
   }
 
-  db.select().table('publishedProjects').orderBy('id')
-  .then(function(rows) {
-    rows.forEach(function(row) {
+  db.select().table(`publishedProjects`).orderBy(`id`)
+  .then(rows => {
+    rows.forEach(row => {
       if (row._date_created) {
         row.date_created = row._date_created.toISOString();
         delete row._date_created;

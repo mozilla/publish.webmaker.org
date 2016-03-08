@@ -2,9 +2,9 @@
 
 exports.up = function (knex, Promise) {
   return Promise.join(
-    knex.schema.table('projects', function (t) {
-      t.boolean('_readonly');
-      t.text('_client');
+    knex.schema.table(`projects`, function (t) {
+      t.boolean(`_readonly`);
+      t.text(`_client`);
     })
   );
 };

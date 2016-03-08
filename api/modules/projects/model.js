@@ -1,17 +1,19 @@
-var BaseModel = require('../../classes/base_model');
+'use strict';
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+var BaseModel = require(`../../classes/base_model`);
+
+var dateTracker = require(`../../../lib/utils`).dateTracker;
 
 var instanceProps = {
-  tableName: 'projects',
+  tableName: `projects`,
   user: function () {
-    return this.belongsTo(require('../users/model'));
+    return this.belongsTo(require(`../users/model`));
   },
   files: function() {
-    return this.hasMany(require('../files/model'));
+    return this.hasMany(require(`../files/model`));
   },
   publishedProject: function() {
-    return this.belongsTo(require('../publishedProjects/model'), 'published_id');
+    return this.belongsTo(require(`../publishedProjects/model`), `published_id`);
   },
   format: dateTracker.formatDatesInModel.bind(this),
   parse: dateTracker.parseDatesInModel.bind(this),
@@ -22,16 +24,16 @@ var instanceProps = {
     return {
       getOne: function(id) {
         return new Project().query()
-        .where(self.column('id'), id)
-        .then(function(projects) {
+        .where(self.column(`id`), id)
+        .then(projects => {
           return self.parse(projects[0]);
         });
       },
       updateOne: function(id, updatedValues) {
         return new Project().query()
-        .where(self.column('id'), id)
+        .where(self.column(`id`), id)
         .update(self.format(updatedValues))
-        .then(function() {
+        .then(() => {
           return id;
         });
       }
@@ -40,15 +42,15 @@ var instanceProps = {
 };
 
 var classProps = {
-  typeName: 'projects',
+  typeName: `projects`,
   filters: {
     user_id: function (qb, value) {
-      return qb.whereIn('user_id', value);
+      return qb.whereIn(`user_id`, value);
     }
   },
   relations: [
-    'user',
-    'files'
+    `user`,
+    `files`
   ]
 };
 

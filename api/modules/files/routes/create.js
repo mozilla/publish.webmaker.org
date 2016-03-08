@@ -1,26 +1,28 @@
-var prereqs = require('../../../classes/prerequisites');
-var errors = require('../../../classes/errors');
+'use strict';
 
-var schema = require('../schema');
-var controller = require('../controller');
-var Project = require('../../projects/model');
+var prereqs = require(`../../../classes/prerequisites`);
+var errors = require(`../../../classes/errors`);
+
+var schema = require(`../schema`);
+var controller = require(`../controller`);
+var Project = require(`../../projects/model`);
 
 module.exports = [{
-  method: 'POST',
-  path: '/files',
+  method: `POST`,
+  path: `/files`,
   config: {
     payload: {
-      allow: 'multipart/form-data',
+      allow: `multipart/form-data`,
       parse: true,
-      output: 'file',
+      output: `file`,
       maxBytes: process.env.FILE_SIZE_LIMIT || 1048576 * 5 // 5mb
     },
     pre: [
       prereqs.trackTemporaryFile(),
-      prereqs.validateCreationPermission('project_id', Project)
+      prereqs.validateCreationPermission(`project_id`, Project)
     ],
     handler: controller.create.bind(controller),
-    description: 'Create a new file object.',
+    description: `Create a new file object.`,
     validate: {
       payload: schema,
       failAction: errors.attrs

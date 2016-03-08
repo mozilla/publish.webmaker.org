@@ -1,18 +1,20 @@
-var prereqs = require('../../../classes/prerequisites');
-var errors = require('../../../classes/errors');
+'use strict';
 
-var schema = require('../schema');
-var controller = require('../controller');
+var prereqs = require(`../../../classes/prerequisites`);
+var errors = require(`../../../classes/errors`);
+
+var schema = require(`../schema`);
+var controller = require(`../controller`);
 
 module.exports = [{
-  method: 'POST',
-  path: '/projects',
+  method: `POST`,
+  path: `/projects`,
   config: {
     pre: [
       prereqs.validateCreationPermission()
     ],
     handler: controller.create.bind(controller),
-    description: 'Create a new project object.',
+    description: `Create a new project object.`,
     validate: {
       payload: schema,
       failAction: errors.attrs

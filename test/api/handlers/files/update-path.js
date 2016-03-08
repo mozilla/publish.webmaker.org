@@ -9,17 +9,17 @@ var before = lab.before;
 var after = lab.after;
 var expect = require(`code`).expect;
 
-var config = require(`../../../lib/fixtures/projects`).delete;
+var config = require(`../../../lib/fixtures/files`).updatePath;
 var server;
 
 before(done => {
   require(`../../../lib/mocks/server`)(obj => {
     server = obj;
 
-    config((err, del) => {
+    config((err, updatePath) => {
       if (err) { throw err; }
 
-      config = del;
+      config = updatePath;
       done();
     });
   });
@@ -29,31 +29,21 @@ after(done => {
   server.stop(done);
 });
 
-// DELETE /projects/:id
-experiment(`[Delete a project by id]`, () => {
+// PUT /files/:id/path
+experiment(`[Update a file's path by id]`, () => {
   test(`success case`, done => {
     var opts = config.success.default;
 
-    // First, create a project
     server.inject(opts, resp => {
-      expect(resp.statusCode).to.equal(201);
+      expect(resp.statusCode).to.equal(204);
+      expect(resp.result).not.to.exist();
 
-      server.inject({
-        url: `/projects/` + resp.result.id,
-        method: `delete`,
-        headers: {
-          authorization: `token ag-dubs`
-        }
-      }, respDel => {
-        expect(respDel.statusCode).to.equal(204);
-
-        done();
-      });
+      done();
     });
   });
 
-  test(`project must exist`, done => {
-    var opts = config.fail.projectDoesNotExist;
+  test(`file must exist`, done => {
+    var opts = config.fail.fileDoesNotExist;
 
     server.inject(opts, resp => {
       expect(resp.statusCode).to.equal(404);
@@ -64,8 +54,8 @@ experiment(`[Delete a project by id]`, () => {
     });
   });
 
-  test(`project_id must be a number`, done => {
-    var opts = config.fail.projectidTypeError;
+  test(`file_id must be a number`, done => {
+    var opts = config.fail.fileidTypeError;
 
     server.inject(opts, resp => {
       expect(resp.statusCode).to.equal(400);

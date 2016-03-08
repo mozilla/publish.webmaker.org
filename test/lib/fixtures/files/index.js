@@ -1,10 +1,13 @@
+'use strict';
+
 module.exports = {
-  getOne: require('./get-one'),
-  getAllByProject: require('./get-all-by-project'),
+  getOne: require(`./get-one`),
+  getAllByProject: require(`./get-all-by-project`),
 
-  create: require('./create'),
-  delete: require('./delete'),
-  update: require('./update'),
+  create: require(`./create`),
+  delete: require(`./delete`),
+  update: require(`./update`),
+  updatePath: require(`./update-path`),
 
-  testFiles: require('./test-files')
+  testFiles: require(`./test-files`)
 };

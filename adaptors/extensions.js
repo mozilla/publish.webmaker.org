@@ -1,4 +1,6 @@
-var fs = require('fs');
+'use strict';
+
+var fs = require(`fs`);
 
 exports.clearTemporaryFile = function clearTemporaryFile(req, reply) {
   if (req.response.isBoom) {
@@ -7,14 +9,14 @@ exports.clearTemporaryFile = function clearTemporaryFile(req, reply) {
 
   // Once a successful request completes, we delete any
   // temporary files we created
-  req.response.once('finish', function() {
+  req.response.once(`finish`, () => {
     if (!req.app.tmpFile) {
       return;
     }
 
-    fs.unlink(req.app.tmpFile, function(err) {
+    fs.unlink(req.app.tmpFile, err => {
       if (err) {
-        req.log.error('Failed to destroy temporary file with ' + err);
+        req.log.error(`Failed to destroy temporary file with ` + err);
       }
     });
   });
@@ -37,14 +39,15 @@ exports.logRequest = function logRequest(req, reply) {
   // boom object stack
   var stack = error && error.stack || req.response.stack;
 
-  var logLevel = 'error';
+  var logLevel = `error`;
+
   if (!data || data.debug) {
     // Errors we process will contain a "data" property
     // containing the error object (or string) and the
     // level of the error. If it doesn't exist, then the `boom`
     // object was created by the framework and represents an
     // error we don't care about under normal circumstances
-    logLevel = 'debug';
+    logLevel = `debug`;
   }
 
   req.log[logLevel]({

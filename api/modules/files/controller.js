@@ -1,18 +1,20 @@
-var fs = require('fs');
+'use strict';
 
-var BaseController = require('../../classes/base_controller');
-var errors = require('../../classes/errors');
+var fs = require(`fs`);
 
-var Model = require('./model');
+var BaseController = require(`../../classes/base_controller`);
+var errors = require(`../../classes/errors`);
+
+var Model = require(`./model`);
 var controller = new BaseController(Model);
 
-var PublishedFiles = require('../publishedFiles/model');
+var PublishedFiles = require(`../publishedFiles/model`);
 
 // We do not want to serialize the buffer and send it with the
 // response for Create and Update requests so we strip it out
 // of the response before it is sent.
 function formatResponse(model) {
-  model.unset('buffer');
+  model.unset(`buffer`);
   return model;
 }
 
@@ -21,13 +23,14 @@ controller.formatRequestData = function(req) {
   // in a prerequisite function
   var buffer = fs.readFileSync(req.pre.tmpFile);
 
-  var data =  {
+  var data = {
     path: req.payload.path,
     project_id: req.payload.project_id,
     buffer: buffer
   };
+
   if (req.params.id) {
-    data.id = parseInt(req.params.id);
+    data.id = parseInt(req.params.id, 10);
   }
   return data;
 };
@@ -40,6 +43,28 @@ controller.update = function(req, reply) {
   return BaseController.prototype.update.call(this, req, reply, formatResponse);
 };
 
+controller.updatePath = function(req, reply) {
+  reply(
+    Promise.resolve().then(() => {
+      var record = req.pre.records.models[0];
+
+      record.set({
+        path: req.payload.path
+      });
+
+      if (!record.hasChanged()) {
+        return record;
+      }
+
+      return record.save(record.changed, { patch: true, method: `update` });
+    })
+    .then(() => {
+      return req.generateResponse().code(204);
+    })
+    .catch(errors.generateErrorResponse)
+  );
+};
+
 controller.delete = function(req, reply) {
   var self = this;
   var record = req.pre.records.models[0];
@@ -48,10 +73,10 @@ controller.delete = function(req, reply) {
   // to unset it's reference before deletion can occur
   PublishedFiles.query({
     where: {
-      file_id: record.get('id')
+      file_id: record.get(`id`)
     }
   }).fetch()
-  .then(function(model) {
+  .then(model => {
     if (!model) {
       return;
     }
@@ -59,10 +84,10 @@ controller.delete = function(req, reply) {
       file_id: null
     }).save();
   })
-  .then(function() {
+  .then(() => {
     BaseController.prototype.delete.call(self, req, reply);
   })
-  .catch(function(e) {
+  .catch(e => {
     reply(errors.generateErrorResponse(e));
   });
 };

@@ -1,4 +1,6 @@
-var Joi = require('joi');
+'use strict';
+
+var Joi = require(`joi`);
 
 module.exports = Joi.object().keys({
   path: Joi.string().required(),

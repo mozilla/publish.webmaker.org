@@ -1,8 +1,8 @@
-var retrieveTestPublishedProjects = require('./test-publishedProjects');
+'use strict';
+
+var retrieveTestPublishedProjects = require(`./test-publishedProjects`);
 
 var validPublishedProjects;
-var invalidPublishedProject;
-
 var getOne = {};
 
 module.exports = function(callback) {
@@ -10,29 +10,28 @@ module.exports = function(callback) {
     return callback(null, getOne);
   }
 
-  retrieveTestPublishedProjects(function(err, publishedProjects) {
+  retrieveTestPublishedProjects((err, publishedProjects) => {
     if (err) {
       return callback(err);
     }
 
     validPublishedProjects = publishedProjects.valid;
-    invalidPublishedProject = publishedProjects.invalid;
 
     getOne.success = {
       default: {
-        url: '/publishedProjects/' + validPublishedProjects[0].id,
-        method: 'get'
+        url: `/publishedProjects/` + validPublishedProjects[0].id,
+        method: `get`
       }
     };
 
     getOne.fail = {
       invalidPublishedProjectId: {
-        url: '/publishedProjects/thisisastring',
-        method: 'get'
+        url: `/publishedProjects/thisisastring`,
+        method: `get`
       },
       publishedProjectDoesNotExist: {
-        url: '/publishedProjects/9999999',
-        method: 'get'
+        url: `/publishedProjects/9999999`,
+        method: `get`
       }
     };
 

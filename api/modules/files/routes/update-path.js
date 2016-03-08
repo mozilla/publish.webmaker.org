@@ -2,16 +2,15 @@
 
 var Joi = require(`joi`);
 
-var prereqs = require(`../../../classes/prerequisites`);
 var errors = require(`../../../classes/errors`);
+var prereqs = require(`../../../classes/prerequisites`);
 
 var controller = require(`../controller`);
-var schema = require(`../schema`);
 var Model = require(`../model`);
 
 module.exports = [{
   method: `PUT`,
-  path: `/projects/{id}`,
+  path: `/files/{id}/path`,
   config: {
     pre: [
       prereqs.confirmRecordExists(Model, {
@@ -21,10 +20,12 @@ module.exports = [{
       prereqs.validateUser(),
       prereqs.validateOwnership()
     ],
-    handler: controller.update.bind(controller),
-    description: `Update a single project object based on \`id\`.`,
+    handler: controller.updatePath.bind(controller),
+    description: `Update a file's path based on its \`id\`.`,
     validate: {
-      payload: schema,
+      payload: Joi.object().keys({
+        path: Joi.string().required()
+      }),
       params: {
         id: Joi.number().integer().required()
       },

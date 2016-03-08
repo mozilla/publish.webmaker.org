@@ -2,13 +2,13 @@
 
 exports.up = function (knex, Promise) {
   return Promise.join(
-    knex.schema.table('projects', function(t) {
-      t.dateTime('_date_created');
-      t.dateTime('_date_updated');
+    knex.schema.table(`projects`, function(t) {
+      t.dateTime(`_date_created`);
+      t.dateTime(`_date_updated`);
     }),
-    knex.schema.table('publishedProjects', function(t) {
-      t.dateTime('_date_created');
-      t.dateTime('_date_updated');
+    knex.schema.table(`publishedProjects`, function(t) {
+      t.dateTime(`_date_created`);
+      t.dateTime(`_date_updated`);
     })
   );
 };
