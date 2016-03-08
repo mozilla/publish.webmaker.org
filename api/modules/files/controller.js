@@ -40,6 +40,27 @@ controller.update = function(req, reply) {
   return BaseController.prototype.update.call(this, req, reply, formatResponse);
 };
 
+controller.updatePath = function(req, reply) {
+  reply(
+    Promise.resolve().then(function() {
+      var record = req.pre.records.models[0];
+      record.set({
+        path: req.payload.path
+      });
+
+      if (!record.hasChanged()) {
+        return record;
+      }
+
+      return record.save(record.changed, { patch: true, method: 'update' });
+    })
+    .then(function() {
+      return req.generateResponse().code(204);
+    })
+    .catch(errors.generateErrorResponse)
+  );
+};
+
 controller.delete = function(req, reply) {
   var self = this;
   var record = req.pre.records.models[0];
