@@ -55,6 +55,6 @@
     "jscs": "^1.13.1",
     "jshint": "^2.8.0",
     "lab": "^5.9.0",
-    "mofo-style": "latest"
+    "mofo-style": "^1.0.0"
   }
 }
