@@ -34,20 +34,30 @@ function failure(type, username) {
   };
 }
 
-function getUploadRoot(user, project) {
+function getUploadRoot(client, user, project) {
   if (!user || !project) {
     return null;
   }
 
-  return '/' + user.name + '/' + project.id;
+  var httpPrefix = '';
+  var httpClients = (process.env.HTTP_CLIENTS || '').split(',');
+
+  // If the project's publishing client matches to a list
+  // of "can publish http://" clients, prefix the upload root
+  // /with a special "HTTP" namespace.
+  if (client && httpClients.indexOf(client) !== -1) {
+    httpPrefix = '/HTTP';
+  }
+
+  return httpPrefix + '/' + user.name + '/' + project.id;
 }
 
-function buildUrl(user, project) {
+function buildUrl(client, user, project) {
   if (!user || !project) {
     return null;
   }
 
-  return process.env.PUBLIC_PROJECT_ENDPOINT + getUploadRoot(user, project);
+  return process.env.PUBLIC_PROJECT_ENDPOINT + getUploadRoot(client, user, project);
 }
 
 // Takes an absolute path and uri-encodes each component
@@ -151,7 +161,7 @@ function fetchPublishedProject() {
   return PublishedProjectQueries.getOne(self.project.published_id)
   .then(function(publishedProject) {
     self.publishedProject = publishedProject;
-    self.publishRoot = getUploadRoot(self.user, publishedProject);
+    self.publishRoot = getUploadRoot(self.project.client, self.user, publishedProject);
     return publishedProject;
   });
 }
@@ -166,7 +176,7 @@ function updateProjectDetails() {
 
   return ProjectQueries
   .updateOne(self.project.id, {
-    publish_url: buildUrl(self.user, publishedProject),
+    publish_url: buildUrl(self.project.client, self.user, publishedProject),
     published_id: publishedProject && publishedProject.id
   })
   .then(ProjectQueries.getOne)
@@ -210,7 +220,7 @@ function createOrUpdatePublishedProject() {
   .then(PublishedProjectQueries.getOne)
   .then(function(publishedProject) {
     self.publishedProject = publishedProject;
-    self.publishRoot = getUploadRoot(self.user, publishedProject);
+    self.publishRoot = getUploadRoot(self.project.client, self.user, publishedProject);
   });
 }
 
