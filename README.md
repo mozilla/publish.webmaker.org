@@ -38,8 +38,8 @@ $ createdb publish
 $ npm run knex
 ```
 
-N.B. If you would like to create a custom name for your database, you may. However, you 
-will need to update the `DATABASE_URL` env variable in the `.env` file in order to 
+N.B. If you would like to create a custom name for your database, you may. However, you
+will need to update the `DATABASE_URL` env variable in the `.env` file in order to
 reflect that change.
 
 Both of these commands require that you have [PostGres](http://www.postgresql.org/download/) installed, as well as [Knex](http://knexjs.org/) installed globally. To do that you can:
@@ -75,7 +75,7 @@ to enforce the [`mofo-style-guide`](https://github.com/MozillaFoundation/javascr
 
 ### S3 Emulation
 
-This project uses [`noxmox`](https://github.com/nephics/noxmox) to allow for development without Amazon S3 credentials. By default emulation is turned on. To view published projects, serve the `/tmp/mox` directory using your favourite local server. Publish will store a reference to this server based on the `PUBLIC_PROJECT_ENDPOINT` environment variable, which defaults to `localhost:8001`.
+This project uses [`noxmox`](https://github.com/nephics/noxmox) to allow for development without Amazon S3 credentials. By default emulation is turned on. To view published projects, the project runs a `mox-server` for you that taps into the files that `noxmox` writes to disk. Publish will store a reference to this server based on the `PUBLIC_PROJECT_ENDPOINT` environment variable, which defaults to `localhost:8001`.
 
 To use an actual S3 bucket, ensure that the related environment variables are set to allow it:
 
