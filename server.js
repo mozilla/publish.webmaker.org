@@ -90,3 +90,21 @@ server.register({ register: require('./api') }, function(err) {
     server.log('info', { server: server.info }, 'Server started');
   });
 });
+
+// Run a mox server if we're emulating S3
+(function() {
+  if (!process.env.S3_EMULATION) {
+    return;
+  }
+
+  var endpoint = process.env.PUBLIC_PROJECT_ENDPOINT;
+  var port = endpoint.match(/:(\d+)/);
+  if (!port) {
+    return;
+  }
+
+  var port = parseInt(port[1]);
+  require('mox-server').runServer(port, function() {
+    console.log('running mox server on port', port);
+  });
+}());
