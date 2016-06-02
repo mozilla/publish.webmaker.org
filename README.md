@@ -93,6 +93,23 @@ export S3_EMULATION=false
 export PUBLIC_PROJECT_ENDPOINT="http://your-public-endpoint.com"
 ```
 
+### Exporting a project
+
+If you need to export a project from the database (for debugging purposes for e.g.), you can do so by using the `scripts/export` node command line utility provided.
+
+You can run it using:
+```
+node scripts/export <project_id> [options]
+```
+where `[options]` is replaced with the allowed configuration options for the export utility.
+
+This will export the project as a tarball and also has the ability to generate a text file that contains details about the project.
+
+For more documentation and a list of allowed options, run:
+```
+node scripts/export --help
+```
+
 ## Documentation
 
 This project uses [`lout`](https://github.com/hapijs/lout) to automatically generate API documention. To view the docs, start the server and visit
