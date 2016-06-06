@@ -51,11 +51,14 @@
   },
   "devDependencies": {
     "code": "^1.4.0",
+    "colors": "^1.1.2",
+    "commander": "^2.9.0",
     "cross-spawn": "^0.4.0",
     "jscs": "^1.13.1",
     "jshint": "^2.8.0",
     "lab": "^5.9.0",
     "mofo-style": "^1.0.0",
-    "mox-server": "^0.2.0"
+    "mox-server": "^0.2.0",
+    "pg": "^4.5.5"
   }
 }
