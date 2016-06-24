@@ -1,30 +1,32 @@
-var Joi = require('joi');
+"use strict";
 
-var prereqs = require('../../../classes/prerequisites');
-var errors = require('../../../classes/errors');
+const Joi = require(`joi`);
 
-var controller = require('../controller');
-var Model = require('../model');
+const Prerequisites = require(`../../../classes/prerequisites`);
+const Errors = require(`../../../classes/errors`);
+
+const ProjectsModel = require(`../model`);
+const projectsController = require(`../controller`);
 
 module.exports = [{
-  method: 'DELETE',
-  path: '/projects/{id}',
+  method: `DELETE`,
+  path: `/projects/{id}`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.delete.bind(controller),
-    description: 'Delete a single project object based on `id`.',
+    handler: projectsController.delete.bind(projectsController),
+    description: `Delete a single project object based on \`id\`.`,
     validate: {
       params: {
         id: Joi.number().integer().required()
       },
-      failAction: errors.id
+      failAction: Errors.id
     }
   }
 }];
