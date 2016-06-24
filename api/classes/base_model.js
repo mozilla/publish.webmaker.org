@@ -1,13 +1,19 @@
-var Bookshelf = require('./database').Bookshelf;
+"use strict";
 
-var instanceProps = {
-  column: function(columnName, alias, escapeString) {
-    var prefix = escapeString ? '"' : '';
-    var column = prefix + this.tableName + prefix + '.' + prefix + columnName + prefix;
-    return alias ? column + ' AS ' + prefix + alias + prefix : column;
+const Bookshelf = require(`./database`).Bookshelf;
+
+const instanceProps = {
+  column(columnName, alias, escapeString) {
+    const delimiter = escapeString ? `"` : ``;
+    const tableName = `${delimiter}${this.tableName}${delimiter}`;
+    const fieldName = `${delimiter}${columnName}${delimiter}`;
+    const column = `${tableName}.${fieldName}`;
+
+    return alias ? `${column} AS ${delimiter}${alias}${delimiter}` : column;
   }
 };
-var classProps = {
+
+const classProps = {
   transaction: Bookshelf.transaction.bind(Bookshelf)
 };
 

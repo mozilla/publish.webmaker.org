@@ -1,37 +1,40 @@
-var BaseModel = require('../../classes/base_model');
+"use strict";
 
-var Projects = require('../projects/model');
+const BaseModel = require(`../../classes/base_model`);
 
-var instanceProps = {
-  tableName: 'users',
-  projects: function() {
-    return this.hasMany(Projects);
+class UsersQueryBuilder {
+  constructor(context) {
+    this.context = context;
+    this.UsersModel = context.constructor;
+  }
+
+  getOne(id) {
+    return new this.UsersModel()
+    .query()
+    .where(this.context.column(`id`), id)
+    .then(function(users) { return users[0]; });
+  }
+}
+
+const instanceProps = {
+  tableName: `users`,
+  projects() {
+    return this.hasMany(require(`../projects/model`));
   },
-  queries: function() {
-    var self = this;
-    var User = this.constructor;
-
-    return {
-      getOne: function(id) {
-        return new User().query()
-        .where(self.column('id'), id)
-        .then(function(users) {
-          return users[0];
-        });
-      }
-    };
+  queryBuilder() {
+    return new UsersQueryBuilder(this);
   }
 };
 
-var classProps = {
-  typeName: 'comics',
+const classProps = {
+  typeName: `comics`,
   filters: {
-    name: function (qb, value) {
-      return qb.whereIn('name', value);
+    name(queryBuilder, value) {
+      return queryBuilder.whereIn(`name`, value);
     }
   },
   relations: [
-    'projects'
+    `projects`
   ]
 };
 
