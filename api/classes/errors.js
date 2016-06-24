@@ -1,43 +1,48 @@
-var Boom = require('boom');
+"use strict";
 
-module.exports.attrs =  function(request, reply, source, error) {
-  var failedAttribute = '`' + error.data.details[0].path + '`';
+const Boom = require(`boom`);
 
-  // Look to see if the attribute was passed at all
-  if (error.data.details[0].message.indexOf('is required') !== -1) {
-    return reply(Boom.badRequest(failedAttribute + ' must be passed.', {
-      debug: true,
-      error: failedAttribute + ' must be passed.'
-    }));
-  }
+function generateBadRequest(param, isMissingError) {
+  const messageSuffix = isMissingError ? `must be passed.` : `invalid`;
+  const error = `${param} ${messageSuffix}`;
 
-  // Otherwise the type was invalid
-  return reply(Boom.badRequest(failedAttribute + ' invalid', {
+  return Boom.badRequest(error, {
     debug: true,
-    error: failedAttribute + ' invalid'
-  }));
-};
-
-module.exports.id = function(request, reply, source, error) {
-  return reply(Boom.badRequest('`id` invalid', {
-    debug: true,
-    error: '`id` invalid'
-  }));
-};
-
-module.exports.name = function(request, reply, source, error) {
-  return reply(Boom.badRequest('`name` invalid', {
-    debug: true,
-    error: '`name` invalid'
-  }));
-};
-
-module.exports.generateErrorResponse = function(e) {
-  if (e.isBoom) {
-    return e;
-  }
-
-  return Boom.badImplementation(null, {
-    error: e
+    error
   });
-};
+}
+
+class Errors {
+  static attrs(request, reply, source, error) {
+    const errorDetails = error.data.details[0];
+    const failedAttribute = `\`${errorDetails.path}\``;
+
+    // Look to see if the attribute was passed at all
+    if (errorDetails.message.indexOf(`is required`) !== -1) {
+      return reply(generateBadRequest(failedAttribute, true));
+    }
+
+    // Otherwise the type was invalid
+    return reply(generateBadRequest(failedAttribute));
+  }
+
+  /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^error$" }]*/
+  static id(request, reply, source, error) {
+    return reply(generateBadRequest(`\`id\``));
+  }
+
+  /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^error$" }]*/
+  static name(request, reply, source, error) {
+    return reply(generateBadRequest(`\`name\``));
+  }
+
+  static generateErrorResponse(error) {
+    if (error.isBoom) {
+      return error;
+    }
+
+    return Boom.badImplementation(null, { error });
+  }
+}
+
+module.exports = Errors;
