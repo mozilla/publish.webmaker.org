@@ -1,57 +1,63 @@
-var Boom = require('boom');
-var Promise = require('bluebird'); // jshint ignore:line
+"use strict";
 
-var Model = require('./model');
-var errors = require('../../classes/errors');
+const Boom = require(`boom`);
 
-var BaseController = require('../../classes/base_controller');
-var controller = new BaseController(Model);
+const UsersModel = require(`./model`);
+const Errors = require(`../../classes/errors`);
 
-controller.formatRequestData = function(req) {
-  var data = {
-    name: req.payload.name
-  };
-  if (req.params.id) {
-    data.id = parseInt(req.params.id);
+const BaseController = require(`../../classes/base_controller`);
+
+class UsersController extends BaseController {
+  constructor() {
+    super(UsersModel);
   }
-  return data;
-};
 
-controller.login = function(req, reply) {
-  var self = this;
+  formatRequestData(request) {
+    const data = { name: request.payload.name };
 
-  var result = Promise.resolve().then(function() {
-    // First, check if the auth matches the requested user
-    if (req.payload.name !== req.auth.credentials.username) {
-      throw Boom.unauthorized(null, {
-        debug: true,
-        error: 'Authenticated user doesn\'t match the user requested'
-      });
+    if (request.params.id) {
+      data.id = parseInt(request.params.id);
     }
 
-    return self.Model.query({
+    return data;
+  }
+
+  login(request, reply) {
+    if (request.payload.name !== request.auth.credentials.username) {
+      return reply(
+        Errors.generateErrorResponse(
+          Boom.unauthorized(null, {
+            debug: true,
+            error: `Authenticated user doesn't match the user requested`
+          })
+        )
+      );
+    }
+
+    const result = this.Model.query({
       where: {
-        name: req.payload.name
+        name: request.payload.name
       }
-    }).fetch();
-  })
-  .then(function(record) {
-    if (!record) {
-      return self.Model.forge({
-        name: req.payload.name
-      })
-      .save()
-      .then(function(newRecord) {
-        return req.generateResponse(newRecord.toJSON())
+    })
+    .fetch()
+    .then(usersModel => {
+      if (!usersModel) {
+        return this.Model
+        .forge({ name: request.payload.name })
+        .save()
+        .then(function(newUsersModel) {
+          return request.generateResponse(newUsersModel.toJSON())
           .code(201);
-      });
-    }
-    return req.generateResponse(record.toJSON())
+        });
+      }
+
+      return request.generateResponse(usersModel.toJSON())
       .code(200);
-  })
-  .catch(errors.generateErrorResponse);
+    })
+    .catch(Errors.generateErrorResponse);
 
-  return reply(result);
-};
+    reply(result);
+  }
+}
 
-module.exports = controller;
+module.exports = new UsersController();
