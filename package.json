@@ -54,7 +54,7 @@
     "commander": "^2.9.0",
     "cross-spawn": "^0.4.0",
     "eslint": "^2.13.1",
-    "lab": "^5.9.0",
+    "lab": "^10.8.2",
     "mofo-style": "^2.4.0",
     "mox-server": "^0.2.0",
     "pg": "^4.5.5"
