@@ -1,36 +1,38 @@
-var controller = require('../controller');
-var prereqs = require('../../../classes/prerequisites');
+"use strict";
 
-var Model = require('../model');
+const Prerequisites = require(`../../../classes/prerequisites`);
+
+const ProjectsModel = require(`../model`);
+const projectsController = require(`../controller`);
 
 module.exports = [{
-  method: 'PUT',
-  path: '/projects/{id}/publish',
+  method: `PUT`,
+  path: `/projects/{id}/publish`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.publishProject.bind(controller),
-    description: 'Publish a project.'
+    handler: projectsController.publish.bind(projectsController),
+    description: `Publish a project.`
   }
 }, {
-  method: 'PUT',
-  path: '/projects/{id}/unpublish',
+  method: `PUT`,
+  path: `/projects/{id}/unpublish`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.unpublishProject.bind(controller),
-    description: 'Unpublish a project.'
+    handler: projectsController.unpublish.bind(projectsController),
+    description: `Unpublish a project.`
   }
 }];

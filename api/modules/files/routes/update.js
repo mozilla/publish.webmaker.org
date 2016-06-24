@@ -1,33 +1,35 @@
-var Joi = require('joi');
+"use strict";
 
-var Errors = require('../../../classes/errors');
-var prereqs = require('../../../classes/prerequisites');
+var Joi = require(`joi`);
 
-var schema = require('../schema');
-var controller = require('../controller');
-var Model = require('../model');
+var Errors = require(`../../../classes/errors`);
+var Prerequisites = require(`../../../classes/prerequisites`);
+
+var FilesModel = require(`../model`);
+var schema = require(`../schema`);
+var filesController = require(`../controller`);
 
 module.exports = [{
-  method: 'PUT',
-  path: '/files/{id}',
+  method: `PUT`,
+  path: `/files/{id}`,
   config: {
     payload: {
-      allow: 'multipart/form-data',
+      allow: `multipart/form-data`,
       parse: true,
-      output: 'file',
+      output: `file`,
       maxBytes: process.env.FILE_SIZE_LIMIT || 1048576 * 5 // 5mb
     },
     pre: [
-      prereqs.trackTemporaryFile(),
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.trackTemporaryFile(),
+      Prerequisites.confirmRecordExists(FilesModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.update.bind(controller),
-    description: 'Update a single file object based on `id`.',
+    handler: filesController.update.bind(filesController),
+    description: `Update a single file object based on \`id\`.`,
     validate: {
       payload: schema,
       params: {

@@ -1,17 +1,19 @@
-var errors = require('../../../classes/errors');
+"use strict";
 
-var schema = require('../schema');
-var controller = require('../controller');
+const Errors = require(`../../../classes/errors`);
+
+const schema = require(`../schema`);
+const usersController = require(`../controller`);
 
 module.exports = [{
-  method: 'POST',
-  path: '/users/login',
+  method: `POST`,
+  path: `/users/login`,
   config: {
-    handler: controller.login.bind(controller),
-    description: 'Retrieve the user with the passed username, creating if necessary.',
+    handler: usersController.login.bind(usersController),
+    description: `Retrieve the user with the passed username, creating if necessary.`,
     validate: {
       payload: schema,
-      failAction: errors.attr
+      failAction: Errors.attr
     }
   }
 }];
