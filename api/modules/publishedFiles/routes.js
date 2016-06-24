@@ -1,15 +1,15 @@
-var read = require('./routes/read');
+"use strict";
 
-var routes = [].concat(read);
+const read = require(`./routes/read`);
+
+const routes = [].concat(read);
 
 exports.register = function(server, options, next) {
-  server.route(
-    routes
-  );
+  server.route(routes);
 
   next();
 };
 
 exports.register.attributes = {
-  name: 'publishedFiles'
+  name: `publishedFiles`
 };

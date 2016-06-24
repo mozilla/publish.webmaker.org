@@ -1,19 +1,19 @@
-var create = require('./routes/create.js');
-var read = require('./routes/read.js');
-var update = require('./routes/update.js');
-var del = require('./routes/delete.js');
-var publish = require('./routes/publish');
+"use strict";
 
-var routes = [].concat(create, read, update, del, publish);
+const create = require(`./routes/create.js`);
+const read = require(`./routes/read.js`);
+const update = require(`./routes/update.js`);
+const del = require(`./routes/delete.js`);
+const publish = require(`./routes/publish`);
+
+const routes = [].concat(create, read, update, del, publish);
 
 exports.register = function(server, options, next) {
-  server.route(
-    routes
-  );
+  server.route(routes);
 
   next();
 };
 
 exports.register.attributes = {
-  name: 'projects'
+  name: `projects`
 };

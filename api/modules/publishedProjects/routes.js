@@ -1,16 +1,16 @@
-var read = require('./routes/read');
-var remix = require('./routes/remix');
+"use strict";
 
-var routes = [].concat(read, remix);
+const read = require(`./routes/read`);
+const remix = require(`./routes/remix`);
+
+const routes = [].concat(read, remix);
 
 exports.register = function(server, options, next) {
-  server.route(
-    routes
-  );
+  server.route(routes);
 
   next();
 };
 
 exports.register.attributes = {
-  name: 'publishedProjects'
+  name: `publishedProjects`
 };
