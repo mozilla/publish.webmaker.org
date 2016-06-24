@@ -1,51 +1,53 @@
-var Joi = require('joi');
+"use strict";
 
-var errors = require('../../../classes/errors');
-var prereqs = require('../../../classes/prerequisites');
+const Joi = require(`joi`);
 
-var controller = require('../controller');
-var Model = require('../model');
+const Errors = require(`../../../classes/errors`);
+const Prerequisites = require(`../../../classes/prerequisites`);
+
+const ProjectsModel = require(`../model`);
+const projectsController = require(`../controller`);
 
 module.exports = [{
-  method: 'GET',
-  path: '/projects/{id}',
+  method: `GET`,
+  path: `/projects/{id}`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getOne.bind(controller),
-    description: 'Retrieve a single project object based on `id`.',
+    handler: projectsController.getOne.bind(projectsController),
+    description: `Retrieve a single project object based on \`id\`.`,
     validate: {
       params: {
         id: Joi.number().integer().required()
       },
-      failAction: errors.id
+      failAction: Errors.id
     }
   }
 }, {
-  method: 'GET',
-  path: '/users/{user_id}/projects',
+  method: `GET`,
+  path: `/users/{user_id}/projects`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'user_id'
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `user_id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getAll.bind(controller),
-    description: 'Retrieve a collection of project objects belonging to a single user object, based on `user_id`.',
+    handler: projectsController.getAll.bind(projectsController),
+    description: `Retrieve a collection of project objects belonging to a single user object, based on \`user_id\`.`,
     validate: {
       params: {
         user_id: Joi.number().integer().required()
       },
-      failAction: errors.id
+      failAction: Errors.id
     }
   }
 }];

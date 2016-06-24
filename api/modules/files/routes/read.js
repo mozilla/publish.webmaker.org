@@ -1,25 +1,27 @@
-var Joi = require('joi');
+"use strict";
 
-var Errors = require('../../../classes/errors');
-var prereqs = require('../../../classes/prerequisites');
+const Joi = require(`joi`);
 
-var controller = require('../controller');
-var Model = require('../model');
+const Errors = require(`../../../classes/errors`);
+const Prerequisites = require(`../../../classes/prerequisites`);
+
+const FilesModel = require(`../model`);
+const filesController = require(`../controller`);
 
 module.exports = [{
-  method: 'GET',
-  path: '/files/{id}',
+  method: `GET`,
+  path: `/files/{id}`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(FilesModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getOne.bind(controller),
-    description: 'Retrieve a single file object based on `id`.',
+    handler: filesController.getOne.bind(filesController),
+    description: `Retrieve a single file object based on \`id\`.`,
     validate: {
       params: {
         id: Joi.number().integer().required()
@@ -28,19 +30,20 @@ module.exports = [{
     }
   }
 }, {
-  method: 'GET',
-  path: '/projects/{project_id}/files',
+  method: `GET`,
+  path: `/projects/{project_id}/files`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'project_id'
+      Prerequisites.confirmRecordExists(FilesModel, {
+        mode: `param`,
+        requestKey: `project_id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getAll.bind(controller),
-    description: 'Retrieve a collection of file objects that belong to a single project object, based on `project_id`.',
+    handler: filesController.getAll.bind(filesController),
+    description: `Retrieve a collection of file objects that belong to ` +
+      `a single project object, based on \`project_id\`.`,
     validate: {
       params: {
         project_id: Joi.number().integer().required()
@@ -49,20 +52,21 @@ module.exports = [{
     }
   }
 }, {
-  method: 'GET',
-  path: '/projects/{project_id}/files/meta',
+  method: `GET`,
+  path: `/projects/{project_id}/files/meta`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'project_id',
-        columns: ['id', 'project_id', 'path']
+      Prerequisites.confirmRecordExists(FilesModel, {
+        mode: `param`,
+        requestKey: `project_id`,
+        columns: [`id`, `project_id`, `path`]
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getAllAsMeta.bind(controller),
-    description: 'Retrieve a collection of file objects that belong to a single project object, based on `project_id`.',
+    handler: filesController.getAllAsMeta.bind(filesController),
+    description: `Retrieve a collection of file objects that belong to ` +
+      `a single project object, based on \`project_id\`.`,
     validate: {
       params: {
         project_id: Joi.number().integer().required()
@@ -71,21 +75,22 @@ module.exports = [{
     }
   }
 }, {
-  method: 'GET',
-  path: '/projects/{project_id}/files/tar',
+  method: `GET`,
+  path: `/projects/{project_id}/files/tar`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'project_id',
-        columns: ['id', 'path']
+      Prerequisites.confirmRecordExists(FilesModel, {
+        mode: `param`,
+        requestKey: `project_id`,
+        columns: [`id`, `path`]
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getAllAsTar.bind(controller),
-    description: 'Retrieve a tar file containing a collection of file objects that belong to a ' +
-    'single project object, based on `project_id`.',
+    handler: filesController.getAllAsTar.bind(filesController),
+    description: `Retrieve a tar file containing a collection of file ` +
+    `objects that belong to a single project object, based on ` +
+    `\`project_id\`.`,
     validate: {
       params: {
         project_id: Joi.number().integer().required()
