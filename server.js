@@ -1,17 +1,19 @@
+"use strict";
+
 // Initialize the environment before anything else happens
-require('./lib/environment');
+require(`./lib/environment`);
 
-require('newrelic');
+require(`newrelic`);
 
-var Hapi = require('hapi');
-var Hoek = require('hoek');
+const Hapi = require(`hapi`);
+const Hoek = require(`hoek`);
 
-Hoek.assert(process.env.API_HOST, 'Must define API_HOST');
-Hoek.assert(process.env.PORT, 'Must define PORT');
+Hoek.assert(process.env.API_HOST, `Must define API_HOST`);
+Hoek.assert(process.env.PORT, `Must define PORT`);
 
-var extensions = require('./adaptors/extensions');
+const extensions = require(`./adaptors/extensions`);
 
-var server = new Hapi.Server({
+const server = new Hapi.Server({
   connections: {
     routes: {
       cors: true
@@ -19,7 +21,7 @@ var server = new Hapi.Server({
   }
 });
 
-var connection = {
+const connection = {
   host: process.env.API_HOST,
   port: process.env.PORT
 };
@@ -27,10 +29,10 @@ var connection = {
 server.connection(connection);
 
 server.register({
-  register: require('hapi-bunyan'),
+  register: require(`hapi-bunyan`),
   options: {
-    logger: require('./lib/logger'),
-    handler: function(eventType) {
+    logger: require(`./lib/logger`),
+    handler(eventType) {
       // In almost every situation we log to bunyan directly
       // through `req.log[level](...)` which doesn't trigger
       // a HAPI log event. When a HAPI log event is triggered,
@@ -38,56 +40,54 @@ server.register({
       // bunyan to be displayed.
 
       // Allow HAPI server-level logs (vs HAPI request-level logs)
-      if (eventType === 'log') {
+      if (eventType === `log`) {
         // Returning false says "log this as normal"
         return false;
       }
       return true;
     }
   }
-}, function(err) {
-  Hoek.assert(!err, err);
-});
+}, function(err) { Hoek.assert(!err, err); });
 
-server.register(require('./adaptors/plugins'), function(err) {
+server.register(require(`./adaptors/plugins`), function(err) {
   if (err) {
-    server.log('error', {
-      message: 'Error registering plugins',
+    server.log(`error`, {
+      message: `Error registering plugins`,
       error: err
     });
     throw err;
   }
 
   server.auth.strategy(
-    'token',
-    'bearer-access-token',
+    `token`,
+    `bearer-access-token`,
     true,
-    require('./lib/auth-config')(require('./lib/tokenValidator'))
+    require(`./lib/auth-config`)(require(`./lib/tokenValidator`))
   );
 });
 
-server.register({ register: require('./api') }, function(err) {
-  if (err) {
-    server.log('error', {
-      message: 'Error registering api',
-      error: err
+server.register({ register: require(`./api`) }, function(apiRegisterError) {
+  if (apiRegisterError) {
+    server.log(`error`, {
+      message: `Error registering api`,
+      error: apiRegisterError
     });
-    throw err;
+    throw apiRegisterError;
   }
 
   // Server extension hooks
-  server.ext('onPreResponse', [extensions.logRequest, extensions.clearTemporaryFile]);
+  server.ext(`onPreResponse`, [extensions.logRequest, extensions.clearTemporaryFile]);
 
-  server.start(function(err) {
-    if (err) {
-      server.log('error', {
-        message: 'Error starting server',
-        error: err
+  server.start(function(serverStartError) {
+    if (serverStartError) {
+      server.log(`error`, {
+        message: `Error starting server`,
+        error: serverStartError
       });
-      throw err;
+      throw serverStartError;
     }
 
-    server.log('info', { server: server.info }, 'Server started');
+    server.log(`info`, { server: server.info }, `Server started`);
   });
 });
 
@@ -97,14 +97,15 @@ server.register({ register: require('./api') }, function(err) {
     return;
   }
 
-  var endpoint = process.env.PUBLIC_PROJECT_ENDPOINT;
-  var port = endpoint.match(/:(\d+)/);
+  const endpoint = process.env.PUBLIC_PROJECT_ENDPOINT;
+  let port = endpoint.match(/:(\d+)/);
+
   if (!port) {
     return;
   }
 
-  var port = parseInt(port[1]);
-  require('mox-server').runServer(port, function() {
-    console.log('running mox server on port', port);
+  port = parseInt(port[1]);
+  require(`mox-server`).runServer(port, function() {
+    console.log(`running mox server on port`, port);
   });
-}());
+})();
