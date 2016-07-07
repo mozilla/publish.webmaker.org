@@ -305,7 +305,7 @@ class BasePublisher {
       return Promise.map(publishedFiles, function(publishedFile) {
         const oldPath = publishedFile.oldPath;
 
-        publishedFile.oldPath = undefined;
+        delete publishedFile.oldPath;
 
         if (oldPath === publishedFile.path) {
           return updateModelAndUpload(publishedFile);
