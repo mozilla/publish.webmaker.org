@@ -1,30 +1,32 @@
-var Joi = require('joi');
+"use strict";
 
-var prereqs = require('../../../classes/prerequisites');
-var errors = require('../../../classes/errors');
+var Joi = require(`joi`);
 
-var controller = require('../controller');
-var Model = require('../model');
+var Prerequisites = require(`../../../classes/prerequisites`);
+var Errors = require(`../../../classes/errors`);
+
+var UsersModel = require(`../model`);
+var usersController = require(`../controller`);
 
 module.exports = [{
-  method: 'GET',
-  path: '/users/{id}',
+  method: `GET`,
+  path: `/users/{id}`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(Model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(UsersModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser(),
-      prereqs.validateOwnership()
+      Prerequisites.validateUser(),
+      Prerequisites.validateOwnership()
     ],
-    handler: controller.getOne.bind(controller),
-    description: 'Retrieve a single user object based on `id`.',
+    handler: usersController.getOne.bind(usersController),
+    description: `Retrieve a single user object based on \`id\`.`,
     validate: {
       params: {
         id: Joi.number().integer().required()
       },
-      failAction: errors.id
+      failAction: Errors.id
     }
   }
 }];

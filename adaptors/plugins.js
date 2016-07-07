@@ -1,4 +1,6 @@
+"use strict";
+
 module.exports = [
-  require('lout'),
-  require('hapi-auth-bearer-token')
+  require(`lout`),
+  require(`hapi-auth-bearer-token`)
 ];

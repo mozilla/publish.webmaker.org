@@ -1,68 +1,75 @@
-var BaseModel = require('../../classes/base_model');
+"use strict";
 
-var Projects = require('../projects/model');
+const BaseModel = require(`../../classes/base_model`);
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+const ProjectsModel = require(`../projects/model`);
 
-var instanceProps = {
-  tableName: 'publishedProjects',
-  project: function() {
-    return this.belongsTo(Projects);
+const DateTracker = require(`../../../lib/utils`).DateTracker;
+
+class PublishedProjectsQueryBuilder {
+  constructor(context) {
+    this.context = context;
+    this.PublishedProjectsModel = context.constructor;
+  }
+
+  getOne(id) {
+    return new this.PublishedProjectsModel()
+    .query()
+    .where(this.context.column(`id`), id)
+    .then(publishedProjects => this.context.parse(publishedProjects[0]));
+  }
+
+  createOne(data) {
+    return new this.PublishedProjectsModel()
+    .query()
+    .insert(this.context.format(data), `id`)
+    .then(function(ids) { return ids[0]; });
+  }
+
+  updateOne(id, updatedValues) {
+    return new this.PublishedProjectsModel()
+    .query()
+    .where(this.context.column(`id`), id)
+    .update(this.context.format(updatedValues))
+    .then(function() { return id; });
+  }
+
+  deleteOne(id) {
+    return new this.PublishedProjectsModel()
+    .query()
+    .where(this.context.column(`id`), id)
+    .del();
+  }
+}
+
+const instanceProps = {
+  tableName: `publishedProjects`,
+  project() {
+    return this.belongsTo(ProjectsModel);
   },
-  user: function() {
-    return this.belongsTo(require('../users/model')).through(Projects);
+  user() {
+    return this.belongsTo(require(`../users/model`)).through(ProjectsModel);
   },
-  publishedFiles: function() {
-    return this.hasMany(require('../publishedFiles/model'));
+  publishedFiles() {
+    return this.hasMany(require(`../publishedFiles/model`));
   },
-  format: dateTracker.formatDatesInModel.bind(this),
-  parse: dateTracker.parseDatesInModel.bind(this),
-  queries: function() {
-    var self = this;
-    var PublishedProject = this.constructor;
-
-    return {
-      getOne: function(id) {
-        return new PublishedProject().query()
-        .where(self.column('id'), id)
-        .then(function(publishedProjects) {
-          return self.parse(publishedProjects[0]);
-        });
-      },
-      createOne: function(data) {
-        return new PublishedProject().query()
-        .insert(self.format(data), 'id')
-        .then(function(ids) {
-          return ids[0];
-        });
-      },
-      updateOne: function(id, updatedValues) {
-        return new PublishedProject().query()
-        .where(self.column('id'), id)
-        .update(self.format(updatedValues))
-        .then(function() {
-          return id;
-        });
-      },
-      deleteOne: function(id) {
-        return new PublishedProject().query()
-        .where(self.column('id'), id)
-        .del();
-      }
-    };
+  format: DateTracker.formatDatesInModel,
+  parse: DateTracker.parseDatesInModel,
+  queryBuilder() {
+    return new PublishedProjectsQueryBuilder(this);
   }
 };
 
-var classProps = {
-  typeName: 'publishedProjects',
+const classProps = {
+  typeName: `publishedProjects`,
   filters: {
-    project_id: function (qb, value) {
-      return qb.whereIn('project_id', value);
+    project_id(queryBuilder, value) {
+      return queryBuilder.whereIn(`project_id`, value);
     }
   },
   relations: [
-    'publishedFiles',
-    'user'
+    `publishedFiles`,
+    `user`
   ]
 };
 

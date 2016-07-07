@@ -1,79 +1,106 @@
-var Promise = require('bluebird'); // jshint ignore:line
+"use strict";
 
-var errors = require('../../classes/errors');
-var BaseController = require('../../classes/base_controller');
+const Promise = require(`bluebird`); // jshint ignore:line
 
-var controller = new BaseController(require('./model'));
+const BaseController = require(`../../classes/base_controller`);
+const Errors = require(`../../classes/errors`);
 
-var Projects = require('../projects/model');
-var Files = require('../files/model');
-var PublishedFiles = require('../publishedFiles/model');
+const ProjectsModel = require(`../projects/model`);
+const FilesModel = require(`../files/model`);
+const PublishedFilesModel = require(`../publishedFiles/model`);
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+const PublishedProjectsModel = require(`./model`);
 
-// Make sure we have the ' (remix)' suffix, adding if necessary,
-// but not re-adding to a title that already has it (remix of remix).
-function ensureRemixSuffix(title) {
-  return title.replace(/( \(remix\))*$/, ' (remix)');
-}
+const DateTracker = require(`../../../lib/utils`).DateTracker;
 
-controller.formatResponseData = dateTracker.convertToISOStrings();
-
-controller.create = function(req, reply) {
-  return BaseController.prototype.create.call(this, req, reply, dateTracker.convertToISOStrings(true));
-};
-
-controller.update = function(req, reply) {
-  return BaseController.prototype.update.call(this, req, reply, dateTracker.convertToISOStrings(true));
-};
-
-controller.remix = function(req, reply) {
-  var publishedProject = req.pre.records.models[0];
-  var user = req.pre.user;
-
-  function copyFiles(newProject) {
-    function getPublishedFiles() {
-      return PublishedFiles.query({
-        where: {
-          published_id: publishedProject.get('id')
-        }
-      }).fetchAll();
-    }
-
-    function duplicateFiles(publishedFiles) {
-      return Promise.map(publishedFiles.models, function(publishedFile) {
-        return Files.forge({
-          path: publishedFile.get('path'),
-          project_id: newProject.get('id'),
-          buffer: publishedFile.get('buffer')
-        }).save();
-      });
-    }
-
-    return getPublishedFiles()
-      .then(duplicateFiles)
-      .then(function() {
-        return newProject;
-      });
+class Remix {
+  constructor(publishedProjectModel, userModel) {
+    this.publishedProjectsModel = publishedProjectModel;
+    this.usersModel = userModel;
   }
 
-  function duplicateProject() {
-    var now = (new Date()).toISOString();
+  // Make sure we have the ` (remix)` suffix, adding if necessary,
+  // but not re-adding to a title that already has it (remix of remix).
+  ensureRemixSuffix(title) {
+    return title.replace(/( \(remix\))*$/, ` (remix)`);
+  }
 
-    return Projects.forge({
-      title: ensureRemixSuffix(publishedProject.get('title')),
-      user_id: user.get('id'),
-      tags: publishedProject.get('tags'),
-      description: publishedProject.description,
+  _createProjectRemix() {
+    const now = (new Date()).toISOString();
+
+    return ProjectsModel
+    .forge({
+      title: this.ensureRemixSuffix(this.publishedProjectsModel.get(`title`)),
+      user_id: this.usersModel.get(`id`),
+      tags: this.publishedProjectsModel.get(`tags`),
+      description: this.publishedProjectsModel.description,
       date_created: now,
       date_updated: now
-    }).save()
-    .then(copyFiles)
-    .then(dateTracker.convertToISOStrings(true))
-    .catch(errors.generateErrorResponse);
+    })
+    .save()
+    .then(remixedProject => {
+      this.remixedProject = remixedProject;
+    });
   }
 
-  return reply(duplicateProject());
-};
+  _getFilesToRemix() {
+    return PublishedFilesModel.query({
+      where: {
+        published_id: this.publishedProjectsModel.get(`id`)
+      }
+    })
+    .fetchAll();
+  }
 
-module.exports = controller;
+  _createRemixFiles(filesToRemix) {
+    return Promise.map(filesToRemix.models, publishedFilesModel => {
+      return FilesModel
+      .forge({
+        path: publishedFilesModel.get(`path`),
+        project_id: this.remixedProject.get(`id`),
+        buffer: publishedFilesModel.get(`buffer`)
+      })
+      .save();
+    });
+  }
+
+  save() {
+    return this._createProjectRemix()
+    .then(() => this._getFilesToRemix())
+    .then(filesToRemix => this._createRemixFiles(filesToRemix))
+    .then(() => this.remixedProject);
+  }
+}
+
+class PublishedProjectsController extends BaseController {
+  constructor() {
+    super(PublishedProjectsModel);
+  }
+
+  formatResponseData(model) {
+    return DateTracker.convertToISOStrings(model);
+  }
+
+  create(request, reply) {
+    return super.create(request, reply, DateTracker.convertToISOStringsForModel);
+  }
+
+  update(request, reply) {
+    return super.update(request, reply, DateTracker.convertToISOStringsForModel);
+  }
+
+  remix(request, reply) {
+    const publishedProjectsModel = request.pre.records.models[0];
+    const usersModel = request.pre.user;
+    const remix = new Remix(publishedProjectsModel, usersModel);
+
+    const result = remix
+    .save()
+    .then(DateTracker.convertToISOStringsForModel)
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
+  }
+}
+
+module.exports = new PublishedProjectsController();

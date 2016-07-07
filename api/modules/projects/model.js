@@ -1,54 +1,65 @@
-var BaseModel = require('../../classes/base_model');
+"use strict";
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+const BaseModel = require(`../../classes/base_model`);
 
-var instanceProps = {
-  tableName: 'projects',
-  user: function () {
-    return this.belongsTo(require('../users/model'));
-  },
-  files: function() {
-    return this.hasMany(require('../files/model'));
-  },
-  publishedProject: function() {
-    return this.belongsTo(require('../publishedProjects/model'), 'published_id');
-  },
-  format: dateTracker.formatDatesInModel.bind(this),
-  parse: dateTracker.parseDatesInModel.bind(this),
-  queries: function() {
-    var self = this;
-    var Project = this.constructor;
+const DateTracker = require(`../../../lib/utils`).DateTracker;
 
-    return {
-      getOne: function(id) {
-        return new Project().query()
-        .where(self.column('id'), id)
-        .then(function(projects) {
-          return self.parse(projects[0]);
-        });
-      },
-      updateOne: function(id, updatedValues) {
-        return new Project().query()
-        .where(self.column('id'), id)
-        .update(self.format(updatedValues))
-        .then(function() {
-          return id;
-        });
-      }
-    };
+class ProjectsQueryBuilder {
+  constructor(context) {
+    this.context = context;
+    this.ProjectsModel = context.constructor;
+  }
+
+  getOne(id) {
+    return new this.ProjectsModel()
+    .query()
+    .where(this.context.column(`id`), id)
+    .then(projects => this.context.parse(projects[0]));
+  }
+
+  updateOne(id, updatedValues) {
+    return new this.ProjectsModel()
+    .query()
+    .where(this.context.column(`id`), id)
+    .update(this.context.format(updatedValues))
+    .then(function() { return id; });
+  }
+}
+
+const instanceProps = {
+  tableName: `projects`,
+  user() {
+    // We require in the function as opposed to adding a top-level require
+    // to resolve the circular dependencies between models
+    return this.belongsTo(require(`../users/model`));
+  },
+  files() {
+    // We require in the function as opposed to adding a top-level require
+    // to resolve the circular dependencies between models
+    return this.hasMany(require(`../files/model`));
+  },
+  publishedProject() {
+    // We require in the function as opposed to adding a top-level require
+    // to resolve the circular dependencies between models
+    return this.belongsTo(require(`../publishedProjects/model`), `published_id`);
+  },
+  format: DateTracker.formatDatesInModel,
+  parse: DateTracker.parseDatesInModel,
+  queryBuilder() {
+    return new ProjectsQueryBuilder(this);
   }
 };
 
-var classProps = {
-  typeName: 'projects',
+const classProps = {
+  typeName: `projects`,
   filters: {
-    user_id: function (qb, value) {
-      return qb.whereIn('user_id', value);
+    user_id(queryBuilder, value) {
+      return queryBuilder.whereIn(`user_id`, value);
     }
   },
   relations: [
-    'user',
-    'files'
+    `user`,
+    `files`
   ]
 };
 

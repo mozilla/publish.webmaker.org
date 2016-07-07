@@ -1,144 +1,159 @@
-var Boom = require('boom');
-var Promise = require('bluebird'); // jshint ignore:line
+"use strict";
 
-var errors = require('../../classes/errors');
-var BaseController = require('../../classes/base_controller');
-var Publisher = require('../../classes/publisher');
+const Boom = require(`boom`);
+const Promise = require(`bluebird`);
 
-var Files = require('../files/model');
-var PublishedFiles = require('../publishedFiles/model');
+const Errors = require(`../../classes/errors`);
+const BaseController = require(`../../classes/base_controller`);
+const Publisher = require(`../../classes/publisher`);
 
-var Model = require('./model');
-var controller = new BaseController(Model);
+const FilesModel = require(`../files/model`);
+const PublishedFilesModel = require(`../publishedFiles/model`);
 
-var dateTracker = require('../../../lib/utils').dateTracker;
+const ProjectsModel = require(`./model`);
 
-controller.formatRequestData = function(req) {
-  var now = new Date();
-  var data = {
-    title: req.payload.title,
-    user_id: req.payload.user_id,
-    tags: req.payload.tags,
-    description: req.payload.description,
-    date_created: now,
-    date_updated: now,
-    readonly: req.payload.readonly,
-    client: req.payload.client
-  };
+const DateTracker = require(`../../../lib/utils`).DateTracker;
 
-  // If it is an update request
-  if (req.params.id) {
-    data.id = parseInt(req.params.id);
-    delete data.date_created;
+class PublishedFilesCleanup {
+  constructor(project) {
+    this.project = project;
   }
 
-  return data;
-};
-
-controller.formatResponseData = dateTracker.convertToISOStrings();
-
-controller.create = function(req, reply) {
-  return BaseController.prototype.create.call(this, req, reply, dateTracker.convertToISOStrings(true));
-};
-
-controller.update = function(req, reply) {
-  return BaseController.prototype.update.call(this, req, reply, dateTracker.convertToISOStrings(true));
-};
-
-controller.publishProject = function(req, reply) {
-  var result = Promise.resolve().then(function() {
-    var record = req.pre.records.models[0];
-
-    return Publisher.publish(record)
-    .then(dateTracker.convertToISOStrings(true))
-    .then(function(publishedRecord) {
-      return req.generateResponse(publishedRecord).code(200);
-    });
-  })
-  .catch(errors.generateErrorResponse);
-
-  return reply(result);
-};
-
-controller.unpublishProject = function(req, reply) {
-  var result = Promise.resolve().then(function() {
-    var record = req.pre.records.models[0];
-
-    if (!record.attributes.publish_url) {
-      throw Boom.notFound(null, {
-        debug: true,
-        error: 'This project was not published'
-      });
-    }
-
-    return Publisher.unpublish(record)
-    .then(dateTracker.convertToISOStrings(true))
-    .then(function(unpublishedRecord) {
-      return req.generateResponse(unpublishedRecord).code(200);
-    });
-  })
-  .catch(errors.generateErrorResponse);
-
-  return reply(result);
-};
-
-controller.delete = function(req, reply) {
-  var self = this;
-  var project = req.pre.records.models[0];
-
-  function clearAllPublishedFiles() {
-    function fetchFiles() {
-      return Files.query({
-        where: {
-          project_id: project.get('id')
-        }
-      }).fetchAll();
-    }
-
-    function fetchPublishedFiles(file) {
-      return PublishedFiles.query({
-        where: {
-          file_id: file.get('id')
-        }
-      }).fetchAll();
-    }
-
-    function clearPublishedFiles(publishedFiles) {
-      if (publishedFiles.length === 0) {
-        return;
+  fetchPublishedFiles(fileModel) {
+    return PublishedFilesModel.query({
+      where: {
+        file_id: fileModel.get(`id`)
       }
-      return publishedFiles.mapThen(function(publishedFile) {
-        return publishedFile.destroy();
-      });
-    }
-
-    return Promise.resolve()
-      .then(fetchFiles)
-      .then(function(files) {
-        return files.mapThen(function(file) {
-          return fetchPublishedFiles(file)
-            .then(clearPublishedFiles);
-        });
-      });
+    })
+    .fetchAll();
   }
 
-  // If this project is published, we have to
-  // unpublish it before it can be safely deleted.
-  // We then do a dummy check to make sure no old publishedFiles
-  // exist for this. Horribly inefficent!
-  // TODO: https://github.com/mozilla/publish.webmaker.org/issues/140
-  Promise.resolve().then(function() {
-    if (project.get('published_id')) {
-      return Publisher.unpublish(project);
+  deletePublishedFiles(publishedFilesModels) {
+    if (publishedFilesModels.length === 0) {
+      return Promise.resolve();
     }
-  })
-  .then(clearAllPublishedFiles)
-  .then(function() {
-    BaseController.prototype.delete.call(self, req, reply);
-  })
-  .catch(function(e) {
-    reply(errors.generateErrorResponse(e));
-  });
-};
 
-module.exports = controller;
+    return publishedFilesModels.mapThen(function(publishedFileModel) {
+      return publishedFileModel.destroy();
+    });
+  }
+
+  cleanup() {
+    return FilesModel.query({
+      where: {
+        project_id: this.project.get(`id`)
+      }
+    })
+    .fetchAll()
+    .then(filesModels => {
+      return filesModels.mapThen(fileModel =>
+        this.fetchPublishedFiles(fileModel)
+        .then(this.deletePublishedFiles)
+      );
+    });
+  }
+}
+
+class ProjectsController extends BaseController {
+  constructor() {
+    super(ProjectsModel);
+  }
+
+  formatRequestData(request) {
+    const payload = request.payload;
+    const now = new Date();
+    const data = {
+      title: payload.title,
+      user_id: payload.user_id,
+      tags: payload.tags,
+      description: payload.description,
+      date_created: now,
+      date_updated: now,
+      readonly: payload.readonly,
+      client: payload.client
+    };
+
+    // If it is an update request
+    if (request.params.id) {
+      data.id = parseInt(request.params.id);
+      delete data.date_created;
+    }
+
+    return data;
+  }
+
+  formatResponseData(model) {
+    return DateTracker.convertToISOStrings(model);
+  }
+
+  create(request, reply) {
+    return super.create(request, reply, DateTracker.convertToISOStringsForModel);
+  }
+
+  update(request, reply) {
+    return super.update(request, reply, DateTracker.convertToISOStringsForModel);
+  }
+
+  delete(request, reply) {
+    const project = request.pre.records.models[0];
+    const publisher = new Publisher(project);
+    const publishedFilesCleanup = new PublishedFilesCleanup(project);
+
+    // If this project is published, we have to
+    // unpublish it before it can be safely deleted.
+    // We then do a dummy check to make sure no old publishedFiles
+    // exist for this. Horribly inefficent!
+    // TODO: https://github.com/mozilla/publish.webmaker.org/issues/140
+    return Promise.resolve().then(function() {
+      if (project.get(`published_id`)) {
+        return publisher.unpublish();
+      }
+    })
+    .then(publishedFilesCleanup.cleanup.bind(publishedFilesCleanup))
+    .then(() => super.delete(request, reply))
+    .catch(function(error) {
+      reply(Errors.generateErrorResponse(error));
+    });
+  }
+
+  publish(request, reply) {
+    const project = request.pre.records.models[0];
+    const publisher = new Publisher(project);
+
+    const result = publisher
+    .publish()
+    .then(DateTracker.convertToISOStringsForModel)
+    .then(function(publishedModel) {
+      return request.generateResponse(publishedModel).code(200);
+    })
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
+  }
+
+  unpublish(request, reply) {
+    const project = request.pre.records.models[0];
+    const publisher = new Publisher(project);
+
+    if (!project.attributes.publish_url) {
+      return reply(Errors.generateErrorResponse(
+        Boom.notFound(null, {
+          debug: true,
+          error: `This project was not published`
+        })
+      ));
+    }
+
+    const result = publisher
+    .unpublish()
+    .then(DateTracker.convertToISOStringsForModel)
+    .then(function(unpublishedModel) {
+      return request.generateResponse(unpublishedModel).code(200);
+    })
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
+  }
+}
+
+module.exports = new ProjectsController();

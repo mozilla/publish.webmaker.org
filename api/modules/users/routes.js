@@ -1,19 +1,19 @@
-var create = require('./routes/create');
-var read = require('./routes/read');
-var update = require('./routes/update');
-var del = require('./routes/delete');
-var login = require('./routes/login');
+"use strict";
 
-var routes = [].concat(create, read, update, del, login);
+const create = require(`./routes/create`);
+const read = require(`./routes/read`);
+const update = require(`./routes/update`);
+const del = require(`./routes/delete`);
+const login = require(`./routes/login`);
+
+const routes = [].concat(create, read, update, del, login);
 
 exports.register = function(server, options, next) {
-  server.route(
-    routes
-  );
+  server.route(routes);
 
   next();
 };
 
 exports.register.attributes = {
-  name: 'users'
+  name: `users`
 };

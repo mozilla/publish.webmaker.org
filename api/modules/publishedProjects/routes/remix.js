@@ -1,20 +1,22 @@
-var prereqs = require('../../../classes/prerequisites');
+"use strict";
 
-var controller = require('../controller');
-var model = require('../model');
+var Prerequisites = require(`../../../classes/prerequisites`);
+
+var PublishedProjectsModel = require(`../model`);
+var publishedProjectsController = require(`../controller`);
 
 module.exports = [{
-  path: '/publishedProjects/{id}/remix',
-  method: 'PUT',
+  path: `/publishedProjects/{id}/remix`,
+  method: `PUT`,
   config: {
     pre: [
-      prereqs.confirmRecordExists(model, {
-        mode: 'param',
-        requestKey: 'id'
+      Prerequisites.confirmRecordExists(PublishedProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
       }),
-      prereqs.validateUser()
+      Prerequisites.validateUser()
     ],
-    handler: controller.remix.bind(controller),
-    description: 'Create a new project object.'
+    handler: publishedProjectsController.remix.bind(publishedProjectsController),
+    description: `Create a new project object.`
   }
 }];

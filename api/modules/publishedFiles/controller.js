@@ -1,12 +1,18 @@
-var BaseController = require('../../classes/base_controller');
+"use strict";
 
-var Model = require('./model');
+const BaseController = require(`../../classes/base_controller`);
 
-var controller = new BaseController(Model);
+const PublishedFilesModel = require(`./model`);
 
-controller.formatResponseData = function(publishedFile) {
-  delete publishedFile.file_id;
-  return publishedFile;
-};
+class PublishedFilesController extends BaseController {
+  constructor() {
+    super(PublishedFilesModel);
+  }
 
-module.exports = controller;
+  formatResponseData(model) {
+    delete model.file_id;
+    return model;
+  }
+}
+
+module.exports = new PublishedFilesController();

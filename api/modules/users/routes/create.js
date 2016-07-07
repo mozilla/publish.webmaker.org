@@ -1,16 +1,19 @@
-var controller = require('../controller');
-var schema = require('../schema');
-var errors = require('../../../classes/errors');
+"use strict";
+
+const Errors = require(`../../../classes/errors`);
+
+const usersController = require(`../controller`);
+const schema = require(`../schema`);
 
 module.exports = [{
-  method: 'POST',
-  path: '/users',
+  method: `POST`,
+  path: `/users`,
   config: {
-    handler: controller.login.bind(controller),
-    description: 'Create a new user object.',
+    handler: usersController.login.bind(usersController),
+    description: `Create a new user object.`,
     validate: {
       payload: schema,
-      failAction: errors.attrs
+      failAction: Errors.attrs
     }
   }
 }];
