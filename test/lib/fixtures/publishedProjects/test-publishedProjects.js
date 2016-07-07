@@ -1,18 +1,6 @@
 var db = require('../../db');
-var publishedProjects = {};
-
-publishedProjects.invalid = {
-  id: 'thisisastring',
-  title: 12345,
-  date_created: 12345,
-  date_updated: 12345
-};
 
 module.exports = function(callback) {
-  if (publishedProjects.valid) {
-    return callback(null, publishedProjects);
-  }
-
   db.select().table('publishedProjects').orderBy('id')
   .then(function(rows) {
     rows.forEach(function(row) {
@@ -25,8 +13,16 @@ module.exports = function(callback) {
         delete row._date_updated;
       }
     });
-    publishedProjects.valid = rows;
-    callback(null, publishedProjects);
+
+    callback(null, {
+      valid: rows,
+      invalid: {
+        id: 'thisisastring',
+        title: 12345,
+        date_created: 12345,
+        date_updated: 12345
+      }
+    });
   })
   .catch(callback);
 };
