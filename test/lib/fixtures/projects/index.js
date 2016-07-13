@@ -5,6 +5,7 @@ module.exports = {
   create: require('./create'),
   update: require('./update'),
   delete: require('./delete'),
+  updatePaths: require('./update-paths'),
 
   testProjects: require('./test-projects')
 };

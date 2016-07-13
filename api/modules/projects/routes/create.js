@@ -3,7 +3,7 @@
 const Prerequisites = require(`../../../classes/prerequisites`);
 const Errors = require(`../../../classes/errors`);
 
-const schema = require(`../schema`);
+const schema = require(`../schema`).base;
 const projectsController = require(`../controller`);
 
 module.exports = [{

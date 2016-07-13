@@ -7,16 +7,16 @@ users.invalid = {
 };
 
 module.exports = function(cb) {
-  if (users.valid) {
-    return cb(null, users);
-  }
-
   db.select().from('users').orderBy('id')
-    .then(function(rows) {
-      users.valid = rows;
-      cb(null, users);
-    })
-    .catch(function(e) {
-      cb(e);
+  .then(function(rows) {
+    users.valid = rows;
+    cb(null, {
+      valid: rows,
+      invalid: {
+        id: 'thisisastring',
+        username: 1919
+      }
     });
+  })
+  .catch(cb);
 };

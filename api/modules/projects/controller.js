@@ -3,6 +3,7 @@
 const Boom = require(`boom`);
 const Promise = require(`bluebird`);
 
+const Bookshelf = require(`../../classes/database`).Bookshelf;
 const Errors = require(`../../classes/errors`);
 const BaseController = require(`../../classes/base_controller`);
 const Publisher = require(`../../classes/publisher`);
@@ -150,6 +151,45 @@ class ProjectsController extends BaseController {
     .then(function(unpublishedModel) {
       return request.generateResponse(unpublishedModel).code(200);
     })
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
+  }
+
+  updatePaths(request, reply) {
+    const projectId = request.pre.records.models[0].get(`id`);
+    const renamedPaths = request.payload;
+
+    function renameOperation(transaction) {
+      return Promise.map(Object.keys(renamedPaths), function(oldPath) {
+        return FilesModel.query({
+          where: {
+            path: oldPath,
+            project_id: projectId
+          }
+        })
+        .fetch({ transacting: transaction })
+        .then(function(file) {
+          if(!file) {
+            // We ignore file paths that were not found
+            // so that we do not fail the entire operation
+            // because of one bad value
+            return Promise.resolve();
+          }
+
+          file.set({ path: renamedPaths[oldPath] });
+
+          return file.save(file.changed, {
+            patch: true,
+            method: `update`,
+            transacting: transaction
+          });
+        });
+      }, { concurrency: 3 });
+    }
+
+    const result = Bookshelf.transaction(renameOperation)
+    .then(function() { return request.generateResponse().code(200); })
     .catch(Errors.generateErrorResponse);
 
     return reply(result);

@@ -2,7 +2,7 @@
 
 const Joi = require(`joi`);
 
-module.exports = Joi.object().keys({
+const base = Joi.object().keys({
   title: Joi.string().required(),
   user_id: Joi.number().integer().required(),
   date_created: Joi.date(),
@@ -13,3 +13,10 @@ module.exports = Joi.object().keys({
   readonly: Joi.boolean().allow(null),
   client: Joi.string().allow(null)
 });
+
+const updatePaths = Joi.object();
+
+module.exports = {
+  base,
+  updatePaths
+};
