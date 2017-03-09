@@ -3,8 +3,6 @@
 // Initialize the environment before anything else happens
 require(`./lib/environment`);
 
-require(`newrelic`);
-
 const Hapi = require(`hapi`);
 const Hoek = require(`hoek`);
 
