@@ -20,6 +20,8 @@ const publishedFilesQueryBuilder = require(`../modules/publishedFiles/model`).pr
 
 const ROOT_URL = `/`;
 
+var updateHtmlFilesWithNewRemixData = false;
+
 /*
  * Utility functions
  */
@@ -236,6 +238,11 @@ class BasePublisher {
     return this.fetchPublishedProject()
     .then(function(publishedProject) {
       if (publishedProject) {
+        // Check if project title/description is different from publishedProject title/description
+        // If it is, set flag to indicate that html files of publishedProject need to be updated with new remix metadata
+        if (project.title !== publishedProject.title || project.description !== publishedProject.description) {
+          updateHtmlFilesWithNewRemixData = true;
+        }
         return publishedProjectsQueryBuilder.updateOne(publishedProject.id, projectData);
       } else {
         projectData.date_created = projectData.date_updated;
@@ -285,6 +292,7 @@ class BasePublisher {
   }
 
   uploadModifiedFiles() {
+    const publishedProjectId = this.publishedProjectId;
     const remixData = this.remixData;
     const fileRoot = this.publishRoot;
     const username = this.user.name;
@@ -309,6 +317,23 @@ class BasePublisher {
 
     return publishedFilesQueryBuilder
     .getAllModifiedFiles(this.publishedProject.id)
+    .then(function(publishedFiles) {
+      if(!updateHtmlFilesWithNewRemixData) {
+        return publishedFiles;
+      }
+
+      var ignorePaths;
+
+      if(publishedFiles.length) {
+        ignorePaths = publishedFiles.map(publishedFile => publishedFile.oldPath);
+      }
+
+      return publishedFilesQueryBuilder
+      .getAllFilesMatchPath(publishedProjectId, `%.html`, ignorePaths)
+      .then(function(publishedHtmlFiles) {
+        return publishedFiles.concat(publishedHtmlFiles);
+      });
+    })
     .then(function(publishedFiles) {
       if (!publishedFiles.length) {
         return;

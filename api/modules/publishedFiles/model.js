@@ -90,6 +90,19 @@ class PublishedFilesQueryBuilder {
     });
   }
 
+  getAllFilesMatchPath(publishedId, pattern, ignorePaths) {
+    return new this.PublishedFilesModel()
+    .query()
+    .where(this.context.column(`published_id`), publishedId)
+    .where(this.context.column(`path`), `like`, pattern)
+    .whereNotIn(this.context.column(`path`), ignorePaths)
+    .select(
+      this.context.column(`id`),
+      this.context.column(`path`),
+      this.context.column(`buffer`)
+    );
+  }
+
   createOne(publishedFileData) {
     return new this.PublishedFilesModel()
     .query()
