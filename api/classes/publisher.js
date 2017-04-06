@@ -322,7 +322,7 @@ class BasePublisher {
         return publishedFiles;
       }
 
-      var ignorePaths;
+      var ignorePaths = [];
 
       if(publishedFiles.length) {
         ignorePaths = publishedFiles.map(publishedFile => publishedFile.oldPath);
