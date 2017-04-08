@@ -20,8 +20,6 @@ const publishedFilesQueryBuilder = require(`../modules/publishedFiles/model`).pr
 
 const ROOT_URL = `/`;
 
-var updateHtmlFilesWithNewRemixData = false;
-
 /*
  * Utility functions
  */
@@ -236,12 +234,12 @@ class BasePublisher {
     };
 
     return this.fetchPublishedProject()
-    .then(function(publishedProject) {
+    .then(publishedProject => {
       if (publishedProject) {
         // Check if project title/description is different from publishedProject title/description
         // If it is, set flag to indicate that html files of publishedProject need to be updated with new remix metadata
         if (project.title !== publishedProject.title || project.description !== publishedProject.description) {
-          updateHtmlFilesWithNewRemixData = true;
+          this.remixDataChanged = true;
         }
         return publishedProjectsQueryBuilder.updateOne(publishedProject.id, projectData);
       } else {
@@ -317,8 +315,8 @@ class BasePublisher {
 
     return publishedFilesQueryBuilder
     .getAllModifiedFiles(this.publishedProject.id)
-    .then(function(publishedFiles) {
-      if(!updateHtmlFilesWithNewRemixData) {
+    .then(publishedFiles => {
+      if(!this.remixDataChanged) {
         return publishedFiles;
       }
 
