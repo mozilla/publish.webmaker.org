@@ -290,7 +290,7 @@ class BasePublisher {
   }
 
   uploadModifiedFiles() {
-    const publishedProjectId = this.publishedProjectId;
+    const publishedProjectId = this.publishedProject.id;
     const remixData = this.remixData;
     const fileRoot = this.publishRoot;
     const username = this.user.name;
@@ -342,7 +342,7 @@ class BasePublisher {
 
         delete publishedFile.oldPath;
 
-        if (oldPath === publishedFile.path) {
+        if (!oldPath || oldPath === publishedFile.path) {
           return updateModelAndUpload(publishedFile);
         }
 
