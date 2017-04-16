@@ -314,7 +314,7 @@ class BasePublisher {
     }
 
     return publishedFilesQueryBuilder
-    .getAllModifiedFiles(this.publishedProject.id)
+    .getAllModifiedFiles(publishedProjectId)
     .then(publishedFiles => {
       if(!this.remixDataChanged) {
         return publishedFiles;
