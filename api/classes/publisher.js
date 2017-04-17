@@ -234,8 +234,13 @@ class BasePublisher {
     };
 
     return this.fetchPublishedProject()
-    .then(function(publishedProject) {
+    .then(publishedProject => {
       if (publishedProject) {
+        // Check if project title/description is different from publishedProject title/description
+        // If it is, set flag to indicate that html files of publishedProject need to be updated with new remix metadata
+        if (project.title !== publishedProject.title || project.description !== publishedProject.description) {
+          this.remixDataChanged = true;
+        }
         return publishedProjectsQueryBuilder.updateOne(publishedProject.id, projectData);
       } else {
         projectData.date_created = projectData.date_updated;
@@ -285,6 +290,7 @@ class BasePublisher {
   }
 
   uploadModifiedFiles() {
+    const publishedProjectId = this.publishedProject.id;
     const remixData = this.remixData;
     const fileRoot = this.publishRoot;
     const username = this.user.name;
@@ -308,7 +314,24 @@ class BasePublisher {
     }
 
     return publishedFilesQueryBuilder
-    .getAllModifiedFiles(this.publishedProject.id)
+    .getAllModifiedFiles(publishedProjectId)
+    .then(publishedFiles => {
+      if(!this.remixDataChanged) {
+        return publishedFiles;
+      }
+
+      var ignorePaths = [];
+
+      if(publishedFiles.length) {
+        ignorePaths = publishedFiles.map(publishedFile => publishedFile.oldPath);
+      }
+
+      return publishedFilesQueryBuilder
+      .getAllFilesMatchPath(publishedProjectId, `%.html`, ignorePaths)
+      .then(function(publishedHtmlFiles) {
+        return publishedFiles.concat(publishedHtmlFiles);
+      });
+    })
     .then(function(publishedFiles) {
       if (!publishedFiles.length) {
         return;
@@ -319,7 +342,7 @@ class BasePublisher {
 
         delete publishedFile.oldPath;
 
-        if (oldPath === publishedFile.path) {
+        if (!oldPath || oldPath === publishedFile.path) {
           return updateModelAndUpload(publishedFile);
         }
 
