@@ -1,5 +1,9 @@
 "use strict";
 
+if (process.env.NEW_RELIC_LICENSE_KEY) {
+  require(`newrelic`);
+}
+
 // Initialize the environment before anything else happens
 require(`./lib/environment`);
 
