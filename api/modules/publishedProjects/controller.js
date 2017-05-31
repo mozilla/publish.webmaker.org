@@ -14,9 +14,9 @@ const PublishedProjectsModel = require(`./model`);
 const DateTracker = require(`../../../lib/utils`).DateTracker;
 
 class Remix {
-  constructor(publishedProjectModel, userModel) {
+  constructor(publishedProjectModel, user) {
     this.publishedProjectsModel = publishedProjectModel;
-    this.usersModel = userModel;
+    this.user = user;
   }
 
   // Make sure we have the ` (remix)` suffix, adding if necessary,
@@ -31,7 +31,7 @@ class Remix {
     return ProjectsModel
     .forge({
       title: this.ensureRemixSuffix(this.publishedProjectsModel.get(`title`)),
-      user_id: this.usersModel.get(`id`),
+      user_id: this.user.id,
       tags: this.publishedProjectsModel.get(`tags`),
       description: this.publishedProjectsModel.description,
       date_created: now,
@@ -91,8 +91,8 @@ class PublishedProjectsController extends BaseController {
 
   remix(request, reply) {
     const publishedProjectsModel = request.pre.records.models[0];
-    const usersModel = request.pre.user;
-    const remix = new Remix(publishedProjectsModel, usersModel);
+    const user = request.pre.user;
+    const remix = new Remix(publishedProjectsModel, user);
 
     const result = remix
     .save()
