@@ -9,18 +9,34 @@ require(`./lib/environment`);
 
 const Hapi = require(`hapi`);
 const Hoek = require(`hoek`);
+const redisUrl = require(`redis-url`);
+const catboxRedis = require(`catbox-redis`);
 
 Hoek.assert(process.env.API_HOST, `Must define API_HOST`);
 Hoek.assert(process.env.PORT, `Must define PORT`);
 
 const extensions = require(`./adaptors/extensions`);
 
+let cache;
+
+if (process.env.REDIS_URL) {
+  const url = redisUrl.parse(process.env.REDIS_URL);
+
+  cache = {
+    engine: catboxRedis,
+    host: url.hostname,
+    port: url.port,
+    password: url.password
+  };
+}
+
 const server = new Hapi.Server({
   connections: {
     routes: {
       cors: true
     }
-  }
+  },
+  cache
 });
 
 const connection = {
