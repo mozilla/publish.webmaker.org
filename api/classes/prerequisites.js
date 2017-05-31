@@ -82,13 +82,12 @@ class Prerequisites {
     return {
       assign: `user`,
       method(request, reply) {
-        const result = Users.query({
-          where: {
-            name: request.auth.credentials.username
-          }
+        const usernameParam = request.auth.credentials.username;
+
+        const result = Promise.fromCallback(next => {
+          return request.server.methods.cache.user(usernameParam, next);
         })
-        .fetch()
-        .then(function(authenticatedUser) {
+        .then(authenticatedUser => {
           if (!authenticatedUser) {
             // This case means our auth logic failed unexpectedly
             throw Boom.badImplementation(null, {
@@ -144,7 +143,7 @@ class Prerequisites {
           });
         })
         .then(function(owner) {
-          if (owner.get(`id`) !== authenticatedUser.get(`id`)) {
+          if (owner.get(`id`) !== authenticatedUser.id) {
             throw Boom.unauthorized(null, {
               debug: true,
               error: `User doesn't own the resource requested`

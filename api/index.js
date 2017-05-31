@@ -1,6 +1,24 @@
 "use strict";
 
 exports.register = function api(server, options, next) {
+  // Add each module's cache functions to the global server methods
+  [
+    require(`./modules/users/cache`)
+  ].forEach(module => {
+    Object.keys(module).forEach(CacheClassKey => {
+      const Cache = module[CacheClassKey];
+      let cacheConfig;
+
+      if (process.env.REDIS_URL) {
+        cacheConfig = {
+          cache: Cache.config
+        };
+      }
+
+      server.method(`cache.${Cache.name}`, Cache.run, cacheConfig);
+    });
+  });
+
   server.register(
     [
       {

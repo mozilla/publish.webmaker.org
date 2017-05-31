@@ -1,6 +1,7 @@
 "use strict";
 
 const DEFAULT_CACHE_EXPIRY_MS = 15 * 60 * 1000;
+const DEFAULT_CACHE_REQUEST_TIMEOUT_MS = 60 * 1000;
 
 class BaseCache {
   static get name() {
@@ -9,7 +10,8 @@ class BaseCache {
 
   static get config() {
     return {
-      expiresIn: DEFAULT_CACHE_EXPIRY_MS
+      expiresIn: DEFAULT_CACHE_EXPIRY_MS,
+      generateTimeout: DEFAULT_CACHE_REQUEST_TIMEOUT_MS
     };
   }
 

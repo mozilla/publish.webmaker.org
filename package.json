@@ -26,7 +26,7 @@
     "node": "4.6.x"
   },
   "dependencies": {
-    "bluebird": "^2.9.30",
+    "bluebird": "^3.5.0",
     "bookshelf": "^0.10.3",
     "boom": "^5.1.0",
     "bunyan": "^1.3.6",
