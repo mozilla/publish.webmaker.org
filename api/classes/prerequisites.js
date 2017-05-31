@@ -85,7 +85,7 @@ class Prerequisites {
         const usernameParam = request.auth.credentials.username;
 
         const result = Promise.fromCallback(next => {
-          return request.server.methods.cache.user(usernameParam, next);
+          return request.server.methods.user(usernameParam, next);
         })
         .then(authenticatedUser => {
           if (!authenticatedUser) {

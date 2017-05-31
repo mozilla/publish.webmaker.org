@@ -15,7 +15,7 @@ exports.register = function api(server, options, next) {
         };
       }
 
-      server.method(`cache.${Cache.name}`, Cache.run, cacheConfig);
+      server.method(Cache.name, Cache.run, cacheConfig);
     });
   });
 
