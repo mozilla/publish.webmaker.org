@@ -10,7 +10,7 @@ class RemixedFileCreationCache extends BaseCache {
   }
 
   static get config() {
-    return Object.assign(super.config(), {
+    return Object.assign(super.config, {
       segment: `file_buffers`
     });
   }
