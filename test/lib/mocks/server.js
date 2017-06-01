@@ -46,7 +46,8 @@ module.exports = function(done) {
 
     // Add each module's cache functions to the global server methods
     [
-      require(`../../../api/modules/users/cache`)
+      require(`../../../api/modules/users/cache`),
+      require(`../../../api/modules/files/cache`)
     ].forEach(module => {
       Object.keys(module).forEach(CacheClassKey => {
         const Cache = module[CacheClassKey];
@@ -56,9 +57,13 @@ module.exports = function(done) {
           cacheConfig = {
             cache: Cache.config
           };
+
+          if (Cache.generateKey) {
+            cacheConfig.generateKey = Cache.generateKey;
+          }
         }
 
-        server.method(`cache.${Cache.name}`, Cache.run, cacheConfig);
+        server.method(Cache.name, Cache.run, cacheConfig);
       });
     });
 

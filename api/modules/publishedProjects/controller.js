@@ -14,9 +14,10 @@ const PublishedProjectsModel = require(`./model`);
 const DateTracker = require(`../../../lib/utils`).DateTracker;
 
 class Remix {
-  constructor(publishedProjectModel, user) {
+  constructor(publishedProjectModel, user, server) {
     this.publishedProjectsModel = publishedProjectModel;
     this.user = user;
+    this.server = server;
   }
 
   // Make sure we have the ` (remix)` suffix, adding if necessary,
@@ -54,13 +55,20 @@ class Remix {
 
   _createRemixFiles(filesToRemix) {
     return Promise.map(filesToRemix.models, publishedFilesModel => {
+      const remixedFileBuffer = publishedFilesModel.get(`buffer`);
+
       return FilesModel
       .forge({
         path: publishedFilesModel.get(`path`),
         project_id: this.remixedProject.get(`id`),
-        buffer: publishedFilesModel.get(`buffer`)
+        buffer: remixedFileBuffer
       })
-      .save();
+      .save()
+      .then(fileModel => {
+        return Promise.fromCallback(next => {
+          return this.server.methods.createdRemixFile(fileModel.get(`id`), remixedFileBuffer, next);
+        });
+      });
     });
   }
 
@@ -92,7 +100,7 @@ class PublishedProjectsController extends BaseController {
   remix(request, reply) {
     const publishedProjectsModel = request.pre.records.models[0];
     const user = request.pre.user;
-    const remix = new Remix(publishedProjectsModel, user);
+    const remix = new Remix(publishedProjectsModel, user, request.server);
 
     const result = remix
     .save()
