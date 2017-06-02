@@ -5,11 +5,15 @@ const Users = require(`./model`);
 const BaseCache = require(`../../classes/base_cache`);
 
 class UserCache extends BaseCache {
-  static get name() {
+  constructor(cache) {
+    super(cache);
+  }
+
+  get name() {
     return `user`;
   }
 
-  static run(username, next) {
+  run(username, next) {
     return Users.query({
       where: {
         name: username

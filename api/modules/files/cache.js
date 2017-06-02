@@ -5,22 +5,18 @@ const Files = require(`./model`);
 const BaseCache = require(`../../classes/base_cache`);
 
 class RemixedFileCreationCache extends BaseCache {
-  static get name() {
+  get name() {
     return `createdRemixFile`;
   }
 
-  static get config() {
-    return Object.assign(super.config, {
-      segment: `file_buffers`
-    });
+  get config() {
+    // We want to override the base config since we want to implement our own
+    // caching process
+    return null;
   }
 
-  // eslint-disable-next-line no-unused-vars
-  static generateKey(fileId, fileBuffer) {
-    return fileId;
-  }
+  run(fileId, fileBuffer, next) {
 
-  static run(fileId, fileBuffer, next) {
     if(typeof fileBuffer !== `function`) {
       return next(null, fileBuffer);
     }
