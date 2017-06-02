@@ -5,7 +5,7 @@ const Hoek = require(`hoek`);
 exports.register = function api(server, options, next) {
   const cacheEnabled = !!(process.env.REDIS_URL);
 
-  function api() {
+  function routeSetup() {
     server.register([{
       register: require(`./modules/users/routes`)
     }, {
@@ -79,14 +79,14 @@ exports.register = function api(server, options, next) {
           }
         }
 
-        server.method(cache.name, () => cache.run(), cacheConfig);
+        server.method(cache.name, cache.run.bind(cache), cacheConfig);
       });
     });
   }
 
   if (!cacheEnabled) {
     cacheSetup();
-    api();
+    routeSetup();
     return;
   }
 
@@ -107,7 +107,7 @@ exports.register = function api(server, options, next) {
       Hoek.assert(catboxEngine.client && typeof catboxEngine.client === `object`, `Can't find redis client in Catbox engine`);
       clearInterval(intervalId);
       cacheSetup(catboxEngine.client);
-      api();
+      routeSetup();
     }
   }, 500);
 };

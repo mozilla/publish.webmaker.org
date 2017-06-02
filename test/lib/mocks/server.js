@@ -50,20 +50,9 @@ module.exports = function(done) {
       require(`../../../api/modules/files/cache`)
     ].forEach(module => {
       Object.keys(module).forEach(CacheClassKey => {
-        const Cache = module[CacheClassKey];
-        let cacheConfig;
+        const cache = new module[CacheClassKey]();
 
-        if (process.env.REDIS_URL) {
-          cacheConfig = {
-            cache: Cache.config
-          };
-
-          if (Cache.generateKey) {
-            cacheConfig.generateKey = Cache.generateKey;
-          }
-        }
-
-        server.method(Cache.name, Cache.run, cacheConfig);
+        server.method(cache.name, cache.run.bind(cache));
       });
     });
 
