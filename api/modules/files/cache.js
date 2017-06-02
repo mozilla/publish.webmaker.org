@@ -19,8 +19,8 @@ function getBuffer(fileId, next) {
 }
 
 class RemixedFileCreationCache extends BaseCache {
-  constructor(cache) {
-    super(cache);
+  constructor(server) {
+    super(server);
   }
 
   get name() {
@@ -45,12 +45,12 @@ class RemixedFileCreationCache extends BaseCache {
 
     if(typeof fileBuffer !== `function`) {
       if(!this.cache) {
-        console.log("NO cache");
+        console.log(`NO cache, buffer not set in cache`);
         return next(null, fileBuffer);
       }
 
       return this.cache.setex(`file:${fileId}`, DEFAULT_BUFFER_CACHE_EXPIRY_SEC, fileBuffer)
-      .then(() => { console.log("Setting cache"); next(null, fileBuffer) })
+      .then(() => { console.log(`Setting cache`); next(null, fileBuffer) })
       .catch(next);
     }
 
@@ -62,17 +62,18 @@ class RemixedFileCreationCache extends BaseCache {
      */
 
     if(!this.cache) {
+      console.log(`NO Cache. Getting buffer from DB.`);
       return getBuffer(fileId, next);
     }
 
     this.cache.getBuffer(`file:${fileId}`)
     .then(cachedFileBuffer => {
       if (!cachedFileBuffer) {
-        console.log("DB HIT FOR FILES");
+        console.log(`DB HIT FOR FILE`);
         return getBuffer(fileId, next);
       }
 
-      console.log("Cache file");
+      console.log(`CACHE HIT for file`);
 
       next(null, cachedFileBuffer);
     })
