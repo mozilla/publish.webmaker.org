@@ -39,6 +39,8 @@ const server = new Hapi.Server({
   cache
 });
 
+server.app.cacheEnabled = !!process.env.REDIS_URL;
+
 const connection = {
   host: process.env.API_HOST,
   port: process.env.PORT

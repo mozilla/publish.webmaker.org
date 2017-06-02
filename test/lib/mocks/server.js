@@ -50,7 +50,7 @@ module.exports = function(done) {
       require(`../../../api/modules/files/cache`)
     ].forEach(module => {
       Object.keys(module).forEach(CacheClassKey => {
-        const cache = new module[CacheClassKey]();
+        const cache = new module[CacheClassKey](server);
 
         server.method(cache.name, cache.run.bind(cache));
       });

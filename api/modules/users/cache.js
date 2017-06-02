@@ -21,6 +21,7 @@ class UserCache extends BaseCache {
     })
     .fetch()
     .then(user => {
+      console.log("DB HIT");
       next(null, user && user.toJSON());
     })
     .catch(next);
