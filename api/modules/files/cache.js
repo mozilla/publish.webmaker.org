@@ -43,14 +43,14 @@ class RemixedFileCreationCache extends BaseCache {
      * Putting the file buffer into cache
      */
 
-    if(typeof fileBuffer !== `function`) {
-      if(!this.cache) {
+    if (typeof fileBuffer !== `function`) {
+      if (!this.cache) {
         console.log(`NO cache, buffer not set in cache`);
         return next(null, fileBuffer);
       }
 
       return this.cache.setex(`file:${fileId}`, DEFAULT_BUFFER_CACHE_EXPIRY_SEC, fileBuffer)
-      .then(() => { console.log(`Setting cache`); next(null, fileBuffer) })
+      .then(() => { console.log(`Setting cache`); next(null, fileBuffer); })
       .catch(next);
     }
 
@@ -61,12 +61,12 @@ class RemixedFileCreationCache extends BaseCache {
      * Getting the file buffer from cache
      */
 
-    if(!this.cache) {
+    if (!this.cache) {
       console.log(`NO Cache. Getting buffer from DB.`);
       return getBuffer(fileId, next);
     }
 
-    this.cache.getBuffer(`file:${fileId}`)
+    return this.cache.getBuffer(`file:${fileId}`)
     .then(cachedFileBuffer => {
       if (!cachedFileBuffer) {
         console.log(`DB HIT FOR FILE`);
