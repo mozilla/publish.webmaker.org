@@ -7,7 +7,6 @@ const Errors = require(`../../classes/errors`);
 
 const ProjectsModel = require(`../projects/model`);
 const FilesModel = require(`../files/model`);
-const PublishedFilesModel = require(`../publishedFiles/model`);
 
 const PublishedProjectsModel = require(`./model`);
 
@@ -45,21 +44,18 @@ class Remix {
   }
 
   _getFilesToRemix() {
-    return PublishedFilesModel.query({
-      where: {
-        published_id: this.publishedProjectsModel.get(`id`)
-      }
-    })
-    .fetchAll();
+    return Promise.fromCallback(next => {
+      return this.server.methods.publishedFilesByPublishedProject(this.publishedProjectsModel.get(`id`), next);
+    });
   }
 
   _createRemixFiles(filesToRemix) {
-    return Promise.map(filesToRemix.models, publishedFilesModel => {
-      const remixedFileBuffer = publishedFilesModel.get(`buffer`);
+    return Promise.map(filesToRemix, publishedFile => {
+      const remixedFileBuffer = publishedFile.buffer;
 
       return FilesModel
       .forge({
-        path: publishedFilesModel.get(`path`),
+        path: publishedFile.path,
         project_id: this.remixedProject.get(`id`),
         buffer: remixedFileBuffer
       })
