@@ -1,6 +1,8 @@
 "use strict";
 
+const Promise = require(`bluebird`);
 const fs = require(`fs`);
+const Tar = require(`tar-stream`);
 
 const BaseController = require(`../../classes/base_controller`);
 const Errors = require(`../../classes/errors`);
@@ -37,6 +39,38 @@ class FilesController extends BaseController {
     }
 
     return data;
+  }
+
+  getAllAsTar(request, reply) {
+    const files = request.pre.records.models;
+    const tarStream = Tar.pack();
+    const fileCache = request.server.methods.createdRemixFile;
+
+    function processFile(file) {
+      return Promise.fromCallback(next => fileCache(file.get(`id`), next))
+      .then(function(fileBuffer) {
+        return new Promise(function(resolve) {
+          setImmediate(function() {
+            tarStream.entry({
+              name: file.get(`path`)
+            }, fileBuffer);
+
+            resolve();
+          });
+        });
+      });
+    }
+
+    setImmediate(function() {
+      Promise.map(files, processFile, { concurrency: 2 })
+      .then(function() { return tarStream.finalize(); })
+      .catch(Errors.generateErrorResponse);
+    });
+
+    // Normally this type would be application/x-tar, but IE refuses to
+    // decompress a gzipped stream when this is the type.
+    reply(tarStream)
+    .header(`Content-Type`, `application/octet-stream`);
   }
 
   create(request, reply) {

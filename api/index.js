@@ -1,42 +1,53 @@
 "use strict";
 
+const Hoek = require(`hoek`);
+
 exports.register = function api(server, options, next) {
+  if (server.app.cacheEnabled) {
+    const catbox = server.root._caches._default.client;
+
+    Hoek.assert(catbox && typeof catbox === `object`, `Can't find catbox cache client`);
+
+    const catboxEngine = catbox.connection;
+
+    Hoek.assert(catboxEngine && typeof catboxEngine === `object`, `Can't find catbox engine`);
+    Hoek.assert(typeof catboxEngine.isReady === `function`, `Catbox engine doesn't have a ready function`);
+  }
+
   // Add each module's cache functions to the global server methods
   [
-    require(`./modules/users/cache`)
+    require(`./modules/users/cache`),
+    require(`./modules/files/cache`)
   ].forEach(module => {
     Object.keys(module).forEach(CacheClassKey => {
-      const Cache = module[CacheClassKey];
+      const cache = new module[CacheClassKey](server);
       let cacheConfig;
 
-      if (process.env.REDIS_URL) {
+      if (server.app.cacheEnabled && cache.config) {
         cacheConfig = {
-          cache: Cache.config
+          cache: cache.config
         };
+
+        if (cache.generateKey) {
+          cacheConfig.generateKey = cache.generateKey;
+        }
       }
 
-      server.method(`cache.${Cache.name}`, Cache.run, cacheConfig);
+      server.method(cache.name, cache.run.bind(cache), cacheConfig);
     });
   });
 
-  server.register(
-    [
-      {
-        register: require(`./modules/users/routes`)
-      },
-      {
-        register: require(`./modules/projects/routes`)
-      },
-      {
-        register: require(`./modules/files/routes`)
-      },
-      {
-        register: require(`./modules/publishedProjects/routes`)
-      },
-      {
-        register: require(`./modules/publishedFiles/routes`)
-      }
-    ], function(err) {
+  server.register([{
+    register: require(`./modules/users/routes`)
+  }, {
+    register: require(`./modules/projects/routes`)
+  }, {
+    register: require(`./modules/files/routes`)
+  }, {
+    register: require(`./modules/publishedProjects/routes`)
+  }, {
+    register: require(`./modules/publishedFiles/routes`)
+  }], function(err) {
     if (err) {
       return next(err);
     }

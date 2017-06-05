@@ -46,19 +46,13 @@ module.exports = function(done) {
 
     // Add each module's cache functions to the global server methods
     [
-      require(`../../../api/modules/users/cache`)
+      require(`../../../api/modules/users/cache`),
+      require(`../../../api/modules/files/cache`)
     ].forEach(module => {
       Object.keys(module).forEach(CacheClassKey => {
-        const Cache = module[CacheClassKey];
-        let cacheConfig;
+        const cache = new module[CacheClassKey](server);
 
-        if (process.env.REDIS_URL) {
-          cacheConfig = {
-            cache: Cache.config
-          };
-        }
-
-        server.method(`cache.${Cache.name}`, Cache.run, cacheConfig);
+        server.method(cache.name, cache.run.bind(cache));
       });
     });
 

@@ -5,11 +5,15 @@ const Users = require(`./model`);
 const BaseCache = require(`../../classes/base_cache`);
 
 class UserCache extends BaseCache {
-  static get name() {
+  constructor(server) {
+    super(server);
+  }
+
+  get name() {
     return `user`;
   }
 
-  static run(username, next) {
+  run(username, next) {
     return Users.query({
       where: {
         name: username
@@ -17,6 +21,7 @@ class UserCache extends BaseCache {
     })
     .fetch()
     .then(user => {
+      console.log(`DB HIT for username`);
       next(null, user && user.toJSON());
     })
     .catch(next);
