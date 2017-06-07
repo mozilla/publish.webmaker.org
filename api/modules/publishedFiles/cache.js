@@ -35,7 +35,8 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
     .fetchAll()
     .then(publishedFileModels => {
       // For each published file from the db:
-      // 1. Accumulate a POJO copy of it in an array to be returned back,
+      // 1. Accumulate a simple js object copy of it in an array to be
+      //    returned back,
       // 2. Accumulate the metadata in an array, and
       // 3. Cache its buffer
       return Promise.map(publishedFileModels, publishedFileModel => {
@@ -62,7 +63,7 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
         publishedFilesMeta
       );
     })
-    // Return the array of POJO published files
+    // Return the array of simple js objects of published files
     .then(() => publishedFiles);
   }
 
@@ -93,8 +94,8 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
 
   // PARTIAL or FULL Cache hit / PARTIAL or NO DB hit
   _getAllBuffersFromCache(bufferKeyPrefix, publishedFilesMeta) {
-    // Accumulate all the POJO representations of the published files in an
-    // array to return them
+    // Accumulate all the simple js object representations of the published
+    // files in an array to return them
     return Promise.reduce(publishedFilesMeta, (publishedFiles, publishedFileMeta) => {
       const publishedFileId = publishedFileMeta.id;
 
@@ -103,8 +104,8 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
       .then(publishedFileBuffer => {
         if (publishedFileBuffer) {
           // FULL Cache hit / NO DB hit
-          // Combine the metadata and buffer and return a POJO representation
-          // of it
+          // Combine the metadata and buffer and return a simple javascript
+          // object representation of it
           console.log(`Cache hit for buffer`);
           publishedFileMeta.buffer = publishedFileBuffer;
           publishedFiles.push(publishedFileMeta);
@@ -123,7 +124,10 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
           return publishedFiles;
         });
       });
-    }, []);
+    }, []); // The [] at the end is the accummulator's initial value that will
+    // be populated with the published file simple js objects inside the
+    // callback passed to `reduce()`. It is referred to as `publishedFiles`
+    // inside the callback
   }
 
   run(publishedProjectId, next) {
