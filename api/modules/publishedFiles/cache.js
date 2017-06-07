@@ -1,5 +1,7 @@
 "use strict";
 
+const Promise = require(`bluebird`);
+
 const PublishedFiles = require(`./model`);
 
 const BaseCache = require(`../../classes/base_cache`);
