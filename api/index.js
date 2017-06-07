@@ -17,7 +17,8 @@ exports.register = function api(server, options, next) {
   // Add each module's cache functions to the global server methods
   [
     require(`./modules/users/cache`),
-    require(`./modules/files/cache`)
+    require(`./modules/files/cache`),
+    require(`./modules/publishedFiles/cache`)
   ].forEach(module => {
     Object.keys(module).forEach(CacheClassKey => {
       const cache = new module[CacheClassKey](server);
