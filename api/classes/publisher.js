@@ -241,7 +241,15 @@ class BasePublisher {
         if (project.title !== publishedProject.title || project.description !== publishedProject.description) {
           this.remixDataChanged = true;
         }
-        return publishedProjectsQueryBuilder.updateOne(publishedProject.id, projectData);
+
+        // Since we're re-publishing, clear the cache for this project's
+        // published files
+        return Promise.fromCallback(next => {
+          return this.server.methods.publishedFilesByPublishedProject.cache.drop(publishedProject.id, next);
+        })
+        .then(() => {
+          return publishedProjectsQueryBuilder.updateOne(publishedProject.id, projectData);
+        });
       } else {
         projectData.date_created = projectData.date_updated;
         return publishedProjectsQueryBuilder.createOne(projectData);
@@ -365,6 +373,12 @@ class BasePublisher {
     return this.updateProjectDetails()
     .then(function() {
       return publishedProjectsQueryBuilder.deleteOne(publishedProjectId);
+    })
+    .then(() => {
+      // Clear the published project from cache now that it's unpublished
+      return Promise.fromCallback(next => {
+        return this.server.methods.publishedFilesByPublishedProject.cache.drop(publishedProjectId, next);
+      });
     });
   }
 
@@ -401,8 +415,9 @@ class BasePublisher {
 }
 
 class Publisher extends BasePublisher {
-  constructor(project) {
+  constructor(project, server) {
     super();
+    this.server = server;
     this.project = project.toJSON();
   }
 
