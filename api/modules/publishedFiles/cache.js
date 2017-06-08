@@ -109,7 +109,6 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
           // FULL Cache hit / NO DB hit
           // Combine the metadata and buffer and return a simple javascript
           // object representation of it
-          console.log(`Cache hit for buffer`);
           publishedFileMeta.buffer = publishedFileBuffer;
           publishedFiles.push(publishedFileMeta);
 
@@ -120,7 +119,6 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
         // Get the buffer from the db
         return this._getBufferFromDB(bufferKeyPrefix, publishedFileId)
         .then(publishedFileBufferFromDB => {
-          console.log(`DB hit for buffer`);
           publishedFileMeta.buffer = publishedFileBufferFromDB;
           publishedFiles.push(publishedFileMeta);
 
@@ -135,7 +133,6 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
 
   run(publishedProjectId, next) {
     if (!this.cache) {
-      console.log(`Cache not enabled`);
       return PublishedFiles.query({
         where: {
           published_id: publishedProjectId
@@ -157,7 +154,6 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
         return this._getAllDataFromDB(metaKey, bufferKeyPrefix, publishedProjectId);
       }
 
-      console.log(`Cache hit for metadata`);
       return this._getAllBuffersFromCache(
         bufferKeyPrefix,
         JSON.parse(publishedFilesMeta)

@@ -47,12 +47,18 @@ module.exports = function(done) {
     // Add each module's cache functions to the global server methods
     [
       require(`../../../api/modules/users/cache`),
-      require(`../../../api/modules/files/cache`)
+      require(`../../../api/modules/files/cache`),
+      require(`../../../api/modules/publishedFiles/cache`)
     ].forEach(module => {
       Object.keys(module).forEach(CacheClassKey => {
         const cache = new module[CacheClassKey](server);
+        const cacheMethod = cache.run.bind(cache);
 
-        server.method(cache.name, cache.run.bind(cache));
+        cacheMethod.cache = {
+          drop: cache.drop.bind(cache)
+        };
+
+        server.method(cache.name, cacheMethod);
       });
     });
 
