@@ -22,19 +22,28 @@ exports.register = function api(server, options, next) {
   ].forEach(module => {
     Object.keys(module).forEach(CacheClassKey => {
       const cache = new module[CacheClassKey](server);
+      const cacheMethod = cache.run.bind(cache);
       let cacheConfig;
 
-      if (server.app.cacheEnabled && cache.config) {
-        cacheConfig = {
-          cache: cache.config
-        };
+      if (server.app.cacheEnabled) {
+        if (cache.config) {
+          cacheConfig = {
+            cache: cache.config
+          };
 
-        if (cache.generateKey) {
-          cacheConfig.generateKey = cache.generateKey;
+          if (cache.generateKey) {
+            cacheConfig.generateKey = cache.generateKey;
+          }
+        } else {
+          // We expose the drop method in this way to maintain the
+          // same API that Hapi's server method caching uses
+          cacheMethod.cache = {
+            drop: cache.drop.bind(cache)
+          };
         }
       }
 
-      server.method(cache.name, cache.run.bind(cache), cacheConfig);
+      server.method(cache.name, cacheMethod, cacheConfig);
     });
   });
 

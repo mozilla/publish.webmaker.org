@@ -97,7 +97,7 @@ class ProjectsController extends BaseController {
 
   delete(request, reply) {
     const project = request.pre.records.models[0];
-    const publisher = new Publisher(project);
+    const publisher = new Publisher(project, request.server);
     const publishedFilesCleanup = new PublishedFilesCleanup(project);
 
     // If this project is published, we have to
@@ -119,7 +119,7 @@ class ProjectsController extends BaseController {
 
   publish(request, reply) {
     const project = request.pre.records.models[0];
-    const publisher = new Publisher(project);
+    const publisher = new Publisher(project, request.server);
     const readonly = request.query.readonly;
 
     const result = publisher
@@ -135,7 +135,7 @@ class ProjectsController extends BaseController {
 
   unpublish(request, reply) {
     const project = request.pre.records.models[0];
-    const publisher = new Publisher(project);
+    const publisher = new Publisher(project, request.server);
 
     if (!project.attributes.publish_url) {
       return reply(Errors.generateErrorResponse(

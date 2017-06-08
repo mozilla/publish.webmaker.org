@@ -6,7 +6,8 @@ const PublishedFiles = require(`./model`);
 
 const BaseCache = require(`../../classes/base_cache`);
 
-const PUBLISHED_FILE_CACHE_EXPIRY_MS = 10 * 60 * 1000;
+const PUBLISHED_FILE_CACHE_EXPIRY_SEC = 10 * 60;
+const META_KEY_PREFIX = `publishedProjectFilesMeta`;
 
 class PublishedFilesByPublishedProjectCache extends BaseCache {
   constructor(server) {
@@ -35,13 +36,13 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
       }
     })
     .fetchAll()
-    .then(publishedFileModels => {
+    .then(result => {
       // For each published file from the db:
       // 1. Accumulate a simple js object copy of it in an array to be
       //    returned back,
       // 2. Accumulate the metadata in an array, and
       // 3. Cache its buffer
-      return Promise.map(publishedFileModels, publishedFileModel => {
+      return Promise.map(result.models, publishedFileModel => {
         const publishedFile = publishedFileModel.toJSON();
 
         publishedFiles.push(publishedFile);
@@ -52,7 +53,7 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
 
         return this.cache.setex(
           `${bufferKeyPrefix}:${publishedFile.id}`,
-          PUBLISHED_FILE_CACHE_EXPIRY_MS,
+          PUBLISHED_FILE_CACHE_EXPIRY_SEC,
           publishedFile.buffer
         );
       });
@@ -61,8 +62,8 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
       // Cache the accumulated metadata
       return this.cache.setex(
         metaKey,
-        PUBLISHED_FILE_CACHE_EXPIRY_MS,
-        publishedFilesMeta
+        PUBLISHED_FILE_CACHE_EXPIRY_SEC,
+        JSON.stringify(publishedFilesMeta)
       );
     })
     // Return the array of simple js objects of published files
@@ -87,7 +88,7 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
       // Cache the buffer before we return it
       return this.setex(
         `${bufferKeyPrefix}:${publishedFileId}`,
-        PUBLISHED_FILE_CACHE_EXPIRY_MS,
+        PUBLISHED_FILE_CACHE_EXPIRY_SEC,
         publishedFileBuffer
       )
       .then(() => publishedFileBuffer);
@@ -141,13 +142,13 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
         }
       })
       .fetchAll()
-      .then(publishedFileModels => {
-        return next(null, publishedFileModels.map(model => model.toJSON()));
+      .then(result => {
+        return next(null, result.models.map(model => model.toJSON()));
       })
       .catch(next);
     }
 
-    const metaKey = `publishedProjectFilesMeta:${publishedProjectId}`;
+    const metaKey = `${META_KEY_PREFIX}:${publishedProjectId}`;
     const bufferKeyPrefix = `publishedFile`;
 
     return this.cache.get(metaKey)
@@ -157,9 +158,22 @@ class PublishedFilesByPublishedProjectCache extends BaseCache {
       }
 
       console.log(`Cache hit for metadata`);
-      return this._getAllBuffersFromCache(bufferKeyPrefix, publishedFilesMeta);
+      return this._getAllBuffersFromCache(
+        bufferKeyPrefix,
+        JSON.parse(publishedFilesMeta)
+      );
     })
     .then(publishedFiles => next(null, publishedFiles))
+    .catch(next);
+  }
+
+  drop(publishedProjectId, next) {
+    if (!this.cache) {
+      return next();
+    }
+
+    return this.cache.del(`${META_KEY_PREFIX}:${publishedProjectId}`)
+    .then(() => next())
     .catch(next);
   }
 }

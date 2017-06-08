@@ -40,6 +40,10 @@ class BaseCache {
   run() {
     throw new Error(`run function has not been implemented in subclass or has been called incorrectly`);
   }
+
+  drop() {
+    throw new Error(`drop function has not been implemented in subclass or has been called incorrectly`);
+  }
 }
 
 module.exports = BaseCache;
