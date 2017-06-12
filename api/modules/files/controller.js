@@ -44,7 +44,7 @@ class FilesController extends BaseController {
   getAllAsTar(request, reply) {
     const files = request.pre.records.models;
     const tarStream = Tar.pack();
-    const fileCache = request.server.methods.createdRemixFile;
+    const fileCache = request.server.methods.file;
 
     function processFile(file) {
       return Promise.fromCallback(next => fileCache(file.get(`id`), next))
@@ -73,12 +73,26 @@ class FilesController extends BaseController {
     .header(`Content-Type`, `application/octet-stream`);
   }
 
+  getOne(request, reply) {
+    const record = request.pre.records[0];
+
+    reply(
+      request.generateResponse(
+        this.formatResponseData(record)
+      ).code(200)
+    );
+  }
+
   create(request, reply) {
     return super.create(request, reply, formatResponse);
   }
 
   update(request, reply) {
-    return super.update(request, reply, formatResponse);
+    return Promise.fromCallback(next => {
+      return request.server.methods.file.cache.drop(request.params.id, next);
+    })
+    .then(() => super.update(request, reply, formatResponse))
+    .catch(error => reply(Errors.generateErrorResponse(error)));
   }
 
   delete(request, reply) {
@@ -100,6 +114,11 @@ class FilesController extends BaseController {
       return model
       .set({ file_id: null })
       .save();
+    })
+    .then(() => {
+      return Promise.fromCallback(next => {
+        return request.server.methods.file.cache.drop(request.params.id, next);
+      });
     })
     .then(() => super.delete(request, reply))
     .catch(function(error) { reply(Errors.generateErrorResponse(error)); });

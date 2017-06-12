@@ -8,6 +8,8 @@ const Prerequisites = require(`../../../classes/prerequisites`);
 const FilesModel = require(`../model`);
 const filesController = require(`../controller`);
 
+const fileQueryBuilder = FilesModel.prototype.queryBuilder();
+
 module.exports = [{
   method: `GET`,
   path: `/files/{id}`,
@@ -15,10 +17,27 @@ module.exports = [{
     pre: [
       Prerequisites.confirmRecordExists(FilesModel, {
         mode: `param`,
-        requestKey: `id`
+        requestKey: `id`,
+        cache: {
+          methodName: `file`,
+          postProcess: function(fileId, fileBuffer) {
+            if (!fileBuffer) {
+              return null;
+            }
+
+            // We return the file in an array because the prerequisites expect
+            // it to be in an array as per the return value of Bookshelf
+            // fetchAll calls.
+            return [{
+              id: fileId,
+              buffer: fileBuffer
+            }];
+          }
+        }
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(true, fileObj => fileQueryBuilder
+  .getUserForFileById(fileObj.id))
     ],
     handler: filesController.getOne.bind(filesController),
     description: `Retrieve a single file object based on \`id\`.`,

@@ -44,6 +44,8 @@ module.exports = function(done) {
       tokenType: 'token'
     });
 
+    server.app.cacheContexts = {};
+
     // Add each module's cache functions to the global server methods
     [
       require(`../../../api/modules/users/cache`),
@@ -57,6 +59,8 @@ module.exports = function(done) {
         cacheMethod.cache = {
           drop: cache.drop.bind(cache)
         };
+
+        server.app.cacheContexts[cache.name] = cache;
 
         server.method(cache.name, cacheMethod);
       });

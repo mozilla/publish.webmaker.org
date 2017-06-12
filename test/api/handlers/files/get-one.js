@@ -36,8 +36,8 @@ experiment('[Get one file]', function() {
       expect(resp.statusCode).to.equal(200);
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();
-      expect(resp.result.project_id).to.be.a.number();
-      expect(resp.result.path).to.be.a.string();
+      expect(resp.result.project_id).to.not.exist();
+      expect(resp.result.path).to.not.exist();
       expect(resp.result.buffer).to.be.a.buffer();
 
       done();
