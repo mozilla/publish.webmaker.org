@@ -67,11 +67,8 @@ class FileCache extends BaseCache {
     return this.cache.getBuffer(`file:${fileId}`)
     .then(cachedFileBuffer => {
       if (!cachedFileBuffer) {
-        console.log(`Getting buffer from the DB`);
         return getBufferFromDB(fileId, next);
       }
-
-      console.log(`Fetched buffer from cache!`);
 
       next(null, cachedFileBuffer);
     })
