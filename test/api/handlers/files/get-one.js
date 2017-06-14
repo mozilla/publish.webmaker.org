@@ -34,11 +34,8 @@ experiment('[Get one file]', function() {
 
     server.inject(opts, function(resp) {
       expect(resp.statusCode).to.equal(200);
+      expect(resp.headers[`content-type`]).to.equal(`application/octet-stream`);
       expect(resp.result).to.exist();
-      expect(resp.result.id).to.be.a.number();
-      expect(resp.result.project_id).to.not.exist();
-      expect(resp.result.path).to.not.exist();
-      expect(resp.result.buffer).to.be.a.buffer();
 
       done();
     });
