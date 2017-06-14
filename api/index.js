@@ -14,6 +14,8 @@ exports.register = function api(server, options, next) {
     Hoek.assert(typeof catboxEngine.isReady === `function`, `Catbox engine doesn't have a ready function`);
   }
 
+  server.app.cacheContexts = {};
+
   // Add each module's cache functions to the global server methods
   [
     require(`./modules/users/cache`),
@@ -42,6 +44,8 @@ exports.register = function api(server, options, next) {
           };
         }
       }
+
+      server.app.cacheContexts[cache.name] = cache;
 
       server.method(cache.name, cacheMethod, cacheConfig);
     });

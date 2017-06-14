@@ -28,32 +28,55 @@ class Prerequisites {
     const dbKey = config.databaseKey || config.requestKey;
     const requestKey = config.requestKey;
 
+    function getRecordsFromDB(requestKeyValue) {
+      const queryOptions = {};
+
+      if (requestKey) {
+        queryOptions.where = {
+          [ dbKey ]: requestKeyValue
+        };
+      }
+
+      const fetchOptions = {};
+
+      if (config.columns) {
+        fetchOptions.columns = config.columns;
+      }
+
+      return model.query(queryOptions).fetchAll(fetchOptions);
+    }
+
+    function getRecordsFromCache(server, requestKeyValue) {
+      const cacheConfig = config.cache;
+      const cacheMethodName = cacheConfig.methodName;
+      const cacheMethod = server.methods[cacheMethodName];
+
+      return Promise.fromCallback(next => {
+
+        return cacheMethod.call(
+          server.app.cacheContexts[cacheMethodName],
+          requestKeyValue,
+          next
+        );
+      })
+      .then(cachedValue => cacheConfig.postProcess(requestKeyValue, cachedValue));
+    }
+
     return {
       assign: `records`,
       method(req, reply) {
-        const queryOptions = {};
+        const result = Promise.resolve()
+        .then(function() {
+          const requestKeyValue = requestKey && config.mode === `param` ? req.params[requestKey] : req.payload[requestKey];
 
-        if (requestKey) {
-          queryOptions.where = {};
-
-          if (config.mode === `param`) {
-            queryOptions.where[dbKey] = req.params[requestKey];
-          } else {
-            queryOptions.where[dbKey] = req.payload[requestKey];
+          if (config.cache) {
+            return getRecordsFromCache(req.server, requestKeyValue);
           }
-        }
 
-        let fetchOptions = {};
-
-        if (config.columns) {
-          fetchOptions = { columns: config.columns };
-        }
-
-        const result = model
-        .query(queryOptions)
-        .fetchAll(fetchOptions)
+          return getRecordsFromDB(requestKeyValue);
+        })
         .then(function(records) {
-          if (records.length === 0) {
+          if (!records || records.length === 0) {
             throw Boom.notFound(null, {
               debug: true,
               error: `resource not found`
@@ -105,45 +128,61 @@ class Prerequisites {
   }
 
   /**
-  * validateOwnership()
+  * validateOwnership([recordsAreNotModels, fetchUser])
   *
   * Ensures the authenticated user is the owner of the
   * resource being manipulated or requested.
   *
+  * @param {boolean} recordsAreNotModels - If true, indicates that the records
+  * contained in the request prerequisites are not Bookshelf Models but simple
+  * javascript object representations of them
+  * @param {Function} fetchUser - The function to use to fetch the user that
+  * owns the resource represented by the simple javascript object in the
+  * request prerequisites. This function is required if recordsAreNotModels
+  * is set to true
+  *
   * @return {Promise} - Promise fullfilled when the user has been confirmed to
   * be the owner of the resource requested
   */
-  static validateOwnership() {
+  static validateOwnership(recordsAreNotModels, fetchUser) {
+    if (recordsAreNotModels && typeof fetchUser !== `function`) {
+      throw new Error(`fetchUser needs to be a function provided if recordsAreNotModels is set to true`);
+    }
+
     return {
       method(request, reply) {
-        const resource = request.pre.records.models[0];
+        const records = request.pre.records;
+        const resource = recordsAreNotModels ? records[0] : records.models[0];
         const authenticatedUser = request.pre.user;
 
         const result = Promise.resolve()
         .then(function() {
+          if (recordsAreNotModels) {
+            return fetchUser(resource);
+          }
+
           // Check if the resource is the owning user, otherwise fetch
           // the user it's owned by
           if (resource.tableName === `users`) {
             return resource;
           }
 
-          return resource
-          .user()
-          .query({})
-          .fetch()
-          .then(function(owner) {
-            if (!owner) {
-              // This should never ever happen
-              throw Boom.badImplementation(null, {
-                error: `An owning user can't be found (mayday!)`
-              });
-            }
-
-            return owner;
-          });
+          return resource.user().query({}).fetch();
         })
         .then(function(owner) {
-          if (owner.get(`id`) !== authenticatedUser.id) {
+          if (!owner) {
+            // This should never ever happen
+            throw Boom.badImplementation(null, {
+              error: `An owning user can't be found (mayday!)`
+            });
+          }
+
+          return owner;
+        })
+        .then(function(owner) {
+          const ownerId = recordsAreNotModels ? owner.id : owner.get(`id`);
+
+          if (ownerId !== authenticatedUser.id) {
             throw Boom.unauthorized(null, {
               debug: true,
               error: `User doesn't own the resource requested`

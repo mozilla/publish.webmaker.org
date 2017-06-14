@@ -6,7 +6,7 @@ const BaseCache = require(`../../classes/base_cache`);
 
 const DEFAULT_BUFFER_CACHE_EXPIRY_SEC = 10 * 60;
 
-function getBuffer(fileId, next) {
+function getBufferFromDB(fileId, next) {
   return Files.query({
     where: {
       id: fileId
@@ -18,13 +18,13 @@ function getBuffer(fileId, next) {
   .catch(next);
 }
 
-class RemixedFileCreationCache extends BaseCache {
+class FileCache extends BaseCache {
   constructor(server) {
     super(server);
   }
 
   get name() {
-    return `createdRemixFile`;
+    return `file`;
   }
 
   get config() {
@@ -61,21 +61,31 @@ class RemixedFileCreationCache extends BaseCache {
      */
 
     if (!this.cache) {
-      return getBuffer(fileId, next);
+      return getBufferFromDB(fileId, next);
     }
 
     return this.cache.getBuffer(`file:${fileId}`)
     .then(cachedFileBuffer => {
       if (!cachedFileBuffer) {
-        return getBuffer(fileId, next);
+        return getBufferFromDB(fileId, next);
       }
 
       next(null, cachedFileBuffer);
     })
     .catch(next);
   }
+
+  drop(fileId, next) {
+    if (!this.cache) {
+      return next();
+    }
+
+    return this.cache.del(`file:${fileId}`)
+    .then(() => next())
+    .catch(next);
+  }
 }
 
 module.exports = {
-  RemixedFileCreationCache
+  FileCache
 };

@@ -62,7 +62,7 @@ class Remix {
       .save()
       .then(fileModel => {
         return Promise.fromCallback(next => {
-          return this.server.methods.createdRemixFile(fileModel.get(`id`), remixedFileBuffer, next);
+          return this.server.methods.file(fileModel.get(`id`), remixedFileBuffer, next);
         });
       });
     });
