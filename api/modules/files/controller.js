@@ -74,7 +74,7 @@ class FilesController extends BaseController {
   }
 
   getOne(request, reply) {
-    const record = request.pre.records[0];
+    const record = request.pre.records[0].buffer;
 
     reply(
       request.generateResponse(
