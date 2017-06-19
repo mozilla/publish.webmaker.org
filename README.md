@@ -1,6 +1,14 @@
 # publish.webmaker.org [![Code Climate](https://codeclimate.com/github/mozilla/publish.webmaker.org/badges/gpa.svg)](https://codeclimate.com/github/mozilla/publish.webmaker.org) [![David-DM](https://david-dm.org/mozilla/publish.webmaker.org.svg)](https://david-dm.org/mozilla/publish.webmaker.org)
 The teach.org publishing service for X-Ray Goggles and Thimble
 
+## Requirements
+
+1) Node.js >= v6.11 [[download](https://nodejs.org/en/download)]
+2) Npm >= v5 [[download](https://www.npmjs.com/package/npm5)]
+3) Postgresql >= 9.4 [[download](https://www.postgresql.org/download)]
+
+*NOTE:* If you add any new dependencies to `package.json`, make sure you are running npm version 5 or above before you run `npm install` so that the `package-lock.json` gets regenerated. Also make sure that you commit the `package-lock.json` file.
+
 ## Installation and Use
 
 1) Clone the [publish.webmaker.org](https://github.com/mozilla/publish.webmaker.org) repository
