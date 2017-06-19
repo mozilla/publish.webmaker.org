@@ -1,5 +1,6 @@
 var retrieveTestProjects = require('../projects').testProjects;
 var retrieveTestFiles = require('./test-files');
+var utils = require('../../utils');
 
 var validProjects;
 var invalidProject;
@@ -12,30 +13,6 @@ var validHeaders = {
   authorization: 'token ag-dubs',
   'content-type': 'multipart/form-data; boundary=AaB03x'
 };
-
-function constructMultipartPayload(fields, data) {
-  var payload = '';
-
-  fields.forEach(function(field) {
-    payload += '--AaB03x\r\n';
-    payload += 'content-disposition: form-data; name="' + field.name + '"\r\n';
-    payload += '\r\n' + field.content + '\r\n';
-  });
-
-  if (!data) {
-    payload += '--AaB03x--\r\n';
-    return payload;
-  }
-
-  payload += '--AaB03x\r\n';
-  payload += 'content-disposition: form-data; name="' + data.name + '"; ';
-  payload += 'filename="' + data.filename + '"\r\n';
-  payload += 'Content-Type: ' + data.contentType + '\r\n';
-  payload += '\r\n' + data.content + '\r\r\n';
-  payload += '--AaB03x--\r\n';
-
-  return payload;
-}
 
 module.exports = function(cb) {
   if (create.success) {
@@ -53,26 +30,50 @@ module.exports = function(cb) {
       validProjects = projects.valid;
       invalidProject = projects.invalid;
 
+      var commonCreatedFilePayload = utils.constructMultipartPayload([{
+        name: 'project_id',
+        content: validProjects[0].id
+      }, {
+        name: 'path',
+        content: '/test.txt'
+      }], {
+        name: 'buffer',
+        filename: 'test.txt',
+        contentType: 'text/plain',
+        content: 'test data'
+      });
+
       create.success = {
         default: {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
-            {
+          payload: commonCreatedFilePayload
+        },
+        update: {
+          initial: {
+            headers: validHeaders,
+            url: '/files',
+            method: 'post',
+            payload: commonCreatedFilePayload
+          },
+          recreate: {
+            headers: validHeaders,
+            url: '/files',
+            method: 'post',
+            payload: utils.constructMultipartPayload([{
               name: 'project_id',
               content: validProjects[0].id
-            },
-            {
+            }, {
               name: 'path',
               content: '/test.txt'
-            }
-          ], {
-            name: 'buffer',
-            filename: 'test.txt',
-            contentType: 'text/plain',
-            content: 'test data'
-          })
+            }], {
+              name: 'buffer',
+              filename: 'test.txt',
+              contentType: 'text/plain',
+              content: 'changed test data'
+            })
+          }
         }
       };
 
@@ -81,7 +82,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'project_id',
               content: 9999999
@@ -101,7 +102,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'project_id',
               content: 'thisisastring'
@@ -121,7 +122,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'project_id',
               content: validProjects[0].id
@@ -147,7 +148,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'path',
               content: '/test.txt'
@@ -163,7 +164,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'project_id',
               content: validProjects[0].id
@@ -179,7 +180,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'project_id',
               content: validProjects[0].id
@@ -194,7 +195,7 @@ module.exports = function(cb) {
           headers: validHeaders,
           url: '/files',
           method: 'post',
-          payload: constructMultipartPayload([
+          payload: utils.constructMultipartPayload([
             {
               name: 'project_id',
               content: validProjects[0].id

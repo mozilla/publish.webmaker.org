@@ -34,6 +34,13 @@ class FilesQueryBuilder {
     )
     .then(records => records && records[0]);
   }
+
+  updateBuffer(fileId, fileBuffer) {
+    return new this.FilesModel()
+    .query()
+    .where(`id`, fileId)
+    .update(`buffer`, fileBuffer);
+  }
 }
 
 const instanceProps = {

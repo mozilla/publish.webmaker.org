@@ -3,6 +3,7 @@
 const Promise = require(`bluebird`);
 const fs = require(`fs`);
 const Tar = require(`tar-stream`);
+const Boom = require(`boom`);
 
 const BaseController = require(`../../classes/base_controller`);
 const Errors = require(`../../classes/errors`);
@@ -11,12 +12,45 @@ const FilesModel = require(`./model`);
 
 const PublishedFiles = require(`../publishedFiles/model`);
 
+const filesQueryBuilder = FilesModel.prototype.queryBuilder();
+
 // We do not want to serialize the buffer and send it with the
 // response for Create and Update requests so we strip it out
 // of the response before it is sent.
 function formatResponse(model) {
   model.unset(`buffer`);
   return model;
+}
+
+function createNewFile(request, fileData) {
+  return FilesModel
+  .forge(fileData)
+  .save()
+  .then(function(record) {
+    if (!record) {
+      throw Boom.notFound(null, {
+        error: `Bookshelf error creating a resource`
+      });
+    }
+
+    return request.generateResponse(
+      formatResponse(record).toJSON()
+    )
+    .code(201);
+  });
+}
+
+function updateExistingFile(request, existingFileId, fileData) {
+  return filesQueryBuilder
+  .updateBuffer(existingFileId, fileData.buffer)
+  .then(function() {
+    return request.generateResponse({
+      id: existingFileId,
+      path: fileData.path,
+      project_id: fileData.project_id
+    })
+    .code(200);
+  });
 }
 
 class FilesController extends BaseController {
@@ -84,7 +118,27 @@ class FilesController extends BaseController {
   }
 
   create(request, reply) {
-    return super.create(request, reply, formatResponse);
+    const requestData = this.formatRequestData(request);
+
+    const result = this.Model
+    .query({
+      where: {
+        project_id: requestData.project_id,
+        path: requestData.path
+      },
+      columns: [`id`]
+    })
+    .fetch()
+    .then(existingFileModel => {
+      if (!existingFileModel) {
+        return createNewFile(request, requestData);
+      }
+
+      return updateExistingFile(request, existingFileModel.get(`id`), requestData);
+    })
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
   }
 
   update(request, reply) {
