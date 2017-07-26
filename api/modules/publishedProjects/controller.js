@@ -33,7 +33,7 @@ class Remix {
       title: this.ensureRemixSuffix(this.publishedProjectsModel.get(`title`)),
       user_id: this.user.id,
       tags: this.publishedProjectsModel.get(`tags`),
-      description: this.publishedProjectsModel.description,
+      description: this.publishedProjectsModel.get(`description`),
       date_created: now,
       date_updated: now
     })
