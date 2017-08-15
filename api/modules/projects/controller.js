@@ -14,46 +14,7 @@ const PublishedFilesModel = require(`../publishedFiles/model`);
 const ProjectsModel = require(`./model`);
 
 const DateTracker = require(`../../../lib/utils`).DateTracker;
-
-class PublishedFilesCleanup {
-  constructor(project) {
-    this.project = project;
-  }
-
-  fetchPublishedFiles(fileModel) {
-    return PublishedFilesModel.query({
-      where: {
-        file_id: fileModel.get(`id`)
-      }
-    })
-    .fetchAll();
-  }
-
-  deletePublishedFiles(publishedFilesModels) {
-    if (publishedFilesModels.length === 0) {
-      return Promise.resolve();
-    }
-
-    return publishedFilesModels.mapThen(function(publishedFileModel) {
-      return publishedFileModel.destroy();
-    });
-  }
-
-  cleanup() {
-    return FilesModel.query({
-      where: {
-        project_id: this.project.get(`id`)
-      }
-    })
-    .fetchAll()
-    .then(filesModels => {
-      return filesModels.mapThen(fileModel =>
-        this.fetchPublishedFiles(fileModel)
-        .then(this.deletePublishedFiles)
-      );
-    });
-  }
-}
+const publishedProjectsQueryBuilder = require(`../publishedProjects/model`).prototype.queryBuilder();
 
 class ProjectsController extends BaseController {
   constructor() {
@@ -95,23 +56,55 @@ class ProjectsController extends BaseController {
     return super.update(request, reply, DateTracker.convertToISOStringsForModel);
   }
 
+  _deletePublishedProject(project, user) {
+    return Promise.resolve().then(function() {
+      const publishedProjectId = project.get(`published_id`);
+
+      if (!publishedProjectId) {
+        return Promise.resolve();
+      }
+
+      const username = user.name;
+      const publishRoot = Publisher.getUploadRoot(project.get(`client`), user, project.toJSON());
+
+      return Publisher.deletePublishedFilesRemotely(
+        publishedProjectId,
+        publishRoot,
+        Publisher.success(`DELETE`, username),
+        Publisher.failure(`DELETE`, username)
+      )
+      .then(function() {
+        return project.set({
+          "published_id": null
+        })
+        .save();
+      })
+      .then(function(updatedProject) {
+        project = updatedProject;
+
+        return publishedProjectsQueryBuilder.deleteOne(publishedProjectId);
+      });
+    })
+    .then(() => project);;
+  }
+
   delete(request, reply) {
     const project = request.pre.records.models[0];
-    const publisher = new Publisher(project, request.server);
-    const publishedFilesCleanup = new PublishedFilesCleanup(project);
+    const user = request.pre.user;
 
-    // If this project is published, we have to
-    // unpublish it before it can be safely deleted.
-    // We then do a dummy check to make sure no old publishedFiles
-    // exist for this. Horribly inefficent!
-    // TODO: https://github.com/mozilla/publish.webmaker.org/issues/140
-    return Promise.resolve().then(function() {
-      if (project.get(`published_id`)) {
-        return publisher.unpublish();
-      }
+    if (!user.name) {
+      user = user.toJSON();
+    }
+
+    return this._deletePublishedProject(project, user)
+    .then(project => {
+      const result = Promise.resolve()
+      .then(() => project.destroy())
+      .then(() => request.generateResponse().code(204))
+      .catch(Errors.generateErrorResponse);
+
+      reply(result);
     })
-    .then(publishedFilesCleanup.cleanup.bind(publishedFilesCleanup))
-    .then(() => super.delete(request, reply))
     .catch(function(error) {
       reply(Errors.generateErrorResponse(error));
     });
