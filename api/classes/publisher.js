@@ -19,48 +19,16 @@ const publishedProjectsQueryBuilder = PublishedProjects.prototype.queryBuilder()
 const publishedFilesQueryBuilder = require(`../modules/publishedFiles/model`).prototype.queryBuilder();
 
 const ROOT_URL = `/`;
+const noop = function() {};
 
-/*
- * Utility functions
- */
-function success(type, username) {
-  return function(message) {
-    log.info(`Publish for ${username} - [${type}] ${message}`);
-  };
-}
-
-function failure(type, username) {
-  return function(error) {
-    log.error({ error }, `Publish for ${username} - [${type}]`);
-    return Promise.reject(error);
-  };
-}
-
-function getUploadRoot(publishClient, user, project) {
+const buildUrl = function(publishClient, user, project) {
   if (!user || !project) {
     return null;
   }
 
-  let httpPrefix = ``;
-  const httpClients = (process.env.HTTP_CLIENTS || ``).split(`,`);
-
-  // If the project's publishing client matches to a list
-  // of "can publish http://" clients, prefix the upload root
-  // /with a special "HTTP" namespace.
-  if (publishClient && httpClients.indexOf(publishClient) !== -1) {
-    httpPrefix = `/HTTP`;
-  }
-
-  return `${httpPrefix}/${user.name}/${project.id}`;
-}
-
-function buildUrl(publishClient, user, project) {
-  if (!user || !project) {
-    return null;
-  }
-
-  return process.env.PUBLIC_PROJECT_ENDPOINT + getUploadRoot(publishClient, user, project);
-}
+  /* eslint-disable no-use-before-define */
+  return process.env.PUBLIC_PROJECT_ENDPOINT + BasePublisher.getUploadRoot(publishClient, user, project);
+};
 
 // Takes an absolute path and uri-encodes each component
 // of the path to return a fully uri safe path
@@ -137,6 +105,40 @@ function remove(path) {
 
 
 class BasePublisher {
+  /*
+   * Utility functions
+   */
+  static success(type, username) {
+    return function(message) {
+      log.info(`Publish ${(username ? `for ${username} ` : ``)}- [${type}] ${message}`);
+    };
+  }
+
+  static failure(type, username) {
+    return function(error) {
+      log.error({ error }, `Publish ${(username ? `for ${username} ` : ``)}- [${type}]`);
+      return Promise.reject(error);
+    };
+  }
+
+  static getUploadRoot(publishClient, user, project) {
+    if (!user || !project) {
+      return null;
+    }
+
+    let httpPrefix = ``;
+    const httpClients = (process.env.HTTP_CLIENTS || ``).split(`,`);
+
+    // If the project's publishing client matches to a list
+    // of "can publish http://" clients, prefix the upload root
+    // /with a special "HTTP" namespace.
+    if (publishClient && httpClients.indexOf(publishClient) !== -1) {
+      httpPrefix = `/HTTP`;
+    }
+
+    return `${httpPrefix}/${user.name}/${project.id}`;
+  }
+
   /**
   * Record fetching helpers
   */
@@ -168,7 +170,7 @@ class BasePublisher {
     .getOne(this.project.published_id)
     .then(publishedProject => {
       this.publishedProject = publishedProject;
-      this.publishRoot = getUploadRoot(
+      this.publishRoot = BasePublisher.getUploadRoot(
         this.project.client,
         this.user,
         publishedProject
@@ -258,7 +260,7 @@ class BasePublisher {
     .then(id => publishedProjectsQueryBuilder.getOne(id))
     .then(publishedProject => {
       this.publishedProject = publishedProject;
-      this.publishRoot = getUploadRoot(
+      this.publishRoot = BasePublisher.getUploadRoot(
         this.project.client,
         this.user,
         publishedProject
@@ -291,8 +293,8 @@ class BasePublisher {
           file.buffer,
           this.remixData
         ))
-        .then(success(`CREATE`, this.user.name))
-        .catch(failure(`CREATE`, this.user.name));
+        .then(BasePublisher.success(`CREATE`, this.user.name))
+        .catch(BasePublisher.failure(`CREATE`, this.user.name));
       });
     });
   }
@@ -317,8 +319,8 @@ class BasePublisher {
           remixData
         );
       })
-      .then(success(`UPDATE`, username))
-      .catch(failure(`UPDATE`, username));
+      .then(BasePublisher.success(`UPDATE`, username))
+      .catch(BasePublisher.failure(`UPDATE`, username));
     }
 
     return publishedFilesQueryBuilder
@@ -382,17 +384,29 @@ class BasePublisher {
     });
   }
 
-  deletePublishedFiles() {
+  // This function deletes the published files on S3 and runs the optional
+  // `deleteSuccessCallback` or `deleteFailureCallback` functions after each
+  // remote deletion. Returns a Promise that is resolved once all published
+  // files have been deleted on S3.
+  static deletePublishedFilesRemotely(publishedProjectId, publishRoot, deleteSuccessCallback = noop, deleteFailureCallback = noop) {
     return publishedFilesQueryBuilder
-    .getAllPaths(this.publishedProject.id)
+    .getAllPaths(publishedProjectId)
     .then(publishedFilePaths => {
       return Promise.map(publishedFilePaths, publishedFilePath => {
-        return remove(this.publishRoot + publishedFilePath)
-        .then(success(`DELETE`, this.user.name))
-        .catch(failure(`DELETE`, this.user.name));
+        return remove(publishRoot + publishedFilePath)
+        .then(deleteSuccessCallback)
+        .catch(deleteFailureCallback);
       });
-    })
-    .then(() => publishedFilesQueryBuilder.deleteAll(this.publishedProject.id));
+    });
+  }
+
+  deletePublishedFiles() {
+    return BasePublisher.deletePublishedFilesRemotely(
+      this.publishedProject.id,
+      this.publishRoot,
+      BasePublisher.success(`DELETE`, this.user.name),
+      BasePublisher.failure(`DELETE`, this.user.name)
+    );
   }
 
   deleteOldFiles() {
@@ -407,8 +421,8 @@ class BasePublisher {
         return publishedFilesQueryBuilder
         .deleteOne(publishedFile.id)
         .then(() => remove(this.publishRoot + publishedFile.path))
-        .then(success(`DELETE`, this.user.name))
-        .catch(failure(`DELETE`, this.user.name));
+        .then(BasePublisher.success(`DELETE`, this.user.name))
+        .catch(BasePublisher.failure(`DELETE`, this.user.name));
       });
     });
   }
