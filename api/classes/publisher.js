@@ -21,13 +21,14 @@ const publishedFilesQueryBuilder = require(`../modules/publishedFiles/model`).pr
 const ROOT_URL = `/`;
 const noop = function() {};
 
-function buildUrl(publishClient, user, project) {
+const buildUrl = function(publishClient, user, project) {
   if (!user || !project) {
     return null;
   }
 
+  /* eslint-disable no-use-before-define */
   return process.env.PUBLIC_PROJECT_ENDPOINT + BasePublisher.getUploadRoot(publishClient, user, project);
-}
+};
 
 // Takes an absolute path and uri-encodes each component
 // of the path to return a fully uri safe path
@@ -109,13 +110,13 @@ class BasePublisher {
    */
   static success(type, username) {
     return function(message) {
-      log.info(`Publish ${(username ? `for ${username} ` : "")}- [${type}] ${message}`);
+      log.info(`Publish ${(username ? `for ${username} ` : ``)}- [${type}] ${message}`);
     };
   }
 
   static failure(type, username) {
     return function(error) {
-      log.error({ error }, `Publish ${(username ? `for ${username} ` : "")}- [${type}]`);
+      log.error({ error }, `Publish ${(username ? `for ${username} ` : ``)}- [${type}]`);
       return Promise.reject(error);
     };
   }

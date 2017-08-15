@@ -9,7 +9,6 @@ const BaseController = require(`../../classes/base_controller`);
 const Publisher = require(`../../classes/publisher`);
 
 const FilesModel = require(`../files/model`);
-const PublishedFilesModel = require(`../publishedFiles/model`);
 
 const ProjectsModel = require(`./model`);
 
@@ -85,21 +84,21 @@ class ProjectsController extends BaseController {
         return publishedProjectsQueryBuilder.deleteOne(publishedProjectId);
       });
     })
-    .then(() => project);;
+    .then(() => project);
   }
 
   delete(request, reply) {
     const project = request.pre.records.models[0];
-    const user = request.pre.user;
+    let user = request.pre.user;
 
     if (!user.name) {
       user = user.toJSON();
     }
 
     return this._deletePublishedProject(project, user)
-    .then(project => {
+    .then(unpublishedProject => {
       const result = Promise.resolve()
-      .then(() => project.destroy())
+      .then(() => unpublishedProject.destroy())
       .then(() => request.generateResponse().code(204))
       .catch(Errors.generateErrorResponse);
 
