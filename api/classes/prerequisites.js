@@ -211,14 +211,11 @@ class Prerequisites {
   static validateCreationPermission(foreignKey, model) {
     return {
       method(request, reply) {
-        const result = Users.query({
-          where: {
-            name: request.auth.credentials.username
-          }
+        const result = Promise.fromCallback(next => {
+          return request.server.methods.user(request.auth.credentials.username), next);
         })
-        .fetch()
-        .then(function(userRecord) {
-          if (!userRecord) {
+        .then(function(user) {
+          if (!user) {
             // This case means our auth logic failed unexpectedly
             throw Boom.badImplementation(null, {
               error: `User doesn't exist!`
@@ -227,7 +224,7 @@ class Prerequisites {
 
           // Check to see if there's a direct reference to `user_id` in the payload
           if (!foreignKey) {
-            if (userRecord.get(`id`) !== request.payload.user_id) {
+            if (user.id !== request.payload.user_id) {
               throw Boom.unauthorized(null, {
                 debug: true,
                 error: `User doesn't own the resource being referenced`
@@ -251,7 +248,7 @@ class Prerequisites {
               });
             }
 
-            if (userRecord.get(`id`) !== record.get(`user_id`)) {
+            if (user.id !== record.get(`user_id`)) {
               throw Boom.unauthorized(null, {
                 debug: true,
                 error: `User doesn't own the resource being referenced`

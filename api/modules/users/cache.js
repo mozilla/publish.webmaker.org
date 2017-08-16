@@ -13,6 +13,12 @@ class UserCache extends BaseCache {
     return `user`;
   }
 
+  get config() {
+    return Object.assign(super.config, {
+      expiresIn: 60 * 60 * 1000 // 1 hour, an approximation of a typical user's Thimble session
+    });
+  }
+
   run(username, next) {
     return Users.query({
       where: {
