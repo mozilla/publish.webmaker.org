@@ -1,12 +1,18 @@
 "use strict";
 
+const Promise = require(`bluebird`);
+
 const Prerequistes = require(`../../../classes/prerequisites`);
 const Errors = require(`../../../classes/errors`);
 
-const ProjectsModel = require(`../../projects/model`);
-
 const schema = require(`../schema`);
 const filesController = require(`../controller`);
+
+function getUserForProject(request) {
+  return Promise.fromCallback(next => {
+    return request.server.methods.userForProject(request.payload.project_id, next);
+  });
+}
 
 module.exports = [{
   method: `POST`,
@@ -20,7 +26,7 @@ module.exports = [{
     },
     pre: [
       Prerequistes.trackTemporaryFile(),
-      Prerequistes.validateCreationPermission(`project_id`, ProjectsModel)
+      Prerequistes.validateCreationPermission(getUserForProject)
     ],
     handler: filesController.create.bind(filesController),
     description: `Create a new file object.`,

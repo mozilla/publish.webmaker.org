@@ -89,6 +89,7 @@ class ProjectsController extends BaseController {
 
   delete(request, reply) {
     const project = request.pre.records.models[0];
+    const projectId = project.get(`id`);
     let user = request.pre.user;
 
     if (!user.name) {
@@ -97,6 +98,9 @@ class ProjectsController extends BaseController {
 
     const result = this._deletePublishedProject(project, user)
     .then(unpublishedProject => unpublishedProject.destroy())
+    .then(() => Promise.fromCallback(
+      next => request.server.methods.userForProject.cache.drop(projectId, next)
+    ))
     .then(() => request.generateResponse().code(204))
     .catch(Errors.generateErrorResponse);
 
