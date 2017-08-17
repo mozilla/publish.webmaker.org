@@ -26,6 +26,7 @@
     "node": "^6.11.1"
   },
   "dependencies": {
+    "@newrelic/native-metrics": "^2.1.1",
     "bluebird": "^3.5.0",
     "bookshelf": "^0.10.3",
     "boom": "^5.1.0",
