@@ -95,18 +95,12 @@ class ProjectsController extends BaseController {
       user = user.toJSON();
     }
 
-    return this._deletePublishedProject(project, user)
-    .then(unpublishedProject => {
-      const result = Promise.resolve()
-      .then(() => unpublishedProject.destroy())
-      .then(() => request.generateResponse().code(204))
-      .catch(Errors.generateErrorResponse);
+    const result = this._deletePublishedProject(project, user)
+    .then(unpublishedProject => unpublishedProject.destroy())
+    .then(() => request.generateResponse().code(204))
+    .catch(Errors.generateErrorResponse);
 
-      reply(result);
-    })
-    .catch(function(error) {
-      reply(Errors.generateErrorResponse(error));
-    });
+    return reply(result);
   }
 
   publish(request, reply) {
