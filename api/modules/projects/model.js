@@ -1,5 +1,7 @@
 "use strict";
 
+const Promise = require(`bluebird`);
+
 const BaseModel = require(`../../classes/base_model`);
 const UsersModel = require(`../users/model`);
 
@@ -89,7 +91,10 @@ const classProps = {
   relations: [
     `user`,
     `files`
-  ]
+  ],
+  userForProject(project, server) {
+    return Promise.fromCallback(next => server.methods.userForProject(project.get(`id`), next));
+  }
 };
 
 module.exports = BaseModel.extend(instanceProps, classProps);

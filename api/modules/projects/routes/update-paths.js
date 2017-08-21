@@ -26,7 +26,7 @@ module.exports = [{
         requestKey: `id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.updatePaths.bind(projectsController),
     description: `Update all file paths belonging to a project whose \`id\` ` +

@@ -19,7 +19,7 @@ module.exports = [{
         requestKey: `id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.publish.bind(projectsController),
     description: `Publish a project.`,
@@ -37,7 +37,7 @@ module.exports = [{
         requestKey: `id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.unpublish.bind(projectsController),
     description: `Unpublish a project.`

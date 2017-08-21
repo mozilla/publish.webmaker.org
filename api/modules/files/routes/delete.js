@@ -15,10 +15,11 @@ module.exports = [{
     pre: [
       Prerequistes.confirmRecordExists(FilesModel, {
         mode: `param`,
-        requestKey: `id`
+        requestKey: `id`,
+        columns: [`id`, `project_id`]
       }),
       Prerequistes.validateUser(),
-      Prerequistes.validateOwnership()
+      Prerequistes.validateOwnership(false, FilesModel.userForFile, true)
     ],
     handler: filesController.delete.bind(filesController),
     description: `Delete a single file object based on \`id\`.`,

@@ -19,7 +19,7 @@ module.exports = [{
         requestKey: `id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.update.bind(projectsController),
     description: `Update a single project object based on \`id\`.`,

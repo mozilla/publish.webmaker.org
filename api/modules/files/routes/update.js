@@ -23,10 +23,11 @@ module.exports = [{
       Prerequisites.trackTemporaryFile(),
       Prerequisites.confirmRecordExists(FilesModel, {
         mode: `param`,
-        requestKey: `id`
+        requestKey: `id`,
+        columns: [`id`, `path`, `project_id`]
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, FilesModel.userForFile, true)
     ],
     handler: filesController.update.bind(filesController),
     description: `Update a single file object based on \`id\`.`,
