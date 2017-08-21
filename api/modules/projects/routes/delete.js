@@ -18,7 +18,7 @@ module.exports = [{
         requestKey: `id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.delete.bind(projectsController),
     description: `Delete a single project object based on \`id\`.`,

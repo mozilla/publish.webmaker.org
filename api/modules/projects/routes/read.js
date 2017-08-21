@@ -18,7 +18,7 @@ module.exports = [{
         requestKey: `id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.getOne.bind(projectsController),
     description: `Retrieve a single project object based on \`id\`.`,
@@ -39,7 +39,7 @@ module.exports = [{
         requestKey: `user_id`
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, ProjectsModel.userForProject, true)
     ],
     handler: projectsController.getAll.bind(projectsController),
     description: `Retrieve a collection of project objects belonging to a single user object, based on \`user_id\`.`,

@@ -13,7 +13,6 @@ const Projects = require(`../modules/projects/model`);
 const PublishedProjects = require(`../modules/publishedProjects/model`);
 
 // SQL Query Generators
-const usersQueryBuilder = require(`../modules/users/model`).prototype.queryBuilder();
 const projectsQueryBuilder = Projects.prototype.queryBuilder();
 const publishedProjectsQueryBuilder = PublishedProjects.prototype.queryBuilder();
 const publishedFilesQueryBuilder = require(`../modules/publishedFiles/model`).prototype.queryBuilder();
@@ -156,8 +155,9 @@ class BasePublisher {
   }
 
   fetchUserForProject() {
-    return usersQueryBuilder
-    .getOne(this.project.user_id)
+    return Promise.fromCallback(next => {
+      return this.server.methods.userForProject(this.project.id, next);
+    })
     .then(user => {
       this.user = user;
 

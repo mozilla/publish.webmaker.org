@@ -43,6 +43,18 @@ exports.register = function api(server, options, next) {
             drop: cache.drop.bind(cache)
           };
         }
+      } else {
+        // We stub the drop method if cache is disabled since Hapi does not
+        // provide the API for it
+        cacheMethod.cache = {
+          drop(...args) {
+            const callback = args[args.length - 1];
+
+            if (typeof callback === `function`) {
+              callback();
+            }
+          }
+        };
       }
 
       server.app.cacheContexts[cache.name] = cache;

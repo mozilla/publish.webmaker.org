@@ -37,7 +37,7 @@ module.exports = [{
       }),
       Prerequisites.validateUser(),
       Prerequisites.validateOwnership(true, fileObj => fileQueryBuilder
-  .getUserForFileById(fileObj.id))
+  .getUserForFileById(fileObj.id), true)
     ],
     handler: filesController.getOne.bind(filesController),
     description: `Retrieve a single file object based on \`id\`.`,
@@ -81,7 +81,7 @@ module.exports = [{
         columns: [`id`, `project_id`, `path`]
       }),
       Prerequisites.validateUser(),
-      Prerequisites.validateOwnership()
+      Prerequisites.validateOwnership(false, FilesModel.userForFile, true)
     ],
     handler: filesController.getAllAsMeta.bind(filesController),
     description: `Retrieve a collection of file objects that belong to ` +

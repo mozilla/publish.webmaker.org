@@ -3,7 +3,6 @@
 const Boom = require(`boom`);
 const Promise = require(`bluebird`);
 
-const Users = require(`../modules/users/model`);
 const Errors = require(`./errors`);
 
 class Prerequisites {
@@ -128,7 +127,7 @@ class Prerequisites {
   }
 
   /**
-  * validateOwnership([recordsAreNotModels, fetchUser])
+  * validateOwnership([recordsAreNotModels, fetchUser, userIsNotModel])
   *
   * Ensures the authenticated user is the owner of the
   * resource being manipulated or requested.
@@ -140,11 +139,14 @@ class Prerequisites {
   * owns the resource represented by the simple javascript object in the
   * request prerequisites. This function is required if recordsAreNotModels
   * is set to true
+  * @param {boolean} userIsNotModel - If true, indicates that the user returned
+  * by the `fetchUser` function is not a Bookshelf Model but a simple
+  * javascript object representation of one.
   *
   * @return {Promise} - Promise fullfilled when the user has been confirmed to
   * be the owner of the resource requested
   */
-  static validateOwnership(recordsAreNotModels, fetchUser) {
+  static validateOwnership(recordsAreNotModels, fetchUser, userIsNotModel) {
     if (recordsAreNotModels && typeof fetchUser !== `function`) {
       throw new Error(`fetchUser needs to be a function provided if recordsAreNotModels is set to true`);
     }
@@ -157,8 +159,8 @@ class Prerequisites {
 
         const result = Promise.resolve()
         .then(function() {
-          if (recordsAreNotModels) {
-            return fetchUser(resource);
+          if (typeof fetchUser === `function`) {
+            return fetchUser(resource, request.server);
           }
 
           // Check if the resource is the owning user, otherwise fetch
@@ -180,7 +182,7 @@ class Prerequisites {
           return owner;
         })
         .then(function(owner) {
-          const ownerId = recordsAreNotModels ? owner.id : owner.get(`id`);
+          const ownerId = userIsNotModel ? owner.id : owner.get(`id`);
 
           if (ownerId !== authenticatedUser.id) {
             throw Boom.unauthorized(null, {
@@ -197,28 +199,26 @@ class Prerequisites {
   }
 
   /**
-  * validateCreationPermission([foreignKey, model])
+  * validateCreationPermission([getUserForModelFn])
   *
   * Ensures the authenticated user is the owner of the
-  * resource being created.
+  * resource (or its parent) being created.
   *
-  * @param {Object} foreignKey - Foreign key of an existing resource
-  * @param {Object} model - Bookshelf model for querying
+  * @param {Function} getUserForModelFn - A function that will fetch a user
+  * object as a simple javascript object for the model (or its parent) that
+  * this prerequisite function is validating creation permission for.
   *
   * @return {Promise} - Promise fullfilled when the user has been confirmed to
-  * be the owner of the resource being created
+  * be the owner of the resource being created (or its parent)
   */
-  static validateCreationPermission(foreignKey, model) {
+  static validateCreationPermission(getUserForModelFn) {
     return {
       method(request, reply) {
-        const result = Users.query({
-          where: {
-            name: request.auth.credentials.username
-          }
+        const result = Promise.fromCallback(next => {
+          return request.server.methods.user(request.auth.credentials.username, next);
         })
-        .fetch()
-        .then(function(userRecord) {
-          if (!userRecord) {
+        .then(function(user) {
+          if (!user) {
             // This case means our auth logic failed unexpectedly
             throw Boom.badImplementation(null, {
               error: `User doesn't exist!`
@@ -226,8 +226,8 @@ class Prerequisites {
           }
 
           // Check to see if there's a direct reference to `user_id` in the payload
-          if (!foreignKey) {
-            if (userRecord.get(`id`) !== request.payload.user_id) {
+          if (!getUserForModelFn) {
+            if (user.id !== request.payload.user_id) {
               throw Boom.unauthorized(null, {
                 debug: true,
                 error: `User doesn't own the resource being referenced`
@@ -237,21 +237,16 @@ class Prerequisites {
             return;
           }
 
-          const query = { where: {} };
-
-          query.where.id = request.payload[foreignKey];
-
-          return model.query(query)
-          .fetch()
-          .then(function(record) {
-            if (!record) {
+          return getUserForModelFn(request)
+          .then(function(owner) {
+            if (!owner) {
               throw Boom.notFound(null, {
                 debug: true,
-                error: `Foreign key doesn't reference an existing record`
+                error: `Parent foreign key passed in payload (most likely project_id) does not reference an existing model`
               });
             }
 
-            if (userRecord.get(`id`) !== record.get(`user_id`)) {
+            if (user.id !== owner.id) {
               throw Boom.unauthorized(null, {
                 debug: true,
                 error: `User doesn't own the resource being referenced`

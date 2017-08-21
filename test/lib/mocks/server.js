@@ -57,7 +57,13 @@ module.exports = function(done) {
         const cacheMethod = cache.run.bind(cache);
 
         cacheMethod.cache = {
-          drop: cache.drop.bind(cache)
+          drop(...args) {
+            const next = args[args.length - 1];
+
+            if (typeof next === `function`) {
+              next();
+            }
+          }
         };
 
         server.app.cacheContexts[cache.name] = cache;
