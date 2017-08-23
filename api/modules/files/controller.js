@@ -142,11 +142,13 @@ class FilesController extends BaseController {
   }
 
   update(request, reply) {
-    return Promise.fromCallback(next => {
+    const result = Promise.fromCallback(next => {
       return request.server.methods.file.cache.drop(request.params.id, next);
     })
-    .then(() => super.update(request, reply, formatResponse))
-    .catch(error => reply(Errors.generateErrorResponse(error)));
+    .then(() => super._update(request, reply, formatResponse))
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
   }
 
   delete(request, reply) {
@@ -154,7 +156,7 @@ class FilesController extends BaseController {
 
     // If a published file exists for this file, we have
     // to unset it's reference before deletion can occur
-    PublishedFiles.query({
+    const result = PublishedFiles.query({
       where: {
         file_id: record.get(`id`)
       }
@@ -174,8 +176,10 @@ class FilesController extends BaseController {
         return request.server.methods.file.cache.drop(request.params.id, next);
       });
     })
-    .then(() => super.delete(request, reply))
-    .catch(function(error) { reply(Errors.generateErrorResponse(error)); });
+    .then(() => super._delete(request, reply))
+    .catch(Errors.generateErrorResponse);
+
+    return reply(result);
   }
 }
 
