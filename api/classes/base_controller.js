@@ -18,8 +18,7 @@ class BaseController {
     this.Model = Model;
   }
 
-  /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^request$" }]*/
-  formatRequestData(request) {
+  formatRequestData(request) { // eslint-disable-line no-unused-vars
     // Abstract base method; formats data for database entry
     throw new Error(`formatRequestData has not been implemented in subclass`);
   }
@@ -30,17 +29,14 @@ class BaseController {
     return model;
   }
 
-  // `formatResponse` is an optional processing function that can be passed
-  // in to modify what is sent in the response body. If no function is
-  // provided, the full model for the current method is used in the response.
-  create(request, reply, formatResponse) {
+  _create(request, reply, formatResponse) {
     const requestData = this.formatRequestData(request);
 
     if (typeof formatResponse !== `function`) {
       formatResponse = defaultFormatResponse;
     }
 
-    const result = this.Model
+    return this.Model
     .forge(requestData)
     .save()
     .then(function(record) {
@@ -55,8 +51,13 @@ class BaseController {
       ).code(201);
     })
     .catch(Errors.generateErrorResponse);
+  }
 
-    reply(result);
+  // `formatResponse` is an optional processing function that can be passed
+  // in to modify what is sent in the response body. If no function is
+  // provided, the full model for the current method is used in the response.
+  create(request, reply, formatResponse) {
+    return reply(this._create(request, reply, formatResponse));
   }
 
   getOne(request, reply) {
@@ -131,17 +132,14 @@ class BaseController {
     .header(`Content-Type`, `application/octet-stream`);
   }
 
-  // `formatResponse` is an optional processing function that can be passed
-  // in to modify what is sent in the response body. If no function is
-  // provided, the full model for the current method is used in the response.
-  update(request, reply, formatResponse) {
+  _update(request, reply, formatResponse) {
     const requestData = this.formatRequestData(request);
 
     if (typeof formatResponse !== `function`) {
       formatResponse = defaultFormatResponse;
     }
 
-    const result = Promise.resolve().then(function() {
+    return Promise.resolve().then(function() {
       const record = request.pre.records.models[0];
 
       record.set(requestData);
@@ -163,19 +161,25 @@ class BaseController {
       ).code(200);
     })
     .catch(Errors.generateErrorResponse);
+  }
 
-    reply(result);
+  // `formatResponse` is an optional processing function that can be passed
+  // in to modify what is sent in the response body. If no function is
+  // provided, the full model for the current method is used in the response.
+  update(request, reply, formatResponse) {
+    return reply(this._update(request, reply, formatResponse));
+  }
+
+  _delete(request, reply) { // eslint-disable-line no-unused-vars
+    const record = request.pre.records.models[0];
+
+    return record.destroy()
+    .then(() => request.generateResponse().code(204))
+    .catch(Errors.generateErrorResponse);
   }
 
   delete(request, reply) {
-    const record = request.pre.records.models[0];
-
-    const result = Promise.resolve()
-    .then(function() { return record.destroy(); })
-    .then(function() { return request.generateResponse().code(204); })
-    .catch(Errors.generateErrorResponse);
-
-    reply(result);
+    return reply(this._delete(request, reply));
   }
 }
 
