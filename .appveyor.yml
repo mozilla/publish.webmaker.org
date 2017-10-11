@@ -2,9 +2,7 @@ version: "{build}"
 
 branches:
   only:
-    - master
-
-build: false
+  - master
 
 services:
   - postgresql
@@ -17,7 +15,13 @@ install:
   - npm install
   - npm install -g lab knex
   - "COPY env.dist .env"
-  - "createdb publish"
-  - npm run knex
+  - "SET PGUSER=postgres"
+  - "SET PGPASSWORD=Password12!"
+  - "SET PATH=C:\\Program Files\\PostgreSQL\\9.6\\bin\\;%PATH%"
 
-test: false
+
+build: false
+
+test_script:
+  - "createdb publish"
+  - npm run test
