@@ -1,0 +1,27 @@
+version: "{build}"
+
+branches:
+  only:
+  - master
+
+services:
+  - postgresql
+
+environment:
+  nodejs_version: "6"
+
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - npm install
+  - npm install -g lab knex
+  - "COPY env.dist .env"
+  - "SET PGUSER=postgres"
+  - "SET PGPASSWORD=Password12!"
+  - "SET PATH=C:\\Program Files\\PostgreSQL\\9.6\\bin\\;%PATH%"
+
+
+build: false
+
+test_script:
+  - "createdb publish"
+  - npm run test
