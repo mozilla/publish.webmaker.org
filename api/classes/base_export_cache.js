@@ -23,7 +23,7 @@ class ExportCache extends BaseCache {
   }
 
   /*
-   * This method takes an object `resourceIdentified` as an argument
+   * This method takes an object `resourceIdentifier` as an argument
    * If the `token` property is set in the object, it verifies that an
    * `id` exists for the token and returns it, otherwise throws an error
    * If the `id` property is set in the object, it generates a token for the

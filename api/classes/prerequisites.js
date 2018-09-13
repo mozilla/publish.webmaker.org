@@ -219,7 +219,7 @@ class Prerequisites {
 
         return reply(Errors.generateErrorResponse(
           Boom.forbidden(
-            `Requested resource with id {requestedId} does not match the resource token provided`
+            `Requested resource with id ${requestedId} does not match the resource token provided`
           )
         ));
       }
