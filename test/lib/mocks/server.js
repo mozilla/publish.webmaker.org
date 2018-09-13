@@ -3,6 +3,8 @@
 var Hapi = require('hapi');
 var expect = require('code').expect;
 
+var tokenValidators = require('../../../lib/tokenValidator');
+
 var TOKENS = {
   'ag-dubs': {
     scope: ['user', 'email'],
@@ -44,12 +46,34 @@ module.exports = function(done) {
       tokenType: 'token'
     });
 
+    server.auth.strategy(
+      `projectToken`,
+      `bearer-access-token`,
+      {
+        accessTokenName: `export_token`,
+        tokenType: `export`,
+        validateFunc: tokenValidators.exportProjectTokenValidator
+      }
+    );
+
+    server.auth.strategy(
+      `publishedProjectToken`,
+      `bearer-access-token`,
+      {
+        accessTokenName: `export_token`,
+        tokenType: `export`,
+        validateFunc: tokenValidators.exportPublishedProjectTokenValidator
+      }
+    );
+
     server.app.cacheContexts = {};
 
     // Add each module's cache functions to the global server methods
     [
       require(`../../../api/modules/users/cache`),
       require(`../../../api/modules/files/cache`),
+      require(`../../../api/modules/projects/cache`),
+      require(`../../../api/modules/publishedProjects/cache`),
       require(`../../../api/modules/publishedFiles/cache`)
     ].forEach(module => {
       Object.keys(module).forEach(CacheClassKey => {

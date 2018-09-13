@@ -16,6 +16,7 @@ Hoek.assert(process.env.API_HOST, `Must define API_HOST`);
 Hoek.assert(process.env.PORT, `Must define PORT`);
 
 const extensions = require(`./adaptors/extensions`);
+const tokenValidators = require(`./lib/tokenValidator`);
 
 let cache;
 
@@ -82,7 +83,27 @@ server.register(require(`./adaptors/plugins`), function(err) {
     `token`,
     `bearer-access-token`,
     true,
-    require(`./lib/auth-config`)(require(`./lib/tokenValidator`))
+    require(`./lib/auth-config`)(tokenValidators.defaultTokenValidator)
+  );
+
+  server.auth.strategy(
+    `projectToken`,
+    `bearer-access-token`,
+    {
+      accessTokenName: `export_token`,
+      tokenType: `export`,
+      validateFunc: tokenValidators.exportProjectTokenValidator
+    }
+  );
+
+  server.auth.strategy(
+    `publishedProjectToken`,
+    `bearer-access-token`,
+    {
+      accessTokenName: `export_token`,
+      tokenType: `export`,
+      validateFunc: tokenValidators.exportPublishedProjectTokenValidator
+    }
   );
 });
 

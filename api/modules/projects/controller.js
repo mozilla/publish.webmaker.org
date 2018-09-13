@@ -185,6 +185,18 @@ class ProjectsController extends BaseController {
 
     return reply(result);
   }
+
+  exportStart(request, reply) {
+    const project = request.pre.records.models[0];
+    const exportProjectCache = request.server.methods.exportProject;
+    const projectIdentifier = { id: project.get(`id`) };
+
+    return reply(
+      Promise.fromCallback(next => exportProjectCache(projectIdentifier, next))
+      .then(token => request.generateResponse({ token }).code(200))
+      .catch(Errors.generateErrorResponse)
+    );
+  }
 }
 
 module.exports = new ProjectsController();
