@@ -193,7 +193,7 @@ class ProjectsController extends BaseController {
 
     return reply(
       Promise.fromCallback(next => exportProjectCache(projectIdentifier, next))
-      .then(token => request.generateResponse({ token }).code(200))
+      .then(token => request.generateResponse({ token }).code(201))
       .catch(Errors.generateErrorResponse)
     );
   }
