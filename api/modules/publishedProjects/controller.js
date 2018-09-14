@@ -115,7 +115,7 @@ class PublishedProjectsController extends BaseController {
       Promise.fromCallback(next =>
         exportPublishedProjectCache(publishedProjectIdentifier, next)
       )
-      .then(token => request.generateResponse({ token }).code(200))
+      .then(token => request.generateResponse({ token }).code(201))
       .catch(Errors.generateErrorResponse)
     );
   }
