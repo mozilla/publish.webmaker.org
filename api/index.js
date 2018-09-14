@@ -20,6 +20,8 @@ exports.register = function api(server, options, next) {
   [
     require(`./modules/users/cache`),
     require(`./modules/files/cache`),
+    require(`./modules/projects/cache`),
+    require(`./modules/publishedProjects/cache`),
     require(`./modules/publishedFiles/cache`)
   ].forEach(module => {
     Object.keys(module).forEach(CacheClassKey => {

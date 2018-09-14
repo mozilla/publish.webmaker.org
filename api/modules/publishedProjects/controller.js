@@ -105,6 +105,20 @@ class PublishedProjectsController extends BaseController {
 
     return reply(result);
   }
+
+  exportStart(request, reply) {
+    const publishedProject = request.pre.records.models[0];
+    const exportPublishedProjectCache = request.server.methods.exportPublishedProject;
+    const publishedProjectIdentifier = { id: publishedProject.get(`id`) };
+
+    return reply(
+      Promise.fromCallback(next =>
+        exportPublishedProjectCache(publishedProjectIdentifier, next)
+      )
+      .then(token => request.generateResponse({ token }).code(201))
+      .catch(Errors.generateErrorResponse)
+    );
+  }
 }
 
 module.exports = new PublishedProjectsController();

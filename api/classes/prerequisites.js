@@ -199,6 +199,34 @@ class Prerequisites {
   }
 
   /**
+  * validateExportPermission()
+  *
+  * Ensures that the resource for which this request was authorized for
+  * matches the resource requested.
+  *
+  * @return {Promise} - Resolved if the authorization matches the requested
+  * resource, rejected otherwise.
+  */
+  static validateExportPermission() {
+    return {
+      method(request, reply) {
+        const requestedId = request.pre.records.models[0].get(`id`);
+        const { authorizedId } = request.auth.credentials;
+
+        if (requestedId === authorizedId) {
+          return reply(Promise.resolve());
+        }
+
+        return reply(Errors.generateErrorResponse(
+          Boom.forbidden(
+            `Requested resource with id ${requestedId} does not match the resource token provided`
+          )
+        ));
+      }
+    };
+  }
+
+  /**
   * validateCreationPermission([getUserForModelFn])
   *
   * Ensures the authenticated user is the owner of the

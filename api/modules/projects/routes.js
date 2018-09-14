@@ -6,8 +6,9 @@ const update = require(`./routes/update.js`);
 const del = require(`./routes/delete.js`);
 const publish = require(`./routes/publish`);
 const updatePaths = require(`./routes/update-paths`);
+const exportProject = require(`./routes/export`);
 
-const routes = [].concat(create, read, update, del, publish, updatePaths);
+const routes = [].concat(create, read, update, del, publish, updatePaths, exportProject);
 
 exports.register = function(server, options, next) {
   server.route(routes);
