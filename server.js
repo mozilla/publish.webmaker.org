@@ -105,30 +105,30 @@ server.register(require(`./adaptors/plugins`), function(err) {
       validateFunc: tokenValidators.exportPublishedProjectTokenValidator
     }
   );
-});
 
-server.register({ register: require(`./api`) }, function(apiRegisterError) {
-  if (apiRegisterError) {
-    server.log(`error`, {
-      message: `Error registering api`,
-      error: apiRegisterError
-    });
-    throw apiRegisterError;
-  }
-
-  // Server extension hooks
-  server.ext(`onPreResponse`, [extensions.logRequest, extensions.clearTemporaryFile]);
-
-  server.start(function(serverStartError) {
-    if (serverStartError) {
+  server.register({ register: require(`./api`) }, function(apiRegisterError) {
+    if (apiRegisterError) {
       server.log(`error`, {
-        message: `Error starting server`,
-        error: serverStartError
+        message: `Error registering api`,
+        error: apiRegisterError
       });
-      throw serverStartError;
+      throw apiRegisterError;
     }
 
-    server.log(`info`, { server: server.info }, `Server started`);
+    // Server extension hooks
+    server.ext(`onPreResponse`, [extensions.logRequest, extensions.clearTemporaryFile]);
+
+    server.start(function(serverStartError) {
+      if (serverStartError) {
+        server.log(`error`, {
+          message: `Error starting server`,
+          error: serverStartError
+        });
+        throw serverStartError;
+      }
+
+      server.log(`info`, { server: server.info }, `Server started`);
+    });
   });
 });
 

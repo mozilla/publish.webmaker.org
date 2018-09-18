@@ -88,13 +88,8 @@ class BaseController {
     );
   }
 
-  // NOTE: creating the tarball for a project can be a lengthy process, so
-  // we do it in multiple turns of the event loop, so that other requests
-  // don't get blocked.
-  getAllAsTar(request, reply) {
-    const files = request.pre.records.models;
+  _getFileTarStream(Model, files, concurrency=2) {
     const tarStream = Tar.pack();
-    const Model = this.Model;
 
     function processFile(file) {
       return Model.query({
@@ -108,9 +103,7 @@ class BaseController {
         return new Promise(function(resolve) {
           setImmediate(function() {
             tarStream.entry(
-              {
-                name: file.get(`path`)
-              },
+              { name: file.get(`path`) },
               model.get(`buffer`)
             );
 
@@ -121,14 +114,23 @@ class BaseController {
     }
 
     setImmediate(function() {
-      Promise.map(files, processFile, { concurrency: 2 })
+      Promise.map(files, processFile, { concurrency })
       .then(function() { return tarStream.finalize(); })
       .catch(Errors.generateErrorResponse);
     });
 
+    return tarStream;
+  }
+
+  // NOTE: creating the tarball for a project can be a lengthy process, so
+  // we do it in multiple turns of the event loop, so that other requests
+  // don't get blocked.
+  getAllAsTar(request, reply) {
+    const files = request.pre.records.models;
+
     // Normally this type would be application/x-tar, but IE refuses to
     // decompress a gzipped stream when this is the type.
-    reply(tarStream)
+    return reply(this._getFileTarStream(this.Model, files))
     .header(`Content-Type`, `application/octet-stream`);
   }
 
@@ -180,6 +182,19 @@ class BaseController {
 
   delete(request, reply) {
     return reply(this._delete(request, reply));
+  }
+
+  exportProjectMetadata(request, reply) {
+    const {
+      title,
+      description,
+      _date_created: dateCreated,
+      _date_updated: dateUpdated
+    } = request.pre.records.models[0].toJSON();
+
+    return reply(request.generateResponse({
+      title, description, dateCreated, dateUpdated
+    }));
   }
 }
 

@@ -29,4 +29,46 @@ module.exports = [{
       failAction: Errors.id
     }
   }
+}, {
+  method: `GET`,
+  path: `/projects/{id}/export/metadata`,
+  config: {
+    auth: `projectToken`,
+    pre: [
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
+      }),
+      Prerequisites.validateExportPermission()
+    ],
+    handler: projectsController.exportProjectMetadata.bind(projectsController),
+    description: `Export metadata for a project.`,
+    validate: {
+      params: {
+        id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
+  }
+}, {
+  method: `GET`,
+  path: `/projects/{id}/export/data`,
+  config: {
+    auth: `projectToken`,
+    pre: [
+      Prerequisites.confirmRecordExists(ProjectsModel, {
+        mode: `param`,
+        requestKey: `id`
+      }),
+      Prerequisites.validateExportPermission()
+    ],
+    handler: projectsController.exportProjectData.bind(projectsController),
+    description: `Export file data for a project.`,
+    validate: {
+      params: {
+        id: Joi.number().integer().required()
+      },
+      failAction: Errors.id
+    }
+  }
 }];

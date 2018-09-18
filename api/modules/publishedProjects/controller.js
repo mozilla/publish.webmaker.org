@@ -7,6 +7,7 @@ const Errors = require(`../../classes/errors`);
 
 const ProjectsModel = require(`../projects/model`);
 const FilesModel = require(`../files/model`);
+const PublishedFilesModel = require(`../publishedFiles/model`);
 
 const PublishedProjectsModel = require(`./model`);
 
@@ -118,6 +119,25 @@ class PublishedProjectsController extends BaseController {
       .then(token => request.generateResponse({ token }).code(201))
       .catch(Errors.generateErrorResponse)
     );
+  }
+
+  exportProjectData(request, reply) {
+    const publishedProject = request.pre.records.models[0];
+
+    return reply(PublishedFilesModel.query({
+      where: {
+        published_id: publishedProject.get(`id`)
+      }
+    })
+    .fetchAll({ columns: [`id`, `path`] })
+    .then(publishedFiles => {
+      if (!publishedFiles) {
+        publishedFiles = [];
+      }
+
+      return this._getFileTarStream(PublishedFilesModel, publishedFiles);
+    }))
+    .header(`Content-Type`, `application/octet-stream`);
   }
 }
 

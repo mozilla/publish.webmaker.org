@@ -197,6 +197,25 @@ class ProjectsController extends BaseController {
       .catch(Errors.generateErrorResponse)
     );
   }
+
+  exportProjectData(request, reply) {
+    const project = request.pre.records.models[0];
+
+    return reply(FilesModel.query({
+      where: {
+        project_id: project.get(`id`)
+      }
+    })
+    .fetchAll({ columns: [`id`, `path`] })
+    .then(files => {
+      if (!files) {
+        files = [];
+      }
+
+      return this._getFileTarStream(FilesModel, files);
+    }))
+    .header(`Content-Type`, `application/octet-stream`);
+  }
 }
 
 module.exports = new ProjectsController();
