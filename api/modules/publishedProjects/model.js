@@ -45,10 +45,10 @@ class PublishedProjectsQueryBuilder {
 const instanceProps = {
   tableName: `publishedProjects`,
   project() {
-    return this.belongsTo(ProjectsModel);
+    return this.hasOne(ProjectsModel, `published_id`);
   },
   user() {
-    return this.belongsTo(require(`../users/model`)).through(ProjectsModel);
+    return this.belongsTo(require(`../users/model`)).through(ProjectsModel, `id`, `user_id`, `published_id`);
   },
   publishedFiles() {
     return this.hasMany(require(`../publishedFiles/model`));

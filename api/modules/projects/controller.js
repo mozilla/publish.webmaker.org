@@ -199,22 +199,27 @@ class ProjectsController extends BaseController {
   }
 
   exportProjectData(request, reply) {
-    const project = request.pre.records.models[0];
+    let { files = [] } = request.pre;
 
-    return reply(FilesModel.query({
-      where: {
-        project_id: project.get(`id`)
-      }
-    })
-    .fetchAll({ columns: [`id`, `path`] })
-    .then(files => {
-      if (!files) {
-        files = [];
-      }
+    if (`models` in files) {
+      files = files.models;
+    }
 
-      return this._getFileTarStream(FilesModel, files);
-    }))
+    return reply(this._getFileTarStream(FilesModel, files))
     .header(`Content-Type`, `application/octet-stream`);
+  }
+
+  exportFinish(request, reply) {
+    const project = request.pre.records.models[0];
+    const { exportProject } = request.server.methods;
+    const { token } = request.auth.credentials;
+
+    return reply(
+      Promise.fromCallback(next => exportProject.cache.drop(token, next))
+      .then(() => project.save({ glitch_migrated: true }, {patch: true}))
+      .then(() => request.generateResponse().code(200))
+      .catch(Errors.generateErrorResponse)
+    );
   }
 }
 

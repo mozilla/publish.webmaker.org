@@ -29,6 +29,13 @@ class ProjectsQueryBuilder {
     .then(function() { return id; });
   }
 
+  updateByPublishedId(publishedId, updatedValues) {
+    return new this.ProjectsModel()
+    .query()
+    .where(this.context.column(`published_id`), publishedId)
+    .update(this.context.format(updatedValues));
+  }
+
   getUserByProjectId(id) {
     return new this.ProjectsModel()
     .query()

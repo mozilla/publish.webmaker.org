@@ -290,6 +290,44 @@ class Prerequisites {
   }
 
   /**
+  * getSimpleFileList(model, config)
+  *
+  * Returns a list of file (or published file) model instances that
+  * only have the `id` and `path` for each instance.
+  * This method should only be called after the `confirmRecordExists`
+  * pre-requisite has been called and the models in the pre-requisite
+  * records in the request object has been set.
+  *
+  * @param {Object} Model - Bookshelf model representing a file for querying
+  * @param {Object} config - Contains configuration options for the query:
+  *     dbKey {String} - key in the file model being used for filtering
+  *     preReqModelKey {String} - key in the pre-requisite model instance to
+  *     use for filtering
+  *
+  * @return {Promise} - Promise fullfilled when the list of files are queried
+  * from the database
+  */
+  static getSimpleFileList(Model, config) {
+    const { dbKey, preReqModelKey } = config;
+
+    return {
+      assign: `files`,
+      method(request, reply) {
+        const record = request.pre.records.models[0];
+
+        return reply(
+          Model.query({
+            where: {
+              [dbKey]: record.get(preReqModelKey)
+            }
+          })
+          .fetchAll({ columns: [`id`, `path`] })
+        );
+      }
+    };
+  }
+
+  /**
   * trackTemporaryFile()
   *
   * Stores the path to a temporary file in req.app for clearing after a request completes

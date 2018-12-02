@@ -53,10 +53,12 @@ class ExportCache extends BaseCache {
         return next(err);
       }
 
+      console.log(`getting: ${this.keyPrefix}:${saltedToken}`);
+
       return this.cache.get(`${this.keyPrefix}:${saltedToken}`)
       .then(cachedId => {
         if (!cachedId) {
-          throw new Error(`Token ${saltedToken} provided for ${this.resourceName} is invalid`);
+          return next(`Token ${saltedToken} provided for ${this.resourceName} is invalid`);
         }
 
         return next(null, parseInt(cachedId));
@@ -79,6 +81,8 @@ class ExportCache extends BaseCache {
       if (err) {
         return next(err);
       }
+
+      console.log(`Setting ${this.keyPrefix}:${generatedToken.salted}`);
 
       this.cache.setex(
         `${this.keyPrefix}:${generatedToken.salted}`,

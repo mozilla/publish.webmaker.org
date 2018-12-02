@@ -4,6 +4,7 @@ const Boom = require(`boom`);
 const Promise = require(`bluebird`);
 const Tar = require(`tar-stream`);
 const Errors = require(`./errors`);
+const { convertToISOStrings } = require(`../../lib/utils`).DateTracker ;
 
 // This method is used to format the response data for
 // HTTP methods that modify data (e.g. POST, PUT, etc.)
@@ -188,9 +189,9 @@ class BaseController {
     const {
       title,
       description,
-      _date_created: dateCreated,
-      _date_updated: dateUpdated
-    } = request.pre.records.models[0].toJSON();
+      date_created: dateCreated,
+      date_updated: dateUpdated
+    } = convertToISOStrings(request.pre.records.models[0].toJSON());
 
     return reply(request.generateResponse({
       title, description, dateCreated, dateUpdated
