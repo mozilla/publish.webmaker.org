@@ -35,7 +35,6 @@ experiment('[Create a file]', function() {
     var opts = config.success.default;
 
     server.inject(opts, function(resp) {
-      console.log(resp.result);
       expect(resp.statusCode).to.equal(201);
       expect(resp.result).to.exist();
       expect(resp.result.id).to.be.a.number();

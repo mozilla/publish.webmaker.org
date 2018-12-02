@@ -53,8 +53,6 @@ class ExportCache extends BaseCache {
         return next(err);
       }
 
-      console.log(`getting: ${this.keyPrefix}:${saltedToken}`);
-
       return this.cache.get(`${this.keyPrefix}:${saltedToken}`)
       .then(cachedId => {
         if (!cachedId) {
@@ -81,8 +79,6 @@ class ExportCache extends BaseCache {
       if (err) {
         return next(err);
       }
-
-      console.log(`Setting ${this.keyPrefix}:${generatedToken.salted}`);
 
       this.cache.setex(
         `${this.keyPrefix}:${generatedToken.salted}`,
