@@ -11,7 +11,8 @@ const base = Joi.object().keys({
   tags: Joi.string().allow(null),
   published_id: Joi.number().allow(null),
   readonly: Joi.boolean().allow(null),
-  client: Joi.string().allow(null)
+  client: Joi.string().allow(null),
+  glitch_migrated: Joi.boolean().strip()
 });
 
 const updatePaths = Joi.object();
