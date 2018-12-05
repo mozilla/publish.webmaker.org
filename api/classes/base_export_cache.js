@@ -56,10 +56,10 @@ class ExportCache extends BaseCache {
       return this.cache.get(`${this.keyPrefix}:${saltedToken}`)
       .then(cachedId => {
         if (!cachedId) {
-          throw new Error(`Token ${saltedToken} provided for ${this.resourceName} is invalid`);
+          return next(`Token ${saltedToken} provided for ${this.resourceName} is invalid`);
         }
 
-        return next(null, cachedId);
+        return next(null, parseInt(cachedId));
       })
       .catch(next);
     }
@@ -75,7 +75,7 @@ class ExportCache extends BaseCache {
       return next(null, id);
     }
 
-    Tokenizer.generate((err, generatedToken) => {
+    return Tokenizer.generate((err, generatedToken) => {
       if (err) {
         return next(err);
       }

@@ -197,6 +197,30 @@ class ProjectsController extends BaseController {
       .catch(Errors.generateErrorResponse)
     );
   }
+
+  exportProjectData(request, reply) {
+    let { files = [] } = request.pre;
+
+    if (`models` in files) {
+      files = files.models;
+    }
+
+    return reply(this._getFileTarStream(FilesModel, files))
+    .header(`Content-Type`, `application/octet-stream`);
+  }
+
+  exportFinish(request, reply) {
+    const project = request.pre.records.models[0];
+    const { exportProject } = request.server.methods;
+    const { token } = request.auth.credentials;
+
+    return reply(
+      Promise.fromCallback(next => exportProject.cache.drop(token, next))
+      .then(() => project.save({ glitch_migrated: true }, {patch: true}))
+      .then(() => request.generateResponse().code(200))
+      .catch(Errors.generateErrorResponse)
+    );
+  }
 }
 
 module.exports = new ProjectsController();

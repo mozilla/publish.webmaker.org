@@ -7,10 +7,13 @@ const Errors = require(`../../classes/errors`);
 
 const ProjectsModel = require(`../projects/model`);
 const FilesModel = require(`../files/model`);
+const PublishedFilesModel = require(`../publishedFiles/model`);
 
 const PublishedProjectsModel = require(`./model`);
 
 const DateTracker = require(`../../../lib/utils`).DateTracker;
+
+const projectsQueryBuilder = ProjectsModel.prototype.queryBuilder();
 
 class Remix {
   constructor(publishedProjectModel, user, server) {
@@ -116,6 +119,30 @@ class PublishedProjectsController extends BaseController {
         exportPublishedProjectCache(publishedProjectIdentifier, next)
       )
       .then(token => request.generateResponse({ token }).code(201))
+      .catch(Errors.generateErrorResponse)
+    );
+  }
+
+  exportProjectData(request, reply) {
+    let { files = [] } = request.pre;
+
+    if (`models` in files) {
+      files = files.models;
+    }
+
+    return reply(this._getFileTarStream(PublishedFilesModel, files))
+    .header(`Content-Type`, `application/octet-stream`);
+  }
+
+  exportFinish(request, reply) {
+    const publishedProjectId = request.pre.records.models[0].get(`id`);
+    const { exportPublishedProject } = request.server.methods;
+    const { token } = request.auth.credentials;
+
+    return reply(
+      Promise.fromCallback(next => exportPublishedProject.cache.drop(token, next))
+      .then(() => projectsQueryBuilder.updateByPublishedId(publishedProjectId, { glitch_migrated: true }))
+      .then(() => request.generateResponse().code(200))
       .catch(Errors.generateErrorResponse)
     );
   }
