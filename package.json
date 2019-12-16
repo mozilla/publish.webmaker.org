@@ -58,7 +58,7 @@
     "code": "^4.0.0",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
-    "eslint": "^2.13.1",
+    "eslint": "^4.18.2",
     "inquirer": "^6.5.0",
     "lab": "^13.1.0",
     "mofo-style": "^2.4.0",
